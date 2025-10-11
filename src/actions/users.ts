@@ -30,15 +30,13 @@ export async function signup(signUpForm: SignUpForm) {
   } = signUpForm
   const supabase = await createSupabaseServerClient()
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL
-
-  console.log(origin);
+  // const origin = process.env.NEXT_PUBLIC_SITE_URL
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `http://147.93.127.229:3060/auth/callback`,
     },
   })
 
