@@ -1,5 +1,6 @@
 "use server"
 import { createSupabaseServerClient } from "@/lib/server"
+import { headers } from "next/headers"
 export interface SignUpForm {
   email: string
   password: string
@@ -28,7 +29,19 @@ export async function signup(signUpForm: SignUpForm) {
     initial_quiz_score,
   } = signUpForm
   const supabase = await createSupabaseServerClient()
-  const { data, error } = await supabase.auth.signUp({ email, password })
+  const hdrs = await headers()
+  const origin = hdrs.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    throw error
+  }
 
   const { data: userData, error: userError } = await supabase
     .from("users")
@@ -48,13 +61,4 @@ export async function signup(signUpForm: SignUpForm) {
     .single()
 
   console.log(userData, userError)
-
-  if(data.user && userData) {
-    await supabase.auth.admin.updateUserById(data.user.id, {
-      user_metadata: {
-        ...data.user?.user_metadata,
-        db_user_id: userData.id,
-      },
-    })
-  }
 }

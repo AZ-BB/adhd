@@ -1,0 +1,208 @@
+import { redirect } from "next/navigation"
+import { createSupabaseServerClient } from "@/lib/server"
+import Link from "next/link"
+
+export default async function DashboardPage() {
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select(
+      "id, created_at, child_first_name, child_last_name, child_birthday, child_gender, parent_first_name, parent_last_name, parent_phone, parent_nationality, initial_quiz_score"
+    )
+    .eq("auth_id", user.id)
+    .maybeSingle()
+
+  function calculateAge(value?: string | null) {
+    if (!value) return null
+    const birth = new Date(value)
+    if (Number.isNaN(birth.getTime())) return null
+    const now = new Date()
+    let age = now.getFullYear() - birth.getFullYear()
+    const hasNotHadBirthdayThisYear =
+      now.getMonth() < birth.getMonth() ||
+      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
+    if (hasNotHadBirthdayThisYear) age -= 1
+    return age
+  }
+
+  function getScoreLevel(score: number) {
+    if (score >= 80) return { label: "Super Star", color: "from-yellow-400 to-orange-500", emoji: "⭐" }
+    if (score >= 60) return { label: "Great Job", color: "from-green-400 to-teal-500", emoji: "🌟" }
+    if (score >= 40) return { label: "Good Start", color: "from-blue-400 to-purple-500", emoji: "✨" }
+    return { label: "Keep Going", color: "from-pink-400 to-rose-500", emoji: "💪" }
+  }
+
+  const age = calculateAge(profile?.child_birthday)
+  const scoreInfo = getScoreLevel(profile?.initial_quiz_score || 0)
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {!profile ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="rounded-3xl border-4 border-dashed border-purple-300 bg-white/90 p-8 max-w-md text-center shadow-2xl">
+            <div className="text-6xl mb-4">🎈</div>
+            <p className="text-xl font-bold text-gray-900 mb-2">Almost There!</p>
+            <p className="text-gray-600">
+              Complete your signup to unlock your personalized dashboard!
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Welcome Header */}
+          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-3xl p-8 shadow-2xl text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 text-9xl opacity-20">🎉</div>
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-5xl font-black mb-2">
+                Hey, {profile.child_first_name}! 👋
+              </h1>
+              <p className="text-xl md:text-2xl font-semibold opacity-90">
+                Welcome to Your Super Dashboard!
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Score Card */}
+            <div className={`bg-gradient-to-br ${scoreInfo.color} rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">{scoreInfo.emoji}</div>
+                <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
+                  Quiz Score
+                </div>
+              </div>
+              <div className="text-6xl font-black mb-2">{profile.initial_quiz_score}</div>
+              <div className="text-xl font-bold">{scoreInfo.label}!</div>
+              <div className="mt-4 bg-white/30 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-white h-full rounded-full transition-all"
+                  style={{ width: `${profile.initial_quiz_score}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Age Card */}
+            <div className="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🎂</div>
+                <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
+                  Birthday
+                </div>
+              </div>
+              <div className="text-6xl font-black mb-2">{age}</div>
+              <div className="text-xl font-bold">Years Young!</div>
+              <div className="mt-4 text-sm opacity-90">
+                {new Date(profile.child_birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+              </div>
+            </div>
+
+            {/* Days Active Card */}
+            <div className="bg-gradient-to-br from-emerald-400 to-green-600 rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🚀</div>
+                <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
+                  Journey
+                </div>
+              </div>
+              <div className="text-6xl font-black mb-2">
+                {Math.floor((Date.now() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))}
+              </div>
+              <div className="text-xl font-bold">Days With Us!</div>
+              <div className="mt-4 text-sm opacity-90">Keep up the amazing work!</div>
+            </div>
+          </div>
+
+          {/* Achievements Section */}
+          <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl border-4 border-purple-200">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="text-4xl">🏆</div>
+              <h2 className="text-2xl font-black text-gray-800">Your Achievements</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl p-4 text-center border-2 border-yellow-300">
+                <div className="text-4xl mb-2">🎯</div>
+                <div className="text-sm font-bold text-gray-700">Quiz Master</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl p-4 text-center border-2 border-pink-300">
+                <div className="text-4xl mb-2">🌈</div>
+                <div className="text-sm font-bold text-gray-700">First Steps</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-4 text-center border-2 border-blue-300 opacity-50">
+                <div className="text-4xl mb-2">🎨</div>
+                <div className="text-sm font-bold text-gray-700">Creative Thinker</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-4 text-center border-2 border-purple-300 opacity-50">
+                <div className="text-4xl mb-2">⚡</div>
+                <div className="text-sm font-bold text-gray-700">Speed Racer</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Link href="/quiz" className="group bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="text-6xl group-hover:animate-bounce">📝</div>
+                <div>
+                  <h3 className="text-2xl font-black mb-1">Take a Quiz</h3>
+                  <p className="text-indigo-100">Test your knowledge and have fun!</p>
+                </div>
+              </div>
+            </Link>
+
+            <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white opacity-75 cursor-not-allowed">
+              <div className="flex items-center gap-4">
+                <div className="text-6xl">🎮</div>
+                <div>
+                  <h3 className="text-2xl font-black mb-1">Play Games</h3>
+                  <p className="text-teal-100">Coming soon! Fun activities await.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Parent Info (Collapsed) */}
+          <details className="bg-white/70 backdrop-blur rounded-3xl shadow-lg border-2 border-gray-200 overflow-hidden">
+            <summary className="cursor-pointer p-6 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">👨‍👩‍👧‍👦</div>
+                <h2 className="text-xl font-bold text-gray-800">Parent Information</h2>
+              </div>
+            </summary>
+            <div className="px-6 pb-6 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-gray-500 font-medium">Parent Name</div>
+                <div className="text-gray-800 font-semibold">
+                  {profile.parent_first_name} {profile.parent_last_name}
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-medium">Phone</div>
+                <div className="text-gray-800 font-semibold">{profile.parent_phone || "—"}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-medium">Email</div>
+                <div className="text-gray-800 font-semibold">{user?.email}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-medium">Nationality</div>
+                <div className="text-gray-800 font-semibold">{profile.parent_nationality || "—"}</div>
+              </div>
+            </div>
+          </details>
+        </div>
+      )}
+    </div>
+  )
+}
+
+

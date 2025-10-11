@@ -8,7 +8,7 @@ async function login(formData: FormData) {
   const password = String(formData.get("password") || "")
 
   if (!email || !password) {
-    redirect("/login?error=Missing%20email%20or%20password")
+    redirect("/auth/login?error=Missing%20email%20or%20password")
   }
 
   const supabase = await createSupabaseServerClient()
@@ -17,10 +17,15 @@ async function login(formData: FormData) {
   if (error) {
     redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
   }
-  redirect("/")
+  redirect("/dashboard")
 }
 
 export default async function LoginPage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    redirect('/dashboard')
+  }
   const message = typeof searchParams?.message === 'string' ? searchParams?.message : ""
   const error = typeof searchParams?.error === 'string' ? searchParams?.error : ""
 

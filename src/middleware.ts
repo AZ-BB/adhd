@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { v4 as uuidv4 } from "uuid"
 
 export function middleware(req: NextRequest) {
-  const res = NextResponse.next()
   const pathname = req.nextUrl.pathname
+  const res = NextResponse.next()
+  
+  // Set pathname in headers for server components to access
+  res.headers.set("x-pathname", pathname)
+  
   const isImageRequest = /\.(png|jpg|jpeg|gif|webp|svg|ico|bmp|tiff|avif)$/i.test(pathname)
 
   // Skip middleware logic for image/asset files
@@ -24,13 +28,35 @@ export function middleware(req: NextRequest) {
     })
   }
 
+  // Enforce quiz-before-signup for unauthenticated users (auth handled at page level)
+
+  // Block access to signup unless quiz completed
+  if (pathname.startsWith('/auth/signup') && !hasCompletedQuiz) {
+    return NextResponse.redirect(new URL('/quiz', req.url))
+  }
+
+  // Always allow login regardless of quiz status
+  if (pathname.startsWith('/auth/login')) {
+    return res
+  }
+
   // Redirect to quiz if not completed and not already on quiz/auth pages
-  if (!hasCompletedQuiz && !req.nextUrl.pathname.startsWith('/quiz') && !req.nextUrl.pathname.startsWith('/auth') && req.nextUrl.pathname !== '/') {
+  // Allow authenticated user pages without quiz requirement
+  const authenticatedPages = ['/dashboard', '/profile', '/progress', '/sessions', '/games', '/settings']
+  const isAuthenticatedPage = authenticatedPages.some(page => pathname.startsWith(page))
+  
+  if (
+    !hasCompletedQuiz &&
+    !pathname.startsWith('/quiz') &&
+    !pathname.startsWith('/auth') &&
+    pathname !== '/' &&
+    !isAuthenticatedPage
+  ) {
     return NextResponse.redirect(new URL('/quiz', req.url))
   }
 
   // Redirect from home to quiz if quiz not completed
-  if (!hasCompletedQuiz && req.nextUrl.pathname === '/') {
+  if (!hasCompletedQuiz && pathname === '/') {
     return NextResponse.redirect(new URL('/quiz', req.url))
   }
 

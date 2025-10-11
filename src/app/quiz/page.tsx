@@ -3,8 +3,16 @@ import getInitialQuiz from "@/actions/quizzes"
 import InitialQuiz from "@/components/InitialQuiz"
 import BackgroundSlideshow from "@/components/BackgroundSlideshow"
 import { QuizQuestion } from "@/types/quiz"
+import { createSupabaseServerClient } from "@/lib/server"
+import { redirect } from "next/navigation"
 
 export default async function InitialQuizPage() {
+  // If user is already authenticated, redirect them to the dashboard
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    redirect("/dashboard")
+  }
   const { data, error } = await getInitialQuiz()
   if(error) {
     return (
