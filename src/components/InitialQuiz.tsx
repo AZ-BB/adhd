@@ -33,6 +33,12 @@ export default function InitialQuiz({
       if (savedAnswers) {
         const parsedAnswers = JSON.parse(savedAnswers)
         setAnswers(parsedAnswers)
+        
+        // If there are saved answers, set quiz_started cookie
+        if (Object.keys(parsedAnswers).length > 0) {
+          document.cookie = "quiz_started=true; path=/; max-age=2592000" // 30 days
+        }
+        
         // Check if current question has an answer to enable proceed button
         const savedProgress = localStorage.getItem('quiz_progress')
         if (savedProgress) {
@@ -79,6 +85,11 @@ export default function InitialQuiz({
   const handleAnswer = (id: number, answer: number) => {
     setAnswers({ ...answers, [id]: answer })
     setCanProceed(true)
+    
+    // Set quiz_started cookie on first answer
+    if (Object.keys(answers).length === 0 && typeof window !== 'undefined') {
+      document.cookie = "quiz_started=true; path=/; max-age=2592000" // 30 days
+    }
   }
 
   const handleNext = () => {
@@ -108,6 +119,8 @@ export default function InitialQuiz({
     if (typeof window !== 'undefined') {
       localStorage.removeItem('quiz_progress')
       localStorage.removeItem('quiz_answers')
+      // Clear quiz_started cookie
+      document.cookie = "quiz_started=; path=/; max-age=0"
     }
     setCurrentQuestion(0)
     setAnswers({})
@@ -122,8 +135,9 @@ export default function InitialQuiz({
       
       localStorage.removeItem('quiz_progress')
       localStorage.removeItem('quiz_answers')
-      // Set quiz completion cookie
+      // Set quiz completion cookie and clear quiz_started
       document.cookie = "quiz_completed=true; path=/; max-age=2592000" // 30 days
+      document.cookie = "quiz_started=; path=/; max-age=0"
 
       // Stay on page and show saved results instead of redirecting
       setHasSubmitted(true)
@@ -152,8 +166,9 @@ export default function InitialQuiz({
         localStorage.removeItem('quiz_progress')
         localStorage.removeItem('quiz_answers')
 
-        // Optional cookie to mark completion
+        // Optional cookie to mark completion and clear quiz_started
         document.cookie = "quiz_completed=true; path=/; max-age=2592000"
+        document.cookie = "quiz_started=; path=/; max-age=0"
       }
     } catch (e) {
       // no-op; redirect regardless so the flow continues
