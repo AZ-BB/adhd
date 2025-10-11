@@ -1,5 +1,5 @@
 "use server"
-import { createSupabaseServerClient } from "@/lib/server"
+import { createSupabaseAdminServerClient, createSupabaseServerClient } from "@/lib/server"
 import { headers } from "next/headers"
 export interface SignUpForm {
   email: string
@@ -29,8 +29,11 @@ export async function signup(signUpForm: SignUpForm) {
     initial_quiz_score,
   } = signUpForm
   const supabase = await createSupabaseServerClient()
-  const hdrs = await headers()
-  const origin = hdrs.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
+  const origin = process.env.NEXT_PUBLIC_SITE_URL
+
+  console.log(origin);
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

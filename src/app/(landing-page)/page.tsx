@@ -85,7 +85,7 @@ export default async function Home() {
         </div>
       </section>
 
-            {/* Mission & Vision */}
+      {/* Mission & Vision */}
       <section dir="rtl" className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid md:grid-cols-2 gap-5">
@@ -98,130 +98,130 @@ export default async function Home() {
                     أن نحوّل التحديات اليومية لأطفال صعوبة الانتباه وفرط الحركة إلى قصص نجاح، من خلال تدريبات عملية، تقييمات وجلسات تفاعلية مع متخصصين.
                   </p>
                 </div>
-                      <div className="sm:order-1">
-                        <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
-                          <img src="/hero/kids_3.png" alt="تعلّم ممتع" className="absolute inset-0 w-full h-full object-cover" />
-                        </div>
-                      </div>
+                <div className="sm:order-1">
+                  <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
+                    <img src="/hero/kids_3.png" alt="تعلّم ممتع" className="absolute inset-0 w-full h-full object-cover" />
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Vision: text with side image mosaic (alternating order) */}
             <div className="bg-white/90 rounded-3xl border border-green-100 p-6 shadow-sm">
               <div className="grid sm:grid-cols-2 gap-5 items-center">
-                      <div className="sm:order-2 text-right">
+                <div className="sm:order-2 text-right">
                   <h2 className="text-2xl font-bold text-sky-900 mb-2">رؤيتنا</h2>
                   <p className="text-sky-900/80">
                     أن ننشئ عالمًا يتمكّن فيه كل طفل من النمو، والتعلم، والتألق. نؤمن أن كل طفل يستحق فرصة للوصول إلى دعم متخصص، وأنشطة تعليمية ممتعة، ومساحة آمنة تساعده على التطور مهما كانت التحديات.
                   </p>
                 </div>
-                      <div className="sm:order-1">
-                        <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
-                          <img src="/hero/kids_1.png" alt="نشاط عملي" className="absolute inset-0 w-full h-full object-cover" />
-                        </div>
-                      </div>
+                <div className="sm:order-1">
+                  <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
+                    <img src="/hero/kids_1.png" alt="نشاط عملي" className="absolute inset-0 w-full h-full object-cover" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-            {/* Benefits */}
-            <section dir="rtl" className="relative z-10">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-gradient-to-r from-sky-50 to-green-50 rounded-3xl border border-sky-100 p-6">
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div className="order-2 md:order-1">
-                      <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-6 text-right">
-                        ماذا سيتوقع أن يستفيد طفلك من Movokids؟
-                      </h2>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                          <div className="text-3xl">🎯</div>
-                          <h3 className="mt-3 font-bold text-sky-900">تركيز أقوى</h3>
-                          <p className="text-sky-900/70 text-sm mt-1">أنشطة يومية تشجّع على الانتباه لفترات أطول.</p>
-                        </div>
-                        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                          <div className="text-3xl">🧘</div>
-                          <h3 className="mt-3 font-bold text-sky-900">سلوك أفضل</h3>
-                          <p className="text-sky-900/70 text-sm mt-1">ألعاب وتمارين تعلم الصبر وضبط النفس.</p>
-                        </div>
-                        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                          <div className="text-3xl">✍️</div>
-                          <h3 className="mt-3 font-bold text-sky-900">مهارات أكاديمية</h3>
-                          <p className="text-sky-900/70 text-sm mt-1">تدريبات على الأرقام، الحروف، والذاكرة.</p>
-                        </div>
-                        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                          <div className="text-3xl">🌟</div>
-                          <h3 className="mt-3 font-bold text-sky-900">ثقة بالنفس</h3>
-                          <p className="text-sky-900/70 text-sm mt-1">جوائز تحفيزية لكل إنجاز.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="order-1 md:order-2">
-                      <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
-                        <img src="/hero/kids_4.png" alt="أنشطة ممتعة" className="absolute inset-0 w-full h-full object-cover" />
-                      </div>
-                    </div>
+      {/* Benefits */}
+      <section dir="rtl" className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-gradient-to-r from-sky-50 to-green-50 rounded-3xl border border-sky-100 p-6">
+            <div className="grid md:grid-cols-2 gap-6 items-center">
+              <div className="order-2 md:order-1">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-6 text-right">
+                  ماذا سيتوقع أن يستفيد طفلك من Movokids؟
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
+                    <div className="text-3xl">🎯</div>
+                    <h3 className="mt-3 font-bold text-sky-900">تركيز أقوى</h3>
+                    <p className="text-sky-900/70 text-sm mt-1">أنشطة يومية تشجّع على الانتباه لفترات أطول.</p>
+                  </div>
+                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
+                    <div className="text-3xl">🧘</div>
+                    <h3 className="mt-3 font-bold text-sky-900">سلوك أفضل</h3>
+                    <p className="text-sky-900/70 text-sm mt-1">ألعاب وتمارين تعلم الصبر وضبط النفس.</p>
+                  </div>
+                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
+                    <div className="text-3xl">✍️</div>
+                    <h3 className="mt-3 font-bold text-sky-900">مهارات أكاديمية</h3>
+                    <p className="text-sky-900/70 text-sm mt-1">تدريبات على الأرقام، الحروف، والذاكرة.</p>
+                  </div>
+                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
+                    <div className="text-3xl">🌟</div>
+                    <h3 className="mt-3 font-bold text-sky-900">ثقة بالنفس</h3>
+                    <p className="text-sky-900/70 text-sm mt-1">جوائز تحفيزية لكل إنجاز.</p>
                   </div>
                 </div>
               </div>
-            </section>
+              <div className="order-1 md:order-2">
+                <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
+                  <img src="/hero/kids_4.png" alt="أنشطة ممتعة" className="absolute inset-0 w-full h-full object-cover" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Why Us */}
-            <section id="why" dir="rtl" className="relative z-10">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid md:grid-cols-2 gap-6 items-center">
-                  <div className="space-y-6">
-                    <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm">
-                      <h2 className="text-2xl font-extrabold text-sky-900 mb-4">لماذا نحن؟</h2>
-                      <ul className="space-y-3 text-sky-900/85 text-right">
-                        <li className="flex items-start gap-2 justify-end">
-                          <span className="text-green-600 text-xl">✔️</span>
-                          <span>محتوى ثنائي اللغة (عربي + إنجليزي)</span>
-                        </li>
-                        <li className="flex items-start gap-2 justify-end">
-                          <span className="text-green-600 text-xl">✔️</span>
-                          <span>أنشطة أعدها مختصون في علم النفس للأطفال</span>
-                        </li>
-                        <li className="flex items-start gap-2 justify-end">
-                          <span className="text-green-600 text-xl">✔️</span>
-                          <span>منصة ممتعة وسهلة الاستخدام</span>
-                        </li>
-                        <li className="flex items-start gap-2 justify-end">
-                          <span className="text-green-600 text-xl">✔️</span>
-                          <span>أسعار اشتراك مناسبة</span>
-                        </li>
-                      </ul>
-                      <div className="mt-6 flex justify-end">
-                        <Link href="/auth/signup" className="px-5 py-3 rounded-2xl bg-green-500 text-white font-semibold hover:bg-green-600 shadow">
-                          جرّب مجانًا الآن
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="rounded-3xl border border-green-100 bg-gradient-to-br from-green-50 to-sky-50 p-6 text-right">
-                      <h3 className="text-xl font-bold text-sky-900">كيف نعمل؟</h3>
-                      <ol className="mt-3 space-y-2 text-sky-900/80">
-                        <li>1) اختبار تمهيدي بسيط لتحديد نقاط القوة والتحديات.</li>
-                        <li>2) خطة تدريب يومية قصيرة وممتعة.</li>
-                        <li>3) متابعة التقدم وتقارير واضحة للأهل.</li>
-                        <li>4) جلسات أونلاين مع مختصين عند الحاجة.</li>
-                      </ol>
-                      <div className="mt-4 flex items-center justify-end gap-2 text-sky-800/70 text-sm">
-                        <span>⏱️ 10–15 دقيقة يوميًا</span>
-                        <span>•</span>
-                        <span>🎮 لعب + تعلم</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
-                      <img src="/hero/kids_2.png" alt="تعلم وتفاعل" className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                  </div>
+      {/* Why Us */}
+      <section id="why" dir="rtl" className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div className="space-y-6">
+              <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm">
+                <h2 className="text-2xl font-extrabold text-sky-900 mb-4">لماذا نحن؟</h2>
+                <ul className="space-y-3 text-sky-900/85 text-right">
+                  <li className="flex items-start gap-2 justify-end">
+                    <span className="text-green-600 text-xl">✔️</span>
+                    <span>محتوى ثنائي اللغة (عربي + إنجليزي)</span>
+                  </li>
+                  <li className="flex items-start gap-2 justify-end">
+                    <span className="text-green-600 text-xl">✔️</span>
+                    <span>أنشطة أعدها مختصون في علم النفس للأطفال</span>
+                  </li>
+                  <li className="flex items-start gap-2 justify-end">
+                    <span className="text-green-600 text-xl">✔️</span>
+                    <span>منصة ممتعة وسهلة الاستخدام</span>
+                  </li>
+                  <li className="flex items-start gap-2 justify-end">
+                    <span className="text-green-600 text-xl">✔️</span>
+                    <span>أسعار اشتراك مناسبة</span>
+                  </li>
+                </ul>
+                <div className="mt-6 flex justify-end">
+                  <Link href="/auth/signup" className="px-5 py-3 rounded-2xl bg-green-500 text-white font-semibold hover:bg-green-600 shadow">
+                    جرّب مجانًا الآن
+                  </Link>
                 </div>
               </div>
-            </section>
+              <div className="rounded-3xl border border-green-100 bg-gradient-to-br from-green-50 to-sky-50 p-6 text-right">
+                <h3 className="text-xl font-bold text-sky-900">كيف نعمل؟</h3>
+                <ol className="mt-3 space-y-2 text-sky-900/80">
+                  <li>1) اختبار تمهيدي بسيط لتحديد نقاط القوة والتحديات.</li>
+                  <li>2) خطة تدريب يومية قصيرة وممتعة.</li>
+                  <li>3) متابعة التقدم وتقارير واضحة للأهل.</li>
+                  <li>4) جلسات أونلاين مع مختصين عند الحاجة.</li>
+                </ol>
+                <div className="mt-4 flex items-center justify-end gap-2 text-sky-800/70 text-sm">
+                  <span>⏱️ 10–15 دقيقة يوميًا</span>
+                  <span>•</span>
+                  <span>🎮 لعب + تعلم</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
+                <img src="/hero/kids_2.png" alt="تعلم وتفاعل" className="absolute inset-0 w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Final CTA */}
       <section dir="rtl" className="relative z-10 pb-12">
