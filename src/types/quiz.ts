@@ -3,5 +3,6 @@ export interface QuizQuestion {
     question: string
     question_ar: string
     category?: string
+    category_ar?: string
     options?: string[]
 }

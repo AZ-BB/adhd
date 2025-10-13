@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/server"
 import Link from "next/link"
+import { getUserLearningPathStats, getUserAllDayProgress } from "@/actions/learning-path"
 
 export default async function DashboardPageEn() {
   const supabase = await createSupabaseServerClient()
@@ -20,6 +21,18 @@ export default async function DashboardPageEn() {
     .eq("auth_id", user.id)
     .maybeSingle()
 
+  // Get learning path stats
+  let learningStats = null
+  let dayProgress: any[] = []
+  if (profile) {
+    try {
+      learningStats = await getUserLearningPathStats(profile.id)
+      dayProgress = await getUserAllDayProgress(profile.id)
+    } catch (error) {
+      console.error("Error fetching learning path stats:", error)
+    }
+  }
+
   function calculateAge(value?: string | null) {
     if (!value) return null
     const birth = new Date(value)
@@ -33,15 +46,7 @@ export default async function DashboardPageEn() {
     return age
   }
 
-  function getScoreLevel(score: number) {
-    if (score >= 80) return { label: "Super Star", color: "from-yellow-400 to-orange-500", emoji: "⭐" }
-    if (score >= 60) return { label: "Great Job", color: "from-green-400 to-teal-500", emoji: "🌟" }
-    if (score >= 40) return { label: "Good Start", color: "from-blue-400 to-purple-500", emoji: "✨" }
-    return { label: "Keep Going", color: "from-pink-400 to-rose-500", emoji: "💪" }
-  }
-
   const age = calculateAge(profile?.child_birthday)
-  const scoreInfo = getScoreLevel(profile?.initial_quiz_score || 0)
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -82,21 +87,45 @@ export default async function DashboardPageEn() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Score Card */}
-            <div className={`bg-gradient-to-br ${scoreInfo.color} rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform`}>
+            {/* Training Journey Card */}
+            <div className="bg-gradient-to-br from-emerald-400 to-green-600 rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform">
               <div className="flex items-start justify-between mb-4">
-                <div className="text-5xl">{scoreInfo.emoji}</div>
+                <div className="text-5xl">🚀</div>
                 <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
-                  Quiz Score
+                  Training Journey
                 </div>
               </div>
-              <div className="text-6xl font-black mb-2">{profile.initial_quiz_score}</div>
-              <div className="text-xl font-bold">{scoreInfo.label}!</div>
-              <div className="mt-4 bg-white/30 rounded-full h-3 overflow-hidden">
-                <div 
-                  className="bg-white h-full rounded-full transition-all"
-                  style={{ width: `${profile.initial_quiz_score}%` }}
-                />
+              <div className="text-6xl font-black mb-2">
+                {learningStats?.completedDays || 0}
+              </div>
+              <div className="text-xl font-bold">
+                {learningStats?.completedDays === 1 ? 'Day Completed!' : 'Days Completed!'}
+              </div>
+              <div className="mt-4 text-sm opacity-90">
+                {learningStats?.completedDays === 0 
+                  ? 'Start your training today!' 
+                  : `${learningStats?.totalDays! - learningStats?.completedDays!} days remaining`}
+              </div>
+            </div>
+
+            {/* Streak Card */}
+            <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🔥</div>
+                <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
+                  Streak
+                </div>
+              </div>
+              <div className="text-6xl font-black mb-2">
+                {learningStats?.streak || 0}
+              </div>
+              <div className="text-xl font-bold">
+                {learningStats?.streak === 1 ? 'Day in a Row!' : 'Days in a Row!'}
+              </div>
+              <div className="mt-4 text-sm opacity-90">
+                {learningStats?.streak === 0 
+                  ? 'Start your streak today!' 
+                  : 'Keep the momentum going!'}
               </div>
             </div>
 
@@ -114,22 +143,97 @@ export default async function DashboardPageEn() {
                 {new Date(profile.child_birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
               </div>
             </div>
+          </div>
 
-            {/* Days Active Card */}
-            <div className="bg-gradient-to-br from-emerald-400 to-green-600 rounded-3xl p-6 shadow-xl text-white transform hover:scale-105 transition-transform">
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-5xl">🚀</div>
-                <div className="bg-white/30 backdrop-blur rounded-full px-3 py-1 text-sm font-bold">
-                  Journey
+          {/* Learning Path Progress */}
+          {learningStats && learningStats.totalDays > 0 && (
+            <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl border-4 border-purple-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="text-4xl">📚</div>
+                <h2 className="text-2xl font-black text-gray-800">Learning Path</h2>
+              </div>
+              
+              {/* Overall Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-bold text-gray-700">
+                    Overall Progress
+                  </span>
+                  <span className="text-sm font-semibold text-purple-600">
+                    {Math.round((learningStats.completedDays / learningStats.totalDays) * 100)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 h-4 rounded-full transition-all duration-500"
+                    style={{ width: `${(learningStats.completedDays / learningStats.totalDays) * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-600">
+                  <span>{learningStats.completedDays} completed</span>
+                  <span>{learningStats.totalDays} total</span>
                 </div>
               </div>
-              <div className="text-6xl font-black mb-2">
-                {Math.floor((Date.now() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))}
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-4 text-center border-2 border-purple-300">
+                  <div className="text-3xl font-black text-purple-600 mb-1">
+                    {learningStats.currentDay}
+                  </div>
+                  <div className="text-xs font-bold text-gray-700">Current Day</div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-4 text-center border-2 border-blue-300">
+                  <div className="text-3xl font-black text-blue-600 mb-1">
+                    {learningStats.totalGamesCompleted}
+                  </div>
+                  <div className="text-xs font-bold text-gray-700">Games Completed</div>
+                </div>
+                <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-4 text-center border-2 border-green-300">
+                  <div className="text-3xl font-black text-green-600 mb-1">
+                    {learningStats.averageScore}
+                  </div>
+                  <div className="text-xs font-bold text-gray-700">Average Score</div>
+                </div>
+                <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl p-4 text-center border-2 border-orange-300">
+                  <div className="text-3xl font-black text-orange-600 mb-1">
+                    {Math.floor(learningStats.totalTimePlayed / 60)}
+                  </div>
+                  <div className="text-xs font-bold text-gray-700">Minutes Played</div>
+                </div>
               </div>
-              <div className="text-xl font-bold">Days With Us!</div>
-              <div className="mt-4 text-sm opacity-90">Keep up the amazing work!</div>
+
+              {/* Recent Days */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-gray-700 mb-3">Recent Days</h3>
+                <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+                  {Array.from({ length: Math.min(10, learningStats.currentDay) }, (_, i) => {
+                    const dayNum = learningStats.currentDay - i
+                    const dayProg = dayProgress.find(p => {
+                      const day = p.learning_day as any
+                      return day?.day_number === dayNum
+                    })
+                    const isCompleted = dayProg?.is_completed || false
+                    
+                    return (
+                      <div
+                        key={dayNum}
+                        className={`aspect-square rounded-xl flex items-center justify-center text-sm font-bold border-2 ${
+                          isCompleted
+                            ? 'bg-green-500 border-green-600 text-white'
+                            : dayNum === learningStats.currentDay
+                            ? 'bg-blue-500 border-blue-600 text-white animate-pulse'
+                            : 'bg-gray-200 border-gray-300 text-gray-500'
+                        }`}
+                      >
+                        {dayNum}
+                      </div>
+                    )
+                  }).reverse()}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Achievements Section */}
           <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl border-4 border-purple-200">
@@ -169,15 +273,19 @@ export default async function DashboardPageEn() {
               </div>
             </Link>
 
-            <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white opacity-75 cursor-not-allowed">
+            <Link href="/learning-path" className="group bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all">
               <div className="flex items-center gap-4">
-                <div className="text-6xl">🎮</div>
+                <div className="text-6xl group-hover:animate-bounce">🎮</div>
                 <div>
                   <h3 className="text-2xl font-black mb-1">Play Games</h3>
-                  <p className="text-teal-100">Coming soon! Fun activities await.</p>
+                  <p className="text-teal-100">
+                    {learningStats?.completedDays === 0 
+                      ? 'Start your learning journey!' 
+                      : `Day ${learningStats?.currentDay} awaits!`}
+                  </p>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Parent Info (Collapsed) */}
@@ -214,4 +322,5 @@ export default async function DashboardPageEn() {
     </div>
   )
 }
+
 

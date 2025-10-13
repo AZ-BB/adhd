@@ -13,6 +13,9 @@ export interface SignUpForm {
   parent_phone: string
   parent_nationality: string
   initial_quiz_score: number
+  inattention_score: number
+  hyperactivity_score: number
+  impulsivity_score: number
 }
 export async function signup(signUpForm: SignUpForm) {
   const {
@@ -27,6 +30,9 @@ export async function signup(signUpForm: SignUpForm) {
     parent_phone,
     parent_nationality,
     initial_quiz_score,
+    inattention_score,
+    hyperactivity_score,
+    impulsivity_score,
   } = signUpForm
   const supabase = await createSupabaseServerClient()
 
@@ -57,9 +63,29 @@ export async function signup(signUpForm: SignUpForm) {
       parent_nationality,
       auth_id: data.user?.id,
       initial_quiz_score,
+      inattention_score,
+      hyperactivity_score,
+      impulsivity_score,
     })
     .select()
     .single()
 
   console.log(userData, userError)
+}
+
+export async function getUserByAuthId(authId: string) {
+  const supabase = await createSupabaseServerClient()
+  
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("auth_id", authId)
+    .single()
+  
+  if (error) {
+    console.error("Error fetching user by auth_id:", error)
+    return null
+  }
+  
+  return data
 }

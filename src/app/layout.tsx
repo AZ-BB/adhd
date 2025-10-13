@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ADHD App",
+  title: "MovoKids",
   description: "Personalized ADHD companion",
 };
 
@@ -32,8 +32,8 @@ export default async function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Personalized ADHD companion" />
-        <link rel="icon" href="/favicon.ico" />
-        <title>ADHD App</title>
+        <link rel="icon" href="/logo/1.png" />
+        <title>MovoKids</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <div>

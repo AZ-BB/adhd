@@ -20,6 +20,14 @@ export default function InitialQuiz({
   const [isCalculating, setIsCalculating] = useState(false)
   const [finalScore, setFinalScore] = useState<number | null>(null)
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [diagnosis, setDiagnosis] = useState<{
+    inattentionScore: number
+    hyperactivityScore: number
+    impulsivityScore: number
+    totalScore: number
+    severity: 'mild' | 'moderate' | 'severe'
+    diagnoses: Array<{ type: string; detected: boolean; score: number }>
+  } | null>(null)
 
   // Load saved progress from localStorage on component mount
   useEffect(() => {
@@ -41,8 +49,25 @@ export default function InitialQuiz({
           document.cookie = "quiz_started=true; path=/; max-age=2592000" // 30 days
         }
         
+        // Check if all questions have been answered
+        if (quizQuestions && Object.keys(parsedAnswers).length === quizQuestions.length) {
+          const allQuestionsAnswered = quizQuestions.every(q => parsedAnswers[q.id] !== undefined)
+          if (allQuestionsAnswered) {
+            // All questions answered - show results immediately
+            setIsCompleted(true)
+            setIsCalculating(true)
+            setTimeout(() => {
+              const diagnosisResult = getDiagnosis(parsedAnswers)
+              setFinalScore(diagnosisResult.totalScore)
+              setDiagnosis(diagnosisResult)
+              setIsCalculating(false)
+            }, 2000) // Shorter delay since it's a restore
+            setIsLoaded(true)
+            return
+          }
+        }
+        
         // Check if current question has an answer to enable proceed button
-        const savedProgress = localStorage.getItem('quiz_progress')
         if (savedProgress) {
           const progressData = JSON.parse(savedProgress)
           const currentQ = quizQuestions?.[progressData.currentQuestion || 0]
@@ -79,9 +104,95 @@ export default function InitialQuiz({
     : (quizQuestions?.length ? ((currentQuestion + 1) / quizQuestions.length) * 100 : 0)
 
   const computeScore = () => {
-    // Map indices to weights: Always=3, Often=2, Sometimes=1, Never=0
-    const weights = [3, 2, 1, 0]
+    // Map indices to weights: Never=0, Sometimes=1, Often=2, Always=3
+    const weights = [3, 2, 1, 0] // [Always, Often, Sometimes, Never]
     return Object.values(answers).reduce((sum, index) => sum + (weights[index] ?? 0), 0)
+  }
+
+  const computeCategoryScores = (answersToUse?: Record<number, number>) => {
+    // Map indices to weights: Never=0, Sometimes=1, Often=2, Always=3
+    const weights = [3, 2, 1, 0] // [Always, Often, Sometimes, Never]
+    
+    let inattentionScore = 0
+    let hyperactivityScore = 0
+    let impulsivityScore = 0
+    
+    const answersData = answersToUse || answers
+    
+    Object.entries(answersData).forEach(([questionId, answerIndex]) => {
+      const question = quizQuestions.find(q => q.id === Number(questionId))
+      if (!question) return
+      
+      const score = weights[answerIndex] ?? 0
+      const category = question.category?.toLowerCase() || ''
+      
+      if (category.includes('inattention') || category.includes('انتباه')) {
+        inattentionScore += score
+      } else if (category.includes('hyperactivity') || category.includes('حركة')) {
+        hyperactivityScore += score
+      } else if (category.includes('impulsivity') || category.includes('اندفاع')) {
+        impulsivityScore += score
+      }
+    })
+    
+    return { inattentionScore, hyperactivityScore, impulsivityScore }
+  }
+
+  const getDiagnosis = (answersToUse?: Record<number, number>) => {
+    const answersData = answersToUse || answers
+    const { inattentionScore, hyperactivityScore, impulsivityScore } = computeCategoryScores(answersData)
+    
+    // Calculate total score
+    const weights = [3, 2, 1, 0]
+    const totalScore = Object.values(answersData).reduce((sum, index) => sum + (weights[index] ?? 0), 0)
+    
+    const diagnoses = []
+    
+    // Check for Inattention
+    if (inattentionScore >= 18) {
+      diagnoses.push({
+        type: 'inattention',
+        detected: true,
+        score: inattentionScore
+      })
+    }
+    
+    // Check for Hyperactivity
+    if (hyperactivityScore >= 18) {
+      diagnoses.push({
+        type: 'hyperactivity',
+        detected: true,
+        score: hyperactivityScore
+      })
+    }
+    
+    // Check for Impulsivity
+    if (impulsivityScore >= 18) {
+      diagnoses.push({
+        type: 'impulsivity',
+        detected: true,
+        score: impulsivityScore
+      })
+    }
+    
+    // Determine severity
+    let severity: 'mild' | 'moderate' | 'severe' = 'mild'
+    if (totalScore >= 101) {
+      severity = 'severe'
+    } else if (totalScore >= 71) {
+      severity = 'moderate'
+    } else if (totalScore >= 40) {
+      severity = 'mild'
+    }
+    
+    return {
+      inattentionScore,
+      hyperactivityScore,
+      impulsivityScore,
+      totalScore,
+      severity,
+      diagnoses
+    }
   }
 
   const handleAnswer = (id: number, answer: number) => {
@@ -103,8 +214,9 @@ export default function InitialQuiz({
       setIsCompleted(true)
       setIsCalculating(true)
       setTimeout(() => {
-        const score = computeScore()
-        setFinalScore(score)
+        const diagnosisResult = getDiagnosis(answers)
+        setFinalScore(diagnosisResult.totalScore)
+        setDiagnosis(diagnosisResult)
         setIsCalculating(false)
       }, 10000) // 10 seconds fake calculation
     }
@@ -127,6 +239,11 @@ export default function InitialQuiz({
     setCurrentQuestion(0)
     setAnswers({})
     setCanProceed(false)
+    setIsCompleted(false)
+    setIsCalculating(false)
+    setFinalScore(null)
+    setDiagnosis(null)
+    setHasSubmitted(false)
   }
 
   const handleSubmit = async () => {
@@ -154,6 +271,12 @@ export default function InitialQuiz({
     try {
       const score = finalScore ?? computeScore()
       const maxScore = (quizQuestions?.length || 0) * 3
+      const categoryScores = diagnosis ? {
+        inattentionScore: diagnosis.inattentionScore,
+        hyperactivityScore: diagnosis.hyperactivityScore,
+        impulsivityScore: diagnosis.impulsivityScore
+      } : computeCategoryScores(answers)
+      
       if (typeof window !== 'undefined') {
         // Persist final score and answers for post-signup user creation
         localStorage.setItem('pending_signup_quiz', JSON.stringify({
@@ -161,7 +284,10 @@ export default function InitialQuiz({
           maxScore,
           answers,
           type: 'INITIAL',
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          inattentionScore: categoryScores.inattentionScore,
+          hyperactivityScore: categoryScores.hyperactivityScore,
+          impulsivityScore: categoryScores.impulsivityScore
         }))
 
         // Clear transient progress keys
@@ -188,7 +314,8 @@ export default function InitialQuiz({
       restoringProgress: "Restoring progress...",
       calculatingScore: "Calculating your score",
       calculatingMessage: "This takes about 10 seconds. Hang tight…",
-      yourScore: "Your Preliminary Score",
+      yourScore: "Your Assessment Results",
+      assessmentComplete: "Assessment completed successfully",
       getStarted: "Get Started",
       resultsSaved: "Results saved successfully.",
       yourTotalScore: "Your total score:",
@@ -200,13 +327,32 @@ export default function InitialQuiz({
       submitting: "Submitting...",
       completeQuiz: "Complete Quiz",
       next: "Next",
+      inattention: "Inattention Issues Detected",
+      hyperactivity: "Hyperactivity Issues Detected",
+      impulsivity: "Impulsivity Issues Detected",
+      severity: "Severity Level",
+      mild: "Mild Symptoms",
+      moderate: "Moderate Symptoms",
+      severe: "Severe Symptoms",
+      diagnosisTitle: "Diagnosis Results",
+      inattentionDiagnosis: "The assessment indicates potential difficulties with attention and focus. Your child may have trouble sustaining attention, following through on instructions, or staying organized.",
+      hyperactivityDiagnosis: "The assessment indicates potential issues with hyperactivity. Your child may have difficulty sitting still, staying in one place, or controlling excessive movement.",
+      impulsivityDiagnosis: "The assessment indicates potential issues with impulsivity. Your child may have difficulty waiting their turn, interrupting others, or acting without thinking about consequences.",
+      noIssuesTitle: "No Significant Issues Detected",
+      noIssuesDesc: "Based on the assessment, your child's responses fall within the normal range for attention, hyperactivity, and impulsivity. No significant concerns were identified.",
+      severityDescLong: {
+        mild: "The symptoms are relatively mild and may require monitoring and basic behavioral interventions. Consider consulting with a healthcare professional for guidance.",
+        moderate: "The symptoms are moderate and may benefit from professional evaluation and intervention. We recommend scheduling a consultation with a healthcare provider.",
+        severe: "The symptoms are severe and warrant immediate professional attention. Please schedule an appointment with a qualified healthcare provider for a comprehensive evaluation."
+      }
     },
     ar: {
       loadingQuestions: "جارٍ تحميل الأسئلة...",
       restoringProgress: "جارٍ استعادة التقدم...",
       calculatingScore: "جارٍ حساب نتيجتك",
       calculatingMessage: "سيستغرق هذا حوالي ١٠ ثوانٍ. انتظر قليلاً...",
-      yourScore: "نتيجتك الأولية",
+      yourScore: "نتائج التقييم",
+      assessmentComplete: "تم إكمال التقييم بنجاح",
       getStarted: "ابدأ الآن",
       resultsSaved: "تم حفظ النتائج بنجاح.",
       yourTotalScore: "نتيجتك الإجمالية:",
@@ -218,6 +364,24 @@ export default function InitialQuiz({
       submitting: "جارٍ الإرسال...",
       completeQuiz: "إكمال الاختبار",
       next: "التالي",
+      inattention: "تم اكتشاف مشاكل في الانتباه",
+      hyperactivity: "تم اكتشاف مشاكل في فرط الحركة",
+      impulsivity: "تم اكتشاف مشاكل في الاندفاع",
+      severity: "مستوى الشدة",
+      mild: "أعراض خفيفة",
+      moderate: "أعراض متوسطة",
+      severe: "أعراض شديدة",
+      diagnosisTitle: "نتائج التشخيص",
+      inattentionDiagnosis: "يشير التقييم إلى وجود صعوبات محتملة في الانتباه والتركيز. قد يواجه طفلك صعوبة في الحفاظ على الانتباه أو اتباع التعليمات أو إتمام المهام بشكل منتظم.",
+      hyperactivityDiagnosis: "يشير التقييم إلى وجود مؤشرات على فرط الحركة. قد يواجه طفلك صعوبة في الجلوس ساكنًا، أو البقاء في مكان واحد، أو التحكم في الحركة الزائدة.",
+      impulsivityDiagnosis: "يشير التقييم إلى وجود مؤشرات على الاندفاع. قد يواجه طفلك صعوبة في انتظار دوره، أو مقاطعة الآخرين، أو التصرف دون التفكير في العواقب.",
+      noIssuesTitle: "لم يتم اكتشاف مشاكل كبيرة",
+      noIssuesDesc: "بناءً على التقييم، تقع استجابات طفلك ضمن النطاق الطبيعي لكل من الانتباه وفرط الحركة والاندفاع. لم يتم تحديد أي مخاوف كبيرة.",
+      severityDescLong: {
+        mild: "الأعراض مصنّفة كـ خفيفة وقد تتطلب المراقبة والتدخلات السلوكية الأساسية.",
+        moderate: "الأعراض مصنّفة كـ متوسطة وقد تستفيد من التقييم والمتابعة",
+        severe: "الأعراض مصنّفة كـ شديدة وتتطلب اهتمامًا أكثر."
+      }
     },
   }
 
@@ -235,7 +399,7 @@ export default function InitialQuiz({
   // Completed states
   if (isCompleted) {
     return (
-      <div>
+      <div dir={language === "ar" ? "rtl" : "ltr"}>
         <QuizProgress
           current={quizQuestions.length}
           total={quizQuestions.length}
@@ -243,32 +407,151 @@ export default function InitialQuiz({
           language={language}
         />
         <div className="mb-8">
-          <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm rounded-3xl shadow-xl border border-white/30 p-10 text-center">
+          <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm rounded-3xl shadow-xl border border-white/30 p-10">
             {isCalculating ? (
-              <div>
+              <div className="text-center">
                 <div className="mx-auto mb-6 w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.calculatingScore}</h2>
                 <p className="text-gray-600">{t.calculatingMessage}</p>
               </div>
-            ) : (
+            ) : diagnosis ? (
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">{t.yourScore}</h2>
-                <div className="mx-auto inline-flex items-center justify-center px-6 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-xl mb-6">
-                  <span className="text-3xl font-extrabold">{finalScore}</span>
-                  <span className={language === "ar" ? "mr-2 opacity-90" : "ml-2 opacity-90"}>/ {quizQuestions.length * 3}</span>
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.yourScore}</h2>
+                  <p className="text-gray-600 text-sm">{t.assessmentComplete}</p>
                 </div>
+
+                {/* Diagnosis Results */}
+                <div className="space-y-6 mb-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">{t.diagnosisTitle}</h3>
+                  
+                  {/* Inattention Diagnosis */}
+                  {diagnosis.inattentionScore >= 18 ? (
+                    <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-8 border-2 border-red-300 shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 bg-red-200">
+                          <span className="text-3xl">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-base text-red-800 leading-relaxed">
+                            {t.inattentionDiagnosis}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Hyperactivity Diagnosis */}
+                  {diagnosis.hyperactivityScore >= 18 ? (
+                    <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 border-2 border-orange-300 shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 bg-orange-200">
+                          <span className="text-3xl">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-base text-orange-800 leading-relaxed">
+                            {t.hyperactivityDiagnosis}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Impulsivity Diagnosis */}
+                  {diagnosis.impulsivityScore >= 18 ? (
+                    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 border-2 border-yellow-300 shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 bg-yellow-200">
+                          <span className="text-3xl">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-base text-yellow-800 leading-relaxed">
+                            {t.impulsivityDiagnosis}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* No Issues Detected */}
+                  {diagnosis.inattentionScore < 18 && diagnosis.hyperactivityScore < 18 && diagnosis.impulsivityScore < 18 ? (
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border-2 border-green-300 shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 bg-green-200">
+                          <span className="text-3xl">✅</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-2xl font-bold text-green-900 mb-3">{t.noIssuesTitle}</h4>
+                          <p className="text-base text-green-800 leading-relaxed">
+                            {t.noIssuesDesc}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Severity Level - only if issues detected */}
+                  {(diagnosis.inattentionScore >= 18 || diagnosis.hyperactivityScore >= 18 || diagnosis.impulsivityScore >= 18) && diagnosis.totalScore >= 40 && (
+                    <div className={`bg-gradient-to-br rounded-2xl p-8 border-2 shadow-lg ${
+                      diagnosis.severity === 'severe' 
+                        ? 'from-purple-50 to-pink-50 border-purple-300' 
+                        : diagnosis.severity === 'moderate'
+                        ? 'from-blue-50 to-indigo-50 border-blue-300'
+                        : 'from-cyan-50 to-sky-50 border-cyan-300'
+                    }`}>
+                      <div className="flex items-start gap-4">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          diagnosis.severity === 'severe' 
+                            ? 'bg-purple-200' 
+                            : diagnosis.severity === 'moderate'
+                            ? 'bg-blue-200'
+                            : 'bg-cyan-200'
+                        }`}>
+                          <span className="text-3xl">
+                            {diagnosis.severity === 'severe' ? '🔴' : diagnosis.severity === 'moderate' ? '🟡' : '🔵'}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-xl font-bold text-gray-900 mb-2">{t.severity}</h4>
+                          <p className="text-2xl font-bold mb-3" style={{
+                            color: diagnosis.severity === 'severe' ? '#7c2d92' : diagnosis.severity === 'moderate' ? '#1e40af' : '#0891b2'
+                          }}>
+                            {diagnosis.severity === 'severe' ? t.severe : diagnosis.severity === 'moderate' ? t.moderate : t.mild}
+                          </p>
+                          <p className="text-base text-gray-700 leading-relaxed">
+                            {t.severityDescLong[diagnosis.severity]}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
                 {!hasSubmitted ? (
-                  <div className="flex justify-center gap-4">
-                    <button onClick={handleGetStarted} disabled={isSubmitting} className="px-16 py-4 text-black rounded-2xl font-semibold transition-all duration-300 shadow-xl disabled:opacity-50">{t.getStarted}</button>
+                  <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    <button 
+                      onClick={handleGetStarted} 
+                      disabled={isSubmitting} 
+                      className="px-16 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl font-semibold transition-all duration-300 shadow-xl disabled:opacity-50 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
+                    >
+                      {t.getStarted}
+                    </button>
+                    <button
+                      onClick={handleStartOver}
+                      className="px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-lg"
+                    >
+                      {t.takeAgain}
+                    </button>
                   </div>
                 ) : (
-                  <div>
-                    <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block">{t.resultsSaved}</div>
-                    <div className="mt-4 text-gray-700">{t.yourTotalScore} <span className="font-bold">{finalScore} / {quizQuestions.length * 3}</span></div>
+                  <div className="text-center">
+                    <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block mb-4">{t.resultsSaved}</div>
                     <div className="mt-6">
                       <button
                         onClick={handleStartOver}
-                        className="px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold border border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-sm"
+                        className="px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-lg"
                       >
                         {t.takeAgain}
                       </button>
@@ -276,7 +559,7 @@ export default function InitialQuiz({
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

@@ -14,6 +14,9 @@ async function signup(formData: FormData) {
   const child_birthday = String(formData.get("child_birthday") || "").trim()
   const child_gender = String(formData.get("child_gender") || "").trim()
   const initial_quiz_score = Number(formData.get("initial_quiz_score") || "0")
+  const inattention_score = Number(formData.get("inattention_score") || "0")
+  const hyperactivity_score = Number(formData.get("hyperactivity_score") || "0")
+  const impulsivity_score = Number(formData.get("impulsivity_score") || "0")
   const parent_first_name = String(formData.get("parent_first_name") || "").trim()
   const parent_last_name = String(formData.get("parent_last_name") || "").trim()
   const parent_phone = String(formData.get("parent_phone") || "").trim()
@@ -35,6 +38,9 @@ async function signup(formData: FormData) {
     parent_phone,
     parent_nationality,
     initial_quiz_score,
+    inattention_score,
+    hyperactivity_score,
+    impulsivity_score,
   })
 
   // Persist submitted profile in a cookie to attach post-login
@@ -50,6 +56,9 @@ async function signup(formData: FormData) {
       parent_phone,
       parent_nationality,
       initial_quiz_score,
+      inattention_score,
+      hyperactivity_score,
+      impulsivity_score,
     }
     cookieStore.set("pending_profile", JSON.stringify(pendingProfile), {
       path: "/",

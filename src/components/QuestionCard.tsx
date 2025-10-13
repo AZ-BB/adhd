@@ -42,7 +42,14 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer, langu
       <div className="relative z-10">
         {/* Question Header */}
         <div className="mb-8">
-          
+          {/* Category Badge */}
+          {(question.category || question.category_ar) && (
+            <div className={`inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-200 mb-3 ${language === "ar" ? "mr-0" : "ml-0"}`}>
+              <span className="text-xs font-semibold text-indigo-700">
+                {language === "ar" ? question.category_ar : question.category}
+              </span>
+            </div>
+          )}
           
           <h2 className={`text-2xl font-bold text-gray-900 leading-relaxed ${language === "ar" ? "text-right" : "text-left"}`}>
             {language === "ar" ? question.question_ar : question.question}

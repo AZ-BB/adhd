@@ -1,7 +1,7 @@
 import Link from "next/link"
-import BackgroundSlideshow from "@/components/BackgroundSlideshow"
 import { createSupabaseServerClient } from "@/lib/server"
 import { redirect } from "next/navigation"
+import Image from "next/image"
 
 export default async function Home() {
   // Redirect logged-in users to dashboard
@@ -13,30 +13,19 @@ export default async function Home() {
     redirect("/dashboard")
   }
 
-  const backgrounds = ["/bg2.jpg", "/bg3.webp", "/bg5.webp", "/bg4.jpg"]
-
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-50 to-green-50"
+      className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
       dir="rtl"
     >
-      {/* Background slideshow for a friendly, soft look */}
-      <BackgroundSlideshow
-        images={backgrounds}
-        intervalMs={7000}
-        fadeMs={1200}
-      />
-      {/* Soft overlay for readability */}
-      <div className="absolute inset-0 bg-white/70" />
-
       {/* Navbar */}
       <header className="relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
           <Link
             href="/"
             className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-green-600"
           >
-            Movokids
+            <Image src="/logo/1.png" alt="Movokids" width={200} height={200} />
           </Link>
           <nav className="flex items-center gap-3">
             <Link
@@ -85,7 +74,7 @@ export default async function Home() {
                 مختصّين لتقوية قدرات الأطفال خطوةً بخطوة، وتحويل الصعوبات إلى
                 إنجازات.
               </p>
-              <div className="mt-6 flex items-center justify-end gap-3">
+              <div className="mt-6 flex items-center gap-3">
                 <Link
                   href="/auth/signup"
                   className="px-5 py-3 rounded-2xl bg-green-500 text-white font-semibold hover:bg-green-600 shadow"
@@ -99,7 +88,7 @@ export default async function Home() {
                   لماذا Movokids؟
                 </a>
               </div>
-              <div className="mt-4 flex items-center justify-end gap-2 text-sky-800/70 text-sm">
+              <div className="mt-4 flex items-center gap-2 text-sky-800/70 text-sm">
                 <span>👨‍👩‍👧 مناسب للأهل</span>
                 <span>•</span>
                 <span>🧒 مناسب للأطفال</span>
@@ -184,6 +173,57 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Our Programs Features */}
+      <section dir="rtl" className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 md:p-8 shadow-sm">
+            <div className="text-center mb-8">
+              <p className="text-sky-900/90 text-lg md:text-xl font-semibold">
+                تم إعداد برامجنا بالتعاون مع أخصائيين في علم النفس والتربية
+                الخاصة.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-gradient-to-br from-sky-50 to-white rounded-2xl border border-sky-100 p-5 text-center shadow-sm">
+                <div className="text-4xl mb-3">🌍</div>
+                <h3 className="font-bold text-sky-900 text-lg mb-2">
+                  أدوات تقييم عالمية
+                </h3>
+                <p className="text-sky-900/70 text-sm">
+                  نستخدم أدوات تقييم معترف بها عالميًا
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-5 text-center shadow-sm">
+                <div className="text-4xl mb-3">📅</div>
+                <h3 className="font-bold text-sky-900 text-lg mb-2">
+                  تدريبات يومية
+                </h3>
+                <p className="text-sky-900/70 text-sm">
+                  للمساعدة على الانتباه والتركيز
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-sky-50 to-white rounded-2xl border border-sky-100 p-5 text-center shadow-sm">
+                <div className="text-4xl mb-3">👨‍⚕️</div>
+                <h3 className="font-bold text-sky-900 text-lg mb-2">
+                  جلسات مع مختصّين
+                </h3>
+                <p className="text-sky-900/70 text-sm">
+                  دعم مباشر من خبراء متخصصين
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-5 text-center shadow-sm">
+                <div className="text-4xl mb-3">✨</div>
+                <h3 className="font-bold text-sky-900 text-lg mb-2">
+                  نتائج مثبتة
+                </h3>
+                <p className="text-sky-900/70 text-sm">
+                  مع مئات الأطفال والعائلات
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Benefits */}
       <section dir="rtl" className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -191,7 +231,7 @@ export default async function Home() {
             <div className="grid md:grid-cols-2 gap-6 items-center">
               <div className="order-2 md:order-1">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-6 text-right">
-                  ماذا سيتوقع أن يستفيد طفلك من Movokids؟
+                  ما مدى استفادة طفلك من Movokids؟
                 </h2>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
@@ -286,7 +326,7 @@ export default async function Home() {
                   <li>3) متابعة التقدم وتقارير واضحة للأهل.</li>
                   <li>4) جلسات أونلاين مع مختصين عند الحاجة.</li>
                 </ol>
-                <div className="mt-4 flex items-center justify-end gap-2 text-sky-800/70 text-sm">
+                <div className="mt-4 flex items-center gap-2 text-sky-800/70 text-sm">
                   <span>⏱️ 10–15 دقيقة يوميًا</span>
                   <span>•</span>
                   <span>🎮 لعب + تعلم</span>
@@ -316,7 +356,7 @@ export default async function Home() {
             <p className="mt-2 text-white/90">
               انضم إلى Movokids واصنع فارقًا حقيقيًا بخطوات بسيطة وممتعة.
             </p>
-            <div className="mt-4 flex justify-end gap-3">
+            <div className="mt-4 flex gap-3">
               <Link
                 href="/auth/signup"
                 className="px-5 py-3 rounded-2xl bg-white text-sky-700 font-semibold hover:bg-sky-50"
@@ -343,7 +383,7 @@ export default async function Home() {
           <div className="grid md:grid-cols-3 gap-6">
             {/* Review 1 */}
             <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
-              <div className="flex items-center gap-2 mb-4 justify-end">
+              <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
                     <svg
@@ -358,10 +398,11 @@ export default async function Home() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "منصة رائعة ساعدت ابني كثيرًا في التركيز والانتباه. الأنشطة ممتعة
-                وسهلة الاستخدام، وأصبح طفلي يتطلع لممارسة التمارين اليومية."
+                "منصة رائعة ساعدت ابني كثيرًا في التركيز والانتباه. الأنشطة
+                ممتعة وسهلة الاستخدام، وأصبح طفلي يتطلع لممارسة التمارين
+                اليومية."
               </p>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
                   <p className="font-bold text-sky-900">أم أحمد</p>
                   <p className="text-sm text-sky-700">الرياض، السعودية</p>
@@ -374,7 +415,7 @@ export default async function Home() {
 
             {/* Review 2 */}
             <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
-              <div className="flex items-center gap-2 mb-4 justify-end">
+              <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
                     <svg
@@ -389,10 +430,10 @@ export default async function Home() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "التطبيق سهل الاستخدام والجلسات مع المختصين كانت مفيدة جدًا. لاحظت
-                تحسنًا كبيرًا في سلوك ابنتي بعد أسبوعين فقط."
+                "التطبيق سهل الاستخدام والجلسات مع المختصين كانت مفيدة جدًا.
+                لاحظت تحسنًا كبيرًا في سلوك ابنتي بعد أسبوعين فقط."
               </p>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
                   <p className="font-bold text-sky-900">أبو خالد</p>
                   <p className="text-sm text-sky-700">جدة، السعودية</p>
@@ -405,7 +446,7 @@ export default async function Home() {
 
             {/* Review 3 */}
             <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
-              <div className="flex items-center gap-2 mb-4 justify-end">
+              <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
                     <svg
@@ -423,7 +464,7 @@ export default async function Home() {
                 "شكرًا لـ Movokids على هذه المنصة المميزة. طفلي أصبح أكثر هدوءًا
                 وقدرته على التحكم بالانفعالات تحسنت بشكل ملحوظ."
               </p>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
                   <p className="font-bold text-sky-900">أم سارة</p>
                   <p className="text-sm text-sky-700">دبي، الإمارات</p>
@@ -433,6 +474,108 @@ export default async function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Section */}
+      <section dir="rtl" className="relative z-10 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-2">
+              مقالاتنا
+            </h2>
+            <p className="text-sky-900/70">
+              اكتشف أحدث النصائح والموارد لدعم طفلك
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Blog Post 1 */}
+            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
+                <div className="absolute inset-0 flex items-center justify-center text-6xl">
+                  🧠
+                </div>
+              </div>
+              <div className="p-6 text-right">
+                <div className="text-xs text-sky-700 mb-2">15 أكتوبر، 2024</div>
+                <h3 className="text-xl font-bold text-sky-900 mb-3">
+                  كيف تساعد طفلك على تحسين التركيز؟
+                </h3>
+                <p className="text-sky-900/70 text-sm mb-4">
+                  نصائح عملية يومية لتعزيز قدرة طفلك على الانتباه والتركيز في
+                  الأنشطة اليومية والدراسة.
+                </p>
+                <a
+                  href="#"
+                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+                >
+                  <span>اقرأ المزيد</span>
+                  <span>←</span>
+                </a>
+              </div>
+            </article>
+
+            {/* Blog Post 2 */}
+            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="relative h-48 bg-gradient-to-br from-green-100 to-sky-100">
+                <div className="absolute inset-0 flex items-center justify-center text-6xl">
+                  👨‍👩‍👧‍👦
+                </div>
+              </div>
+              <div className="p-6 text-right">
+                <div className="text-xs text-sky-700 mb-2">12 أكتوبر، 2024</div>
+                <h3 className="text-xl font-bold text-sky-900 mb-3">
+                  دور الأهل في دعم الأطفال ذوي فرط الحركة
+                </h3>
+                <p className="text-sky-900/70 text-sm mb-4">
+                  استراتيجيات فعّالة للتعامل مع التحديات اليومية وتقديم الدعم
+                  المناسب لطفلك.
+                </p>
+                <a
+                  href="#"
+                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+                >
+                  <span>اقرأ المزيد</span>
+                  <span>←</span>
+                </a>
+              </div>
+            </article>
+
+            {/* Blog Post 3 */}
+            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
+                <div className="absolute inset-0 flex items-center justify-center text-6xl">
+                  🎯
+                </div>
+              </div>
+              <div className="p-6 text-right">
+                <div className="text-xs text-sky-700 mb-2">8 أكتوبر، 2024</div>
+                <h3 className="text-xl font-bold text-sky-900 mb-3">
+                  التدريبات اليومية: المفتاح لتطوير المهارات
+                </h3>
+                <p className="text-sky-900/70 text-sm mb-4">
+                  كيف تساعد التمارين القصيرة اليومية في بناء عادات إيجابية
+                  وتحسين الأداء الأكاديمي.
+                </p>
+                <a
+                  href="#"
+                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+                >
+                  <span>اقرأ المزيد</span>
+                  <span>←</span>
+                </a>
+              </div>
+            </article>
+          </div>
+          <div className="text-center mt-8">
+            <a
+              href="#"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow"
+            >
+              <span>عرض جميع المقالات</span>
+              <span>←</span>
+            </a>
           </div>
         </div>
       </section>

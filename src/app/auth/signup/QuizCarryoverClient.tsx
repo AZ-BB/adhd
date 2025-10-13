@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react"
 
 export default function QuizCarryoverClient() {
-  const [score, setScore] = useState<number | null>(null)
+  const [quizData, setQuizData] = useState<{
+    score: number
+    inattentionScore: number
+    hyperactivityScore: number
+    impulsivityScore: number
+  } | null>(null)
 
   useEffect(() => {
     try {
@@ -11,13 +16,25 @@ export default function QuizCarryoverClient() {
       if (!raw) return
       const parsed = JSON.parse(raw)
       if (parsed && typeof parsed.score === "number") {
-        setScore(parsed.score)
+        setQuizData({
+          score: parsed.score,
+          inattentionScore: parsed.inattentionScore || 0,
+          hyperactivityScore: parsed.hyperactivityScore || 0,
+          impulsivityScore: parsed.impulsivityScore || 0
+        })
       }
     } catch {}
   }, [])
 
-  if (score === null) return null
-  return <input type="hidden" name="initial_quiz_score" value={String(score)} />
+  if (!quizData) return null
+  return (
+    <>
+      <input type="hidden" name="initial_quiz_score" value={String(quizData.score)} />
+      <input type="hidden" name="inattention_score" value={String(quizData.inattentionScore)} />
+      <input type="hidden" name="hyperactivity_score" value={String(quizData.hyperactivityScore)} />
+      <input type="hidden" name="impulsivity_score" value={String(quizData.impulsivityScore)} />
+    </>
+  )
 }
 
 
