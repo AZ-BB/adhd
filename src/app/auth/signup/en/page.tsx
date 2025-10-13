@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createSupabaseServerClient } from "@/lib/server"
-import QuizCarryoverClient from "./QuizCarryoverClient"
+import QuizCarryoverClient from "../QuizCarryoverClient"
 import { signup as signupAction } from "@/actions/users"
 import BackgroundSlideshow from "@/components/BackgroundSlideshow"
 
@@ -20,7 +20,7 @@ async function signup(formData: FormData) {
   const parent_nationality = String(formData.get("parent_nationality") || "").trim()
 
   if (!email || !password) {
-    redirect("/auth/signup?error=يرجى%20إدخال%20البريد%20الإلكتروني%20وكلمة%20المرور")
+    redirect("/auth/signup/en?error=Missing%20email%20or%20password")
   }
 
   await signupAction({
@@ -57,10 +57,10 @@ async function signup(formData: FormData) {
     })
   } catch {}
 
-  redirect("/auth/login?message=تحقق%20من%20بريدك%20الإلكتروني%20لتأكيد%20حسابك")
+  redirect("/auth/login/en?message=Check%20your%20email%20to%20confirm%20your%20account")
 }
 
-export default async function SignupPage({
+export default async function SignupPageEn({
   searchParams,
 }: {
   searchParams?: { [key: string]: string | string[] | undefined }
@@ -75,24 +75,24 @@ export default async function SignupPage({
     const cookieStore = await cookies()
     const hasCompletedQuiz = cookieStore.get('quiz_completed')?.value
     if (!hasCompletedQuiz) {
-      redirect('/quiz')
+      redirect('/quiz/en')
     }
   } catch {}
   const message = typeof searchParams?.message === "string" ? searchParams?.message : ""
   const error = typeof searchParams?.error === "string" ? searchParams?.error : ""
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
+    <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <BackgroundSlideshow images={["/bg3.webp", "/bg5.webp", "/bg4.jpg"]} intervalMs={6000} fadeMs={1200} />
       <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-indigo-50/70 to-pink-50/70"></div>
 
       {/* Language Switcher */}
-      <div className="absolute top-4 left-4 z-20">
+      <div className="absolute top-4 right-4 z-20">
         <a
-          href="/auth/signup/en"
+          href="/auth/signup"
           className="inline-flex items-center px-4 py-2 bg-white/70 backdrop-blur-md border border-white/30 rounded-xl text-sm text-gray-700 hover:bg-white shadow-sm transition-all"
         >
-          English
+          عربي
         </a>
       </div>
 
@@ -100,15 +100,15 @@ export default async function SignupPage({
         <div className="glass rounded-3xl shadow-2xl ring-1 ring-white/60 backdrop-blur-lg p-6 sm:p-10 animate-fade-in">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-extrabold text-indigo-700">
-              لنقم بإنشاء حسابك ✨
+              Let's create your account ✨
             </h1>
             <p className="mt-2 text-sm sm:text-base text-indigo-900/70">
-              لك ولنجمك الصغير 🌟
+              For you and your little star 🌟
             </p>
             <p className="mt-3 text-sm text-gray-600">
-              لديك حساب بالفعل؟{" "}
-              <a href="/auth/login" className="font-semibold text-indigo-600 hover:text-indigo-700">
-                تسجيل الدخول
+              Already have an account?{" "}
+              <a href="/auth/login/en" className="font-semibold text-indigo-600 hover:text-indigo-700">
+                Log in
               </a>
             </p>
           </div>
@@ -127,124 +127,124 @@ export default async function SignupPage({
           <form className="mt-8 space-y-8" action={signup}>
             <QuizCarryoverClient />
             <div className="rounded-2xl">
-              <h2 className="text-base font-semibold text-indigo-800 mb-3 text-right">عن طفلك 🧒</h2>
+              <h2 className="text-base font-semibold text-indigo-800 mb-3">About your child 🧒</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="child_first_name" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    الاسم الأول للطفل
+                  <label htmlFor="child_first_name" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Child first name
                   </label>
                   <input
                     id="child_first_name"
                     name="child_first_name"
                     type="text"
                     required
-                    placeholder="مثال: أحمد"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="e.g., Alex"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="child_last_name" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    اسم العائلة للطفل
+                  <label htmlFor="child_last_name" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Child last name
                   </label>
                   <input
                     id="child_last_name"
                     name="child_last_name"
                     type="text"
                     required
-                    placeholder="مثال: محمد"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="e.g., Parker"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="child_birthday" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    تاريخ ميلاد الطفل 🎂
+                  <label htmlFor="child_birthday" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Child birthday 🎂
                   </label>
                   <input
                     id="child_birthday"
                     name="child_birthday"
                     type="date"
                     required
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="child_gender" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    جنس الطفل 🧸
+                  <label htmlFor="child_gender" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Child gender 🧸
                   </label>
                   <select
                     id="child_gender"
                     name="child_gender"
                     required
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   >
-                    <option value="">اختر الجنس</option>
-                    <option value="Male">ذكر</option>
-                    <option value="Female">أنثى</option>
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                   </select>
                 </div>
               </div>
             </div>
 
             <div>
-              <h2 className="text-base font-semibold text-indigo-800 mb-3 text-right">تفاصيل ولي الأمر 👨‍👩‍👧</h2>
+              <h2 className="text-base font-semibold text-indigo-800 mb-3">Parent details 👨‍👩‍👧</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="parent_first_name" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    الاسم الأول لولي الأمر
+                  <label htmlFor="parent_first_name" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Parent first name
                   </label>
                   <input
                     id="parent_first_name"
                     name="parent_first_name"
                     type="text"
-                    placeholder="الاسم الأول"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="First name"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="parent_last_name" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    اسم العائلة لولي الأمر
+                  <label htmlFor="parent_last_name" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Parent last name
                   </label>
                   <input
                     id="parent_last_name"
                     name="parent_last_name"
                     type="text"
-                    placeholder="اسم العائلة"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="Last name"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="parent_phone" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    هاتف ولي الأمر 📱
+                  <label htmlFor="parent_phone" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Parent phone 📱
                   </label>
                   <input
                     id="parent_phone"
                     name="parent_phone"
                     type="tel"
-                    placeholder="رقم الهاتف"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="Phone"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="parent_nationality" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    جنسية ولي الأمر 🌍
+                  <label htmlFor="parent_nationality" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Parent nationality 🌍
                   </label>
                   <input
                     id="parent_nationality"
                     name="parent_nationality"
                     type="text"
-                    placeholder="الجنسية"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="Nationality"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <h2 className="text-base font-semibold text-indigo-800 mb-3 text-right">تفاصيل الحساب 🔐</h2>
+              <h2 className="text-base font-semibold text-indigo-800 mb-3">Account details 🔐</h2>
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    البريد الإلكتروني
+                  <label htmlFor="email" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Email
                   </label>
                   <input
                     id="email"
@@ -252,22 +252,22 @@ export default async function SignupPage({
                     type="email"
                     required
                     placeholder="you@example.com"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                     aria-describedby="email-help"
                   />
-                  <p id="email-help" className="mt-1 text-xs text-indigo-900/60 text-right">لن نشارك بريدك الإلكتروني أبدًا.</p>
+                  <p id="email-help" className="mt-1 text-xs text-indigo-900/60">We'll never share your email.</p>
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-indigo-900 mb-1 text-right">
-                    كلمة المرور
+                  <label htmlFor="password" className="block text-sm font-medium text-indigo-900 mb-1">
+                    Password
                   </label>
                   <input
                     id="password"
                     name="password"
                     type="password"
                     required
-                    placeholder="٦ أحرف على الأقل"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm text-right"
+                    placeholder="At least 6 characters"
+                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
                   />
                 </div>
               </div>
@@ -279,13 +279,13 @@ export default async function SignupPage({
                 className="group relative w-full flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold rounded-2xl text-white bg-gradient-to-r from-pink-500 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-pink-200 shadow-lg hover:shadow-xl active:scale-[0.99] transition-all"
               >
                 <span className="text-lg">🎉</span>
-                إنشاء الحساب
+                Create account
               </button>
             </div>
           </form>
 
           <div className="mt-6 text-center text-xs text-indigo-900/70">
-            إذا أكملت التقييم، سيتم ربط نتيجتك بعد تسجيل الدخول.
+            If you completed the assessment, your score will be linked after you log in.
           </div>
         </div>
       </div>
@@ -298,3 +298,4 @@ export default async function SignupPage({
     </div>
   )
 }
+

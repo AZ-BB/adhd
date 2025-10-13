@@ -6,8 +6,10 @@ import { QuizQuestion } from "@/types/quiz"
 
 export default function InitialQuiz({
   quizQuestions,
+  language = "en",
 }: {
   quizQuestions: QuizQuestion[]
+  language?: "en" | "ar"
 }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
@@ -179,13 +181,55 @@ export default function InitialQuiz({
     }
   }
 
+  // Text translations
+  const text = {
+    en: {
+      loadingQuestions: "Loading questions...",
+      restoringProgress: "Restoring progress...",
+      calculatingScore: "Calculating your score",
+      calculatingMessage: "This takes about 10 seconds. Hang tight…",
+      yourScore: "Your Preliminary Score",
+      getStarted: "Get Started",
+      resultsSaved: "Results saved successfully.",
+      yourTotalScore: "Your total score:",
+      takeAgain: "Take Again",
+      previous: "Previous",
+      startOver: "Start Over",
+      question: "Question",
+      of: "of",
+      submitting: "Submitting...",
+      completeQuiz: "Complete Quiz",
+      next: "Next",
+    },
+    ar: {
+      loadingQuestions: "جارٍ تحميل الأسئلة...",
+      restoringProgress: "جارٍ استعادة التقدم...",
+      calculatingScore: "جارٍ حساب نتيجتك",
+      calculatingMessage: "سيستغرق هذا حوالي ١٠ ثوانٍ. انتظر قليلاً...",
+      yourScore: "نتيجتك الأولية",
+      getStarted: "ابدأ الآن",
+      resultsSaved: "تم حفظ النتائج بنجاح.",
+      yourTotalScore: "نتيجتك الإجمالية:",
+      takeAgain: "إعادة الاختبار",
+      previous: "السابق",
+      startOver: "البدء من جديد",
+      question: "سؤال",
+      of: "من",
+      submitting: "جارٍ الإرسال...",
+      completeQuiz: "إكمال الاختبار",
+      next: "التالي",
+    },
+  }
+
+  const t = text[language]
+
   // Don't render if no questions are loaded or progress is still being restored
   if (!quizQuestions || quizQuestions.length === 0) {
-    return <div>Loading questions...</div>
+    return <div>{t.loadingQuestions}</div>
   }
 
   if (!isLoaded) {
-    return <div>Restoring progress...</div>
+    return <div>{t.restoringProgress}</div>
   }
 
   // Completed states
@@ -196,36 +240,37 @@ export default function InitialQuiz({
           current={quizQuestions.length}
           total={quizQuestions.length}
           progress={100}
+          language={language}
         />
         <div className="mb-8">
           <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm rounded-3xl shadow-xl border border-white/30 p-10 text-center">
             {isCalculating ? (
               <div>
                 <div className="mx-auto mb-6 w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Calculating your score</h2>
-                <p className="text-gray-600">This takes about 10 seconds. Hang tight…</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.calculatingScore}</h2>
+                <p className="text-gray-600">{t.calculatingMessage}</p>
               </div>
             ) : (
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Preliminary Score</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">{t.yourScore}</h2>
                 <div className="mx-auto inline-flex items-center justify-center px-6 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-xl mb-6">
                   <span className="text-3xl font-extrabold">{finalScore}</span>
-                  <span className="ml-2 opacity-90">/ {quizQuestions.length * 3}</span>
+                  <span className={language === "ar" ? "mr-2 opacity-90" : "ml-2 opacity-90"}>/ {quizQuestions.length * 3}</span>
                 </div>
                 {!hasSubmitted ? (
                   <div className="flex justify-center gap-4">
-                    <button onClick={handleGetStarted} disabled={isSubmitting} className="px-16 py-4 text-black rounded-2xl font-semibold transition-all duration-300 shadow-xl disabled:opacity-50">Get Started</button>
+                    <button onClick={handleGetStarted} disabled={isSubmitting} className="px-16 py-4 text-black rounded-2xl font-semibold transition-all duration-300 shadow-xl disabled:opacity-50">{t.getStarted}</button>
                   </div>
                 ) : (
                   <div>
-                    <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block">Results saved successfully.</div>
-                    <div className="mt-4 text-gray-700">Your total score: <span className="font-bold">{finalScore} / {quizQuestions.length * 3}</span></div>
+                    <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block">{t.resultsSaved}</div>
+                    <div className="mt-4 text-gray-700">{t.yourTotalScore} <span className="font-bold">{finalScore} / {quizQuestions.length * 3}</span></div>
                     <div className="mt-6">
                       <button
                         onClick={handleStartOver}
                         className="px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold border border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-sm"
                       >
-                        Take Again
+                        {t.takeAgain}
                       </button>
                     </div>
                   </div>
@@ -246,6 +291,7 @@ export default function InitialQuiz({
         current={currentQuestion + 1}
         total={quizQuestions.length}
         progress={progress}
+        language={language}
       />
 
       {/* Question Card */}
@@ -254,22 +300,23 @@ export default function InitialQuiz({
           question={currentQ}
           selectedAnswer={answers[currentQ.id]}
           onAnswer={(answer) => handleAnswer(currentQ.id, answer)}
+          language={language}
         />
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-4">
+      <div className={`flex justify-between items-center ${language === "ar" ? "flex-row-reverse" : ""}`}>
+        <div className={`flex gap-4 ${language === "ar" ? "flex-row-reverse" : ""}`}>
           <button
             onClick={handlePrevious}
             disabled={currentQuestion === 0}
             className="group px-8 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 transition-all duration-300 transform hover:scale-105 shadow-lg border border-gray-300"
           >
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <div className={`flex items-center ${language === "ar" ? "space-x-reverse space-x-2" : "space-x-2"}`}>
+              <svg className={`w-5 h-5 group-hover:${language === "ar" ? "translate-x-1" : "-translate-x-1"} transition-transform duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={language === "ar" ? "M9 5l7 7-7 7" : "M15 19l-7-7 7-7"} />
               </svg>
-              <span>Previous</span>
+              <span>{t.previous}</span>
             </div>
           </button>
           
@@ -277,19 +324,19 @@ export default function InitialQuiz({
             onClick={handleStartOver}
             className="group px-6 py-4 bg-gradient-to-r from-red-100 to-pink-100 text-red-700 rounded-2xl font-semibold hover:from-red-200 hover:to-pink-200 transition-all duration-300 transform hover:scale-105 shadow-lg border border-red-300"
           >
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${language === "ar" ? "space-x-reverse space-x-2" : "space-x-2"}`}>
               <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Start Over</span>
+              <span>{t.startOver}</span>
             </div>
           </button>
         </div>
 
         <div className="text-center">
-          <div className="text-sm text-gray-500 mb-1">Question</div>
+          <div className="text-sm text-gray-500 mb-1">{t.question}</div>
           <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            {currentQuestion + 1} of {quizQuestions.length}
+            {currentQuestion + 1} {t.of} {quizQuestions.length}
           </div>
         </div>
 
@@ -298,17 +345,17 @@ export default function InitialQuiz({
           disabled={!canProceed || isSubmitting}
           className="group px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-xl disabled:transform-none"
         >
-          <div className="flex items-center space-x-2">
+          <div className={`flex items-center ${language === "ar" ? "space-x-reverse space-x-2" : "space-x-2"}`}>
             <span>
               {isSubmitting
-                ? "Submitting..."
+                ? t.submitting
                 : currentQuestion === quizQuestions.length - 1
-                ? "Complete Quiz"
-                : "Next"}
+                ? t.completeQuiz
+                : t.next}
             </span>
             {!isSubmitting && (
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg className={`w-5 h-5 group-hover:${language === "ar" ? "-translate-x-1" : "translate-x-1"} transition-transform duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={language === "ar" ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"} />
               </svg>
             )}
           </div>

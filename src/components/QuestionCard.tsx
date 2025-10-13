@@ -4,10 +4,14 @@ interface QuestionCardProps {
   question: QuizQuestion
   selectedAnswer?: number
   onAnswer: (answer: number) => void
+  language?: "en" | "ar"
 }
 
-export default function QuestionCard({ question, selectedAnswer, onAnswer }: QuestionCardProps) {
-  const options = ["Always", "Often", "Sometimes", "Never"]
+export default function QuestionCard({ question, selectedAnswer, onAnswer, language = "en" }: QuestionCardProps) {
+  const optionsEn = ["Always", "Often", "Sometimes", "Never"]
+  const optionsAr = ["دائمًا", "غالبًا", "أحيانًا", "أبدًا"]
+  const options = language === "ar" ? optionsAr : optionsEn
+  
   const optionColors = [
     "from-red-500 to-pink-500",
     "from-orange-500 to-yellow-500", 
@@ -15,9 +19,22 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer }: Que
     "from-green-500 to-emerald-500"
   ]
   const optionIcons = ["🔥", "⚡", "💙", "✅"]
+  
+  const tipText = {
+    en: {
+      tip: "Tip:",
+      message: "Choose the option that best describes your child's behavior over the past 6 months. Be honest for the most accurate results."
+    },
+    ar: {
+      tip: "نصيحة:",
+      message: "اختر الخيار الذي يصف سلوك طفلك بشكل أفضل خلال الأشهر الستة الماضية. كن صادقًا للحصول على أدق النتائج."
+    }
+  }
+  
+  const t = tipText[language]
 
   return (
-    <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm rounded-3xl shadow-xl border border-white/30 p-8 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-sm rounded-3xl shadow-xl border border-white/30 p-8 relative overflow-hidden" dir={language === "ar" ? "rtl" : "ltr"}>
       {/* Animated background elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-pink-400/10 to-rose-400/10 rounded-full blur-2xl"></div>
@@ -27,8 +44,8 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer }: Que
         <div className="mb-8">
           
           
-          <h2 className="text-2xl font-bold text-gray-900 leading-relaxed">
-            {question.question}
+          <h2 className={`text-2xl font-bold text-gray-900 leading-relaxed ${language === "ar" ? "text-right" : "text-left"}`}>
+            {language === "ar" ? question.question_ar : question.question}
           </h2>
         </div>
 
@@ -50,7 +67,7 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer }: Que
               )}
               
               <div className="relative z-10 flex items-center">
-                <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
+                <div className={`w-6 h-6 rounded-full border-2 ${language === "ar" ? "ml-4" : "mr-4"} flex items-center justify-center transition-all duration-300 ${
                   selectedAnswer === index
                     ? 'border-white bg-white/20'
                     : 'border-gray-300 group-hover:border-gray-400'
@@ -60,7 +77,7 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer }: Que
                   )}
                 </div>
                 
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${language === "ar" ? "space-x-reverse space-x-3" : "space-x-3"}`}>
                   <span className="text-2xl">{optionIcons[index]}</span>
                   <span className={`text-lg font-semibold ${
                     selectedAnswer === index ? 'text-white' : 'text-gray-900'
@@ -78,14 +95,14 @@ export default function QuestionCard({ question, selectedAnswer, onAnswer }: Que
         
         {/* Helpful tip */}
         <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-          <div className="flex items-start space-x-3">
+          <div className={`flex items-start ${language === "ar" ? "space-x-reverse space-x-3" : "space-x-3"}`}>
             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm text-blue-800">
-              <strong>Tip:</strong> Choose the option that best describes your child's behavior over the past 6 months. Be honest for the most accurate results.
+            <p className={`text-sm text-blue-800 ${language === "ar" ? "text-right" : "text-left"}`}>
+              <strong>{t.tip}</strong> {t.message}
             </p>
           </div>
         </div>
