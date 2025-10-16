@@ -19,7 +19,7 @@ export default async function Home() {
       dir="rtl"
     >
       {/* Navbar */}
-      <header className="relative z-10">
+      <header className="relative z-10 bg-gradient-to-b from-[#F37423] from-60% to-[#fc8a2c]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
           <Link
             href="/"
@@ -51,22 +51,22 @@ export default async function Home() {
       </header>
 
       {/* Hero Section */}
-      <section dir="rtl" className="relative z-10">
+      <section dir="rtl" className="relative z-10 bg-cover bg-no-repeat " style={{ backgroundImage: "url('/landing/ar/1_ar.png')" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 md:pt-10 md:pb-16 lg:pt-14 lg:pb-20">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="order-2 md:order-1 text-right">
-              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-sky-900">
+              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
                 Movokids
                 <br />
                 منصه متكاملة تساعد طفلك علي اكتشاف قوّته الحقيقية
               </h1>
-              <p className="mt-4 text-sky-900/80 text-lg md:text-xl">
+              <p className="mt-4 text-white/80 text-lg md:text-xl">
                 منصّتنا مخصّصة لدعم الأطفال من عمر ٥ إلى ١٢ عامًا في تطوير
                 مهارات التركيز والتحكّم في الانفعالات، وتنمية القدرات التعليمية
                 من خلال تدريبات يومية ممتعة وأنشطة تفاعلية، بالإضافة إلى جلسات
                 أونلاين مع مختصّين
               </p>
-              <p className="mt-3 text-sky-900/70 text-sm md:text-base">
+              <p className="mt-3 text-white/70 text-sm md:text-base">
                 الاختبارات الموجودة في منصّتنا، مبنيّة على أدوات تقييم وتشخيص
                 عالمية، لكنها لا تُعطي حكمًا نهائيًا لحالة الطفل، إذ إن التشخيص
                 المؤكّد يجب أن يتمّ على يد الطبيب المختص. هدفنا هو تقديم مؤشرات
@@ -83,12 +83,12 @@ export default async function Home() {
                 </Link>
                 <a
                   href="#why"
-                  className="px-5 py-3 rounded-2xl bg-white text-sky-700 border border-sky-200 hover:bg-sky-50"
+                  className="px-5 py-3 rounded-2xl bg-white text-green-700 border border-green-200 hover:bg-green-50"
                 >
                   لماذا Movokids؟
                 </a>
               </div>
-              <div className="mt-4 flex items-center gap-2 text-sky-800/70 text-sm">
+              <div className="mt-4 flex items-center gap-2 text-white/70 text-sm">
                 <span>👨‍👩‍👧 مناسب للأهل</span>
                 <span>•</span>
                 <span>🧒 مناسب للأطفال</span>
@@ -97,19 +97,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="order-1 md:order-2">
-              <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-sky-100 to-green-100 border border-white/60 shadow-xl flex items-center justify-center">
-                <img
-                  src="/hero.png"
-                  alt="صورة توضيحية لمنصة Movokids"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs md:text-sm px-3 py-2 rounded-2xl shadow">
-                  جوائز تحفيزية
-                </div>
-                <div className="absolute bottom-2 right-2 bg-sky-500 text-white text-xs md:text-sm px-3 py-2 rounded-2xl shadow">
-                  أنشطة ممتعة
-                </div>
-              </div>
+
             </div>
           </div>
         </div>
@@ -135,7 +123,7 @@ export default async function Home() {
                 <div className="sm:order-1">
                   <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
                     <img
-                      src="/hero/kids_3.png"
+                      src="/landing/kids_2.png"
                       alt="تعلّم ممتع"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -161,7 +149,7 @@ export default async function Home() {
                 <div className="sm:order-1">
                   <div className="relative aspect-square rounded-xl overflow-hidden border border-sky-100 bg-white">
                     <img
-                      src="/hero/kids_1.png"
+                      src="/landing/kids_1.png"
                       alt="نشاط عملي"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -225,12 +213,12 @@ export default async function Home() {
         </div>
       </section>
       {/* Benefits */}
-      <section dir="rtl" className="relative z-10">
+      <section dir="rtl" className="relative z-10 bg-cover" style={{ backgroundImage: "url('/landing/ar/3_ar.jpg')" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-gradient-to-r from-sky-50 to-green-50 rounded-3xl border border-sky-100 p-6">
+          <div className=" p-6">
             <div className="grid md:grid-cols-2 gap-6 items-center">
               <div className="order-2 md:order-1">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-6 text-right">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-6 text-right">
                   ما مدى استفادة طفلك من Movokids؟
                 </h2>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -267,13 +255,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="order-1 md:order-2">
-                <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
-                  <img
-                    src="/hero/kids_4.png"
-                    alt="أنشطة ممتعة"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+
               </div>
             </div>
           </div>
@@ -281,9 +263,11 @@ export default async function Home() {
       </section>
 
       {/* Why Us */}
-      <section id="why" dir="rtl" className="relative z-10">
+      <section id="why" dir="rtl" className="relative z-10 bg-cover bg-center" style={{ backgroundImage: "url('/landing/ar/2_ar.jpg')" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+            </div>
             <div className="space-y-6">
               <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm flex flex-col items-start">
                 <h2 className="text-2xl font-extrabold text-sky-900 mb-4">
@@ -333,49 +317,13 @@ export default async function Home() {
                 </div>
               </div>
             </div>
-            <div>
-              <div className="relative mx-auto w-full max-w-md aspect-square rounded-3xl overflow-hidden border border-sky-100 bg-white shadow">
-                <img
-                  src="/hero/kids_2.png"
-                  alt="تعلم وتفاعل"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section dir="rtl" className="relative z-10 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-gradient-to-r from-sky-600 to-green-600 p-6 text-white text-right shadow">
-            <h2 className="text-2xl md:text-3xl font-extrabold">
-              ابدأ رحلة طفلك اليوم
-            </h2>
-            <p className="mt-2 text-white/90">
-              انضم إلى Movokids واصنع فارقًا حقيقيًا بخطوات بسيطة وممتعة.
-            </p>
-            <div className="mt-4 flex gap-3">
-              <Link
-                href="/auth/signup"
-                className="px-5 py-3 rounded-2xl bg-white text-sky-700 font-semibold hover:bg-sky-50"
-              >
-                إنشاء حساب
-              </Link>
-              <Link
-                href="/auth/login"
-                className="px-5 py-3 rounded-2xl bg-white/10 border border-white/30 text-white hover:bg-white/20"
-              >
-                لدي حساب مسبقًا
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Parents' Reviews */}
-      <section dir="rtl" className="relative z-10 pb-12">
+      <section dir="rtl" className="relative z-10 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 text-center mb-8">
             آراء الأهل
