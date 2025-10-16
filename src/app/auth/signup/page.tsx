@@ -72,8 +72,9 @@ async function signup(formData: FormData) {
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const params = await searchParams
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
@@ -87,8 +88,8 @@ export default async function SignupPage({
       redirect('/quiz')
     }
   } catch {}
-  const message = typeof searchParams?.message === "string" ? searchParams?.message : ""
-  const error = typeof searchParams?.error === "string" ? searchParams?.error : ""
+  const message = typeof params?.message === "string" ? params.message : ""
+  const error = typeof params?.error === "string" ? params.error : ""
 
   return (
     <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">

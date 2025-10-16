@@ -12,22 +12,51 @@ async function login(formData: FormData) {
   }
 
   const supabase = await createSupabaseServerClient()
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { error, data } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
     redirect(`/auth/login/en?error=${encodeURIComponent(error.message)}`)
   }
+
+  // Check user role and redirect accordingly
+  if (data.user) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("auth_id", data.user.id)
+      .maybeSingle()
+
+    // Redirect admins to admin dashboard, regular users to user dashboard
+    if (userData?.role === "admin" || userData?.role === "super_admin") {
+      redirect("/admin")
+    }
+  }
+
   redirect("/dashboard")
 }
 
-export default async function LoginPageEn({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) {
+export default async function LoginPageEn({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const params = await searchParams
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
+  
+  // If already logged in, redirect based on role
   if (user) {
-    redirect('/dashboard')
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("auth_id", user.id)
+      .maybeSingle()
+
+    if (userData?.role === "admin" || userData?.role === "super_admin") {
+      redirect('/admin')
+    } else {
+      redirect('/dashboard')
+    }
   }
-  const message = typeof searchParams?.message === 'string' ? searchParams?.message : ""
-  const error = typeof searchParams?.error === 'string' ? searchParams?.error : ""
+  
+  const message = typeof params?.message === 'string' ? params.message : ""
+  const error = typeof params?.error === 'string' ? params.error : ""
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

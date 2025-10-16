@@ -20,6 +20,20 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Check user role and redirect admins to admin dashboard
+  if (user) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("auth_id", user.id)
+      .maybeSingle();
+
+    // Redirect admins away from user routes
+    if (userData?.role === "admin" || userData?.role === "super_admin") {
+      redirect("/admin");
+    }
+  }
+
   // Get user profile and learning stats
   let learningStats = null;
   if (user) {

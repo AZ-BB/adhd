@@ -202,6 +202,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
         {/* Game Component */}
         {currentGame.game.type === 'memory' && (
           <MemoryGame
+            key={currentGame.dayGame.id}
             game={currentGame.game}
             userId={userId}
             learningDayId={day.id}
@@ -212,6 +213,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
         
         {currentGame.game.type === 'matching' && (
           <MatchingGame
+            key={currentGame.dayGame.id}
             game={currentGame.game}
             userId={userId}
             learningDayId={day.id}
@@ -222,6 +224,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
         
         {currentGame.game.type === 'sequence' && (
           <NumberSequenceGame
+            key={currentGame.dayGame.id}
             game={currentGame.game}
             userId={userId}
             learningDayId={day.id}
@@ -232,6 +235,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
         
         {currentGame.game.type === 'attention' && (
           <SpotTheItemGame
+            key={currentGame.dayGame.id}
             game={currentGame.game}
             userId={userId}
             learningDayId={day.id}

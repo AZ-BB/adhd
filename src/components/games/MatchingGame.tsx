@@ -22,6 +22,7 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
   const config = game.config as GameConfig
   const itemCount = config.itemCount || 5
   const category = config.category || 'colors'
+  const customPairs = (config as any).customPairs || []
   
   const [leftItems, setLeftItems] = useState<MatchItem[]>([])
   const [rightItems, setRightItems] = useState<MatchItem[]>([])
@@ -32,10 +33,11 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
   const [gameStarted, setGameStarted] = useState(false)
   const [gameCompleted, setGameCompleted] = useState(false)
   const [timeElapsed, setTimeElapsed] = useState(0)
+  const [matchingMap, setMatchingMap] = useState<Record<string, string>>({})
 
   // Initialize items
   useEffect(() => {
-    const items = generateMatchingItems(itemCount, category)
+    const items = generateMatchingItems(itemCount, category, customPairs)
     const shuffledRight = shuffleArray([...items.right])
     
     setLeftItems(items.left.map((value, index) => ({
@@ -49,6 +51,9 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
       value,
       matched: false
     })))
+
+    // Store the matching map for validation
+    setMatchingMap(items.matchingMap)
   }, [itemCount, category])
 
   // Timer
@@ -103,8 +108,8 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
     
     if (!leftItem || !rightItem) return
     
-    // Check if values match (implement your matching logic here)
-    const isMatch = checkIfMatching(leftItem.value, rightItem.value, category)
+    // Check if values match using the matching map
+    const isMatch = matchingMap[leftItem.value] === rightItem.value
     
     if (isMatch) {
       // Correct match
@@ -239,57 +244,77 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
 }
 
 // Helper functions
-function generateMatchingItems(count: number, category: string): { left: string[]; right: string[] } {
-  const categories: Record<string, { left: string[]; right: string[] }> = {
-    colors: {
-      left: ['Apple 🍎', 'Banana 🍌', 'Leaf 🍃', 'Sky ☁️', 'Orange 🍊'],
-      right: ['Red', 'Yellow', 'Green', 'Blue', 'Orange']
-    },
-    shapes: {
-      left: ['Circle', 'Square', 'Triangle', 'Star', 'Heart'],
-      right: ['⭕', '⬜', '🔺', '⭐', '❤️']
-    },
-    animals: {
-      left: ['Dog 🐕', 'Cat 🐈', 'Cow 🐄', 'Duck 🦆', 'Lion 🦁'],
-      right: ['Bark', 'Meow', 'Moo', 'Quack', 'Roar']
+function generateMatchingItems(
+  count: number, 
+  category: string, 
+  customPairs: Array<{ left: string; right: string }>
+): { left: string[]; right: string[]; matchingMap: Record<string, string> } {
+  // If custom pairs are provided, use them
+  if (category === 'custom' && customPairs.length > 0) {
+    const pairs = customPairs.slice(0, count)
+    const matchingMap: Record<string, string> = {}
+    pairs.forEach(pair => {
+      matchingMap[pair.left] = pair.right
+    })
+    return {
+      left: pairs.map(p => p.left),
+      right: pairs.map(p => p.right),
+      matchingMap
     }
   }
-  
-  const items = categories[category] || categories.colors
-  return {
-    left: items.left.slice(0, count),
-    right: items.right.slice(0, count)
-  }
-}
 
-function checkIfMatching(left: string, right: string, category: string): boolean {
-  // Implement your matching logic based on category
-  // This is a simple example - customize based on your needs
-  const matches: Record<string, Record<string, string>> = {
+  // Default categories
+  const categories: Record<string, { pairs: Array<{ left: string; right: string }> }> = {
     colors: {
-      'Apple 🍎': 'Red',
-      'Banana 🍌': 'Yellow',
-      'Leaf 🍃': 'Green',
-      'Sky ☁️': 'Blue',
-      'Orange 🍊': 'Orange'
+      pairs: [
+        { left: 'Apple 🍎', right: 'Red' },
+        { left: 'Banana 🍌', right: 'Yellow' },
+        { left: 'Leaf 🍃', right: 'Green' },
+        { left: 'Sky ☁️', right: 'Blue' },
+        { left: 'Orange 🍊', right: 'Orange' },
+        { left: 'Grape 🍇', right: 'Purple' },
+        { left: 'Strawberry 🍓', right: 'Pink' },
+        { left: 'Carrot 🥕', right: 'Orange' }
+      ]
     },
     shapes: {
-      'Circle': '⭕',
-      'Square': '⬜',
-      'Triangle': '🔺',
-      'Star': '⭐',
-      'Heart': '❤️'
+      pairs: [
+        { left: 'Circle', right: '⭕' },
+        { left: 'Square', right: '⬜' },
+        { left: 'Triangle', right: '🔺' },
+        { left: 'Star', right: '⭐' },
+        { left: 'Heart', right: '❤️' },
+        { left: 'Diamond', right: '💎' },
+        { left: 'Pentagon', right: '⬟' }
+      ]
     },
     animals: {
-      'Dog 🐕': 'Bark',
-      'Cat 🐈': 'Meow',
-      'Cow 🐄': 'Moo',
-      'Duck 🦆': 'Quack',
-      'Lion 🦁': 'Roar'
+      pairs: [
+        { left: 'Dog 🐕', right: 'Bark' },
+        { left: 'Cat 🐈', right: 'Meow' },
+        { left: 'Cow 🐄', right: 'Moo' },
+        { left: 'Duck 🦆', right: 'Quack' },
+        { left: 'Lion 🦁', right: 'Roar' },
+        { left: 'Sheep 🐑', right: 'Baa' },
+        { left: 'Horse 🐴', right: 'Neigh' },
+        { left: 'Pig 🐷', right: 'Oink' }
+      ]
     }
   }
   
-  return matches[category]?.[left] === right
+  const categoryData = categories[category] || categories.colors
+  const pairs = categoryData.pairs.slice(0, count)
+  
+  const matchingMap: Record<string, string> = {}
+  pairs.forEach(pair => {
+    matchingMap[pair.left] = pair.right
+  })
+
+  return {
+    left: pairs.map(p => p.left),
+    right: pairs.map(p => p.right),
+    matchingMap
+  }
 }
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -300,4 +325,5 @@ function shuffleArray<T>(array: T[]): T[] {
   }
   return newArray
 }
+
 

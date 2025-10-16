@@ -29,6 +29,11 @@ export function middleware(req: NextRequest) {
     })
   }
 
+  // Skip middleware logic for admin routes (auth handled at page level)
+  if (pathname.startsWith('/admin')) {
+    return res
+  }
+
   // Determine if quiz is incomplete (started but not completed)
   const isQuizIncomplete = hasStartedQuiz && !hasCompletedQuiz
 

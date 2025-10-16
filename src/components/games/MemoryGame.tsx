@@ -17,6 +17,9 @@ interface Card {
   value: string
   isFlipped: boolean
   isMatched: boolean
+  imageUrl?: string
+  type?: 'emoji' | 'image'
+  label?: string
 }
 
 export default function MemoryGame({ game, userId, learningDayId, dayGameId, onComplete }: MemoryGameProps) {
@@ -24,6 +27,7 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   const pairs = config.pairs || 4
   const timeLimit = config.timeLimit || 60
   const theme = config.theme || 'animals'
+  const customCards = (config as any).customCards || []
   
   const [cards, setCards] = useState<Card[]>([])
   const [firstCard, setFirstCard] = useState<number | null>(null)
@@ -35,18 +39,22 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   const [gameCompleted, setGameCompleted] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Initialize cards
+  // Initialize cards - only run once on mount
   useEffect(() => {
-    const values = generateCardValues(pairs, theme)
-    const shuffledCards = shuffleArray([...values, ...values])
+    const cardItems = generateCardItems(pairs, theme, customCards)
+    const shuffledCards = shuffleArray([...cardItems, ...cardItems])
     
-    setCards(shuffledCards.map((value, index) => ({
+    setCards(shuffledCards.map((item, index) => ({
       id: index,
-      value,
+      value: item.value,
       isFlipped: false,
-      isMatched: false
+      isMatched: false,
+      imageUrl: item.imageUrl,
+      type: item.type,
+      label: item.label
     })))
-  }, [pairs, theme])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Timer
   useEffect(() => {
@@ -162,7 +170,8 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
     }
   }
 
-  const getCardEmoji = (value: string): string => {
+  const renderCardContent = (card: Card): string => {
+    // For emoji or text - return the emoji/text string
     const emojiMap: Record<string, string> = {
       // Animals
       'dog': '🐕',
@@ -193,7 +202,7 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
       'brown': '🟤'
     }
     
-    return emojiMap[value] || '❓'
+    return emojiMap[card.value] || card.value || '❓'
   }
 
   return (
@@ -232,17 +241,30 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
             onClick={() => handleCardClick(card.id)}
             disabled={card.isFlipped || card.isMatched || isProcessing || gameCompleted}
             className={`
-              aspect-square w-20 h-20 sm:w-24 sm:h-24 rounded-lg text-4xl
-              transition-all duration-300 transform
+              aspect-square w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden
+              transition-all duration-300 transform flex items-center justify-center
               ${card.isFlipped || card.isMatched
                 ? 'bg-blue-500 text-white scale-105'
                 : 'bg-gray-300 hover:bg-gray-400 hover:scale-105'
               }
               ${card.isMatched ? 'opacity-50' : ''}
               disabled:cursor-not-allowed
+              ${!(card.isFlipped || card.isMatched) ? 'text-4xl' : ''}
             `}
           >
-            {(card.isFlipped || card.isMatched) ? getCardEmoji(card.value) : '?'}
+            {(card.isFlipped || card.isMatched) ? (
+              card.type === 'image' && card.imageUrl ? (
+                <img 
+                  src={card.imageUrl} 
+                  alt={card.label || card.value}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-4xl">{renderCardContent(card)}</span>
+              )
+            ) : (
+              <span className="text-4xl">?</span>
+            )}
           </button>
         ))}
       </div>
@@ -275,7 +297,29 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
 }
 
 // Helper functions
-function generateCardValues(pairs: number, theme: string): string[] {
+interface CardItem {
+  value: string
+  imageUrl?: string
+  type?: 'emoji' | 'image'
+  label?: string
+}
+
+function generateCardItems(
+  pairs: number, 
+  theme: string,
+  customCards: any[]
+): CardItem[] {
+  // If custom cards are provided, use them
+  if (theme === 'custom' && customCards.length > 0) {
+    return customCards.slice(0, pairs).map(card => ({
+      value: card.value,
+      imageUrl: card.imageUrl,
+      type: card.type || 'emoji',
+      label: card.label
+    }))
+  }
+
+  // Default themes
   const themes: Record<string, string[]> = {
     animals: ['dog', 'cat', 'rabbit', 'bear', 'lion', 'tiger', 'elephant', 'monkey'],
     shapes: ['circle', 'square', 'triangle', 'star', 'heart', 'diamond', 'pentagon', 'hexagon'],
@@ -283,7 +327,10 @@ function generateCardValues(pairs: number, theme: string): string[] {
   }
   
   const values = themes[theme] || themes.animals
-  return values.slice(0, pairs)
+  return values.slice(0, pairs).map(value => ({
+    value,
+    type: 'emoji' as const
+  }))
 }
 
 function shuffleArray<T>(array: T[]): T[] {
