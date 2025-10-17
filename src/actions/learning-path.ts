@@ -406,6 +406,14 @@ async function getAvailableDayByTime(userId: number): Promise<number> {
     .eq('id', userId)
     .single()
   
+  const { data: learningDaysData } = await supabase
+    .from('learning_days')
+    .select('id')
+    .eq('is_active', true)
+    .order('day_number', { ascending: true })
+  
+  const totalDays = learningDaysData?.length || 0
+  console.log('totalDays', totalDays)
   if (!user?.learning_path_started_at) {
     // Not started yet, only Day 1 available
     return 1
@@ -423,7 +431,7 @@ async function getAvailableDayByTime(userId: number): Promise<number> {
   
   // Day 1 available on day 0, Day 2 on day 1, etc.
   // So available day = daysElapsed + 1
-  return Math.min(daysElapsed + 1, 30) // Max 30 days
+  return Math.min(daysElapsed + 1, totalDays) // Max totalDays days
 }
 
 /**

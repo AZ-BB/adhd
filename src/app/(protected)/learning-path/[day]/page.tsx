@@ -29,7 +29,7 @@ export default async function LearningDayPage({ params }: PageProps) {
   
   const dayNumber = parseInt(params.day)
   
-  if (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 30) {
+  if (isNaN(dayNumber) || dayNumber < 1) {
     redirect('/learning-path')
   }
   
