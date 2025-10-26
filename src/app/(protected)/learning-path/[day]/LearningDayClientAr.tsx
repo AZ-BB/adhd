@@ -7,6 +7,8 @@ import MemoryGame from '@/components/games/MemoryGame'
 import MatchingGame from '@/components/games/MatchingGame'
 import NumberSequenceGame from '@/components/games/NumberSequenceGame'
 import SpotTheItemGame from '@/components/games/SpotTheItemGame'
+import SortingGame from '@/components/games/SortingGame'
+import AimingGame from '@/components/games/AimingGame'
 
 interface LearningDayClientProps {
   dayDetails: DayProgressResponse
@@ -200,7 +202,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
         </div>
 
         {/* Game Component */}
-        {currentGame.game.type === 'memory' && (
+        {currentGame?.game?.type === 'memory' && (
           <MemoryGame
             key={currentGame.dayGame.id}
             game={currentGame.game}
@@ -211,7 +213,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
           />
         )}
         
-        {currentGame.game.type === 'matching' && (
+        {currentGame?.game?.type === 'matching' && (
           <MatchingGame
             key={currentGame.dayGame.id}
             game={currentGame.game}
@@ -222,7 +224,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
           />
         )}
         
-        {currentGame.game.type === 'sequence' && (
+        {currentGame?.game?.type === 'sequence' && (
           <NumberSequenceGame
             key={currentGame.dayGame.id}
             game={currentGame.game}
@@ -233,7 +235,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
           />
         )}
         
-        {currentGame.game.type === 'attention' && (
+        {currentGame?.game?.type === 'attention' && (
           <SpotTheItemGame
             key={currentGame.dayGame.id}
             game={currentGame.game}
@@ -244,11 +246,33 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
           />
         )}
         
+        {currentGame?.game?.type === 'sorting' && (
+          <SortingGame
+            key={currentGame.dayGame.id}
+            game={currentGame.game}
+            userId={userId}
+            learningDayId={day.id}
+            dayGameId={currentGame.dayGame.id}
+            onComplete={handleGameComplete}
+          />
+        )}
+        
+        {currentGame?.game?.type === 'aiming' && (
+          <AimingGame
+            key={currentGame.dayGame.id}
+            game={currentGame.game}
+            userId={userId}
+            learningDayId={day.id}
+            dayGameId={currentGame.dayGame.id}
+            onComplete={handleGameComplete}
+          />
+        )}
+        
         {/* Placeholder for other game types */}
-        {!['memory', 'matching', 'sequence', 'attention'].includes(currentGame.game.type) && (
+        {!['memory', 'matching', 'sequence', 'attention', 'sorting', 'aiming'].includes(currentGame?.game?.type || '') && (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">
-              {currentGame.game.name_ar || currentGame.game.name} - {currentGame.game.type}
+              {currentGame?.game?.name_ar || currentGame?.game?.name || ''} - {currentGame?.game?.type || ''}
             </p>
             <p className="text-sm text-gray-400">
               مكون اللعبة غير متاح حتى الآن
@@ -264,11 +288,11 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
       </div>
 
       {/* Game Attempts History */}
-      {currentGame.attempts.length > 0 && (
+      {currentGame?.attempts?.length > 0 && (
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4">المحاولات السابقة</h3>
           <div className="space-y-2">
-            {currentGame.attempts.map((attempt) => (
+            {currentGame?.attempts?.map((attempt) => (
               <div
                 key={attempt.id}
                 className={`flex items-center justify-between p-3 rounded-lg ${

@@ -365,13 +365,9 @@ export default function MemoryGameConfig({ config, onChange }: MemoryGameConfigP
                             </div>
                           </label>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => switchToEmoji(index)}
-                            className="flex-1 px-2 py-1 bg-yellow-600/20 border border-yellow-500/50 rounded text-yellow-300 text-xs hover:bg-yellow-600/30"
-                          >
-                            Switch to Emoji
-                          </button>
+                          <div>
+                            
+                          </div>
                         )}
                         <button
                           type="button"

@@ -15,7 +15,6 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
   const [isCreating, setIsCreating] = useState(false)
   const [editingDay, setEditingDay] = useState<LearningDay | null>(null)
   const [formData, setFormData] = useState({
-    day_number: days.length + 1,
     title: '',
     title_ar: '',
     description: '',
@@ -28,7 +27,6 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
 
   const resetForm = () => {
     setFormData({
-      day_number: days.length + 1,
       title: '',
       title_ar: '',
       description: '',
@@ -43,7 +41,6 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
 
   const handleEdit = (day: LearningDay) => {
     setFormData({
-      day_number: day.day_number,
       title: day.title,
       title_ar: day.title_ar || '',
       description: day.description || '',
@@ -101,22 +98,14 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Day Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Day Number *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={formData.day_number}
-                  onChange={(e) => setFormData({ ...formData, day_number: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 bg-black/50 border border-purple-800/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+            {/* Show day number only when editing */}
+            {editingDay && (
+              <div className="p-3 bg-purple-500/20 border border-purple-500/50 rounded-lg">
+                <span className="text-sm text-gray-300">Editing Day {editingDay.day_number}</span>
               </div>
+            )}
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Required Correct Games */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">

@@ -32,7 +32,7 @@ export default async function AdminLayout({
             href="/admin"
             className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400"
           >
-            Admin Portal
+            Movokids Admin
           </Link>
         </div>
         <nav className="p-4 flex-1 overflow-y-auto">

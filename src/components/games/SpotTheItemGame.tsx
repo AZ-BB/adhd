@@ -109,9 +109,13 @@ export default function SpotTheItemGame({
 
   const getEmojisByDifficulty = (diff: string): string[] => {
     const allEmojis = {
+      very_easy: ['😀', '😊', '😂', '😍', '🥰', '😎'],
       easy: ['🐕', '🐈', '🐰', '🐻', '🦁', '🐸', '🐷', '🐮'],
+      easy_medium: ['🌸', '🌺', '🌻', '🌷', '🌹', '🏵️', '🌼', '💐', '🥀'],
       medium: ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉', '🍒', '🥝', '🍑', '🍍'],
-      hard: ['⚽', '🏀', '⚾', '🎾', '🏐', '🏈', '🎱', '🏓', '🏸', '🥏', '🎳', '⛳']
+      medium_hard: ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚'],
+      hard: ['⚽', '🏀', '⚾', '🎾', '🏐', '🏈', '🎱', '🏓', '🏸', '🥏', '🎳', '⛳'],
+      very_hard: ['🎮', '🎯', '🎲', '🎰', '🎳', '🎪', '🎨', '🎭', '🎬', '🎤', '🎧', '🎸', '🎹', '🎺']
     }
     
     return allEmojis[diff as keyof typeof allEmojis] || allEmojis.easy
@@ -119,9 +123,13 @@ export default function SpotTheItemGame({
 
   const getDifficultyItemCount = (diff: string): number => {
     const counts = {
+      very_easy: 8,
       easy: 12,
+      easy_medium: 16,
       medium: 20,
-      hard: 30
+      medium_hard: 25,
+      hard: 30,
+      very_hard: 40
     }
     return counts[diff as keyof typeof counts] || 12
   }

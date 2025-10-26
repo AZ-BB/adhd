@@ -63,14 +63,26 @@ export default function NumberSequenceGame({
     let pattern: SequencePattern
 
     switch (difficulty) {
+      case 'very_easy':
+        pattern = generateVeryEasyPattern(sequenceLength)
+        break
       case 'easy':
         pattern = generateEasyPattern(sequenceLength)
+        break
+      case 'easy_medium':
+        pattern = generateEasyMediumPattern(sequenceLength)
         break
       case 'medium':
         pattern = generateMediumPattern(sequenceLength)
         break
+      case 'medium_hard':
+        pattern = generateMediumHardPattern(sequenceLength)
+        break
       case 'hard':
         pattern = generateHardPattern(sequenceLength)
+        break
+      case 'very_hard':
+        pattern = generateVeryHardPattern(sequenceLength)
         break
       default:
         pattern = generateEasyPattern(sequenceLength)
@@ -81,6 +93,22 @@ export default function NumberSequenceGame({
     setShowFeedback(false)
   }
 
+  const generateVeryEasyPattern = (length: number): SequencePattern => {
+    // Simple counting by 1
+    const start = Math.floor(Math.random() * 10) + 1
+    const sequence = Array.from({ length }, (_, i) => start + i)
+    const correctAnswer = start + length
+    
+    const options = generateOptions(correctAnswer, 1)
+    
+    return {
+      sequence,
+      correctAnswer,
+      options: shuffleArray(options),
+      pattern: 'Counting by 1'
+    }
+  }
+
   const generateEasyPattern = (length: number): SequencePattern => {
     // Simple addition patterns (e.g., +2, +3, +5)
     const start = Math.floor(Math.random() * 20) + 1
@@ -89,6 +117,23 @@ export default function NumberSequenceGame({
     const correctAnswer = start + (length * step)
     
     // Generate wrong options
+    const options = generateOptions(correctAnswer, step)
+    
+    return {
+      sequence,
+      correctAnswer,
+      options: shuffleArray(options),
+      pattern: `Adding ${step}`
+    }
+  }
+
+  const generateEasyMediumPattern = (length: number): SequencePattern => {
+    // Counting by larger numbers (e.g., +10, +15, +20)
+    const start = Math.floor(Math.random() * 20) + 5
+    const step = [10, 15, 20][Math.floor(Math.random() * 3)]
+    const sequence = Array.from({ length }, (_, i) => start + (i * step))
+    const correctAnswer = start + (length * step)
+    
     const options = generateOptions(correctAnswer, step)
     
     return {
@@ -134,6 +179,40 @@ export default function NumberSequenceGame({
       // Subtraction pattern
       const start = Math.floor(Math.random() * 50) + 50
       const step = [3, 4, 5][Math.floor(Math.random() * 3)]
+      const sequence = Array.from({ length }, (_, i) => start - (i * step))
+      const correctAnswer = start - (length * step)
+      const options = generateOptions(correctAnswer, step)
+      
+      return {
+        sequence,
+        correctAnswer,
+        options: shuffleArray(options),
+        pattern: `Subtracting ${step}`
+      }
+    }
+  }
+
+  const generateMediumHardPattern = (length: number): SequencePattern => {
+    const patternType = Math.floor(Math.random() * 2)
+    
+    if (patternType === 0) {
+      // Multiplication pattern (e.g., ×2)
+      const start = Math.floor(Math.random() * 5) + 2
+      const multiplier = 2
+      const sequence = Array.from({ length }, (_, i) => start * Math.pow(multiplier, i))
+      const correctAnswer = start * Math.pow(multiplier, length)
+      const options = generateOptions(correctAnswer, correctAnswer * 0.2)
+      
+      return {
+        sequence,
+        correctAnswer,
+        options: shuffleArray(options),
+        pattern: `Multiplying by ${multiplier}`
+      }
+    } else {
+      // Larger subtraction pattern
+      const start = Math.floor(Math.random() * 50) + 50
+      const step = [10, 12, 15][Math.floor(Math.random() * 3)]
       const sequence = Array.from({ length }, (_, i) => start - (i * step))
       const correctAnswer = start - (length * step)
       const options = generateOptions(correctAnswer, step)
@@ -194,6 +273,64 @@ export default function NumberSequenceGame({
         correctAnswer,
         options: shuffleArray(options),
         pattern: `Alternating +${add}, -${subtract}`
+      }
+    }
+  }
+
+  const generateVeryHardPattern = (length: number): SequencePattern => {
+    const patternType = Math.floor(Math.random() * 3)
+    
+    if (patternType === 0) {
+      // Square numbers (1, 4, 9, 16, 25...)
+      const start = Math.floor(Math.random() * 3) + 1
+      const sequence = Array.from({ length }, (_, i) => Math.pow(start + i, 2))
+      const correctAnswer = Math.pow(start + length, 2)
+      const options = generateOptions(correctAnswer, Math.floor(correctAnswer * 0.3))
+      
+      return {
+        sequence,
+        correctAnswer,
+        options: shuffleArray(options),
+        pattern: 'Square numbers'
+      }
+    } else if (patternType === 1) {
+      // Cube numbers (1, 8, 27, 64...)
+      const start = Math.floor(Math.random() * 2) + 1
+      const sequence = Array.from({ length }, (_, i) => Math.pow(start + i, 3))
+      const correctAnswer = Math.pow(start + length, 3)
+      const options = generateOptions(correctAnswer, Math.floor(correctAnswer * 0.3))
+      
+      return {
+        sequence,
+        correctAnswer,
+        options: shuffleArray(options),
+        pattern: 'Cube numbers'
+      }
+    } else {
+      // Complex alternating (e.g., ×3, -4, ×3, -4)
+      const start = Math.floor(Math.random() * 5) + 2
+      const multiply = [2, 3][Math.floor(Math.random() * 2)]
+      const subtract = [2, 4, 5][Math.floor(Math.random() * 3)]
+      const sequence = [start]
+      
+      for (let i = 1; i < length; i++) {
+        if (i % 2 === 1) {
+          sequence.push(sequence[i - 1] * multiply)
+        } else {
+          sequence.push(sequence[i - 1] - subtract)
+        }
+      }
+      
+      const correctAnswer = length % 2 === 1 
+        ? sequence[length - 1] * multiply 
+        : sequence[length - 1] - subtract
+      const options = generateOptions(correctAnswer, Math.max(Math.floor(correctAnswer * 0.3), 5))
+      
+      return {
+        sequence,
+        correctAnswer,
+        options: shuffleArray(options),
+        pattern: `Alternating ×${multiply}, -${subtract}`
       }
     }
   }

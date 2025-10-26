@@ -51,14 +51,14 @@ export default async function DashboardPageEn() {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Language Switcher */}
-      <div className="flex justify-end mb-4">
+      {/* <div className="flex justify-end mb-4">
         <a
           href="/dashboard"
           className="inline-flex items-center px-4 py-2 bg-white/70 backdrop-blur-md border border-gray-300 rounded-xl text-sm text-gray-700 hover:bg-white shadow-sm transition-all"
         >
           عربي
         </a>
-      </div>
+      </div> */}
       
       {!profile ? (
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -176,7 +176,7 @@ export default async function DashboardPageEn() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-4 text-center border-2 border-purple-300">
                   <div className="text-3xl font-black text-purple-600 mb-1">
                     {learningStats.currentDay}
@@ -195,12 +195,7 @@ export default async function DashboardPageEn() {
                   </div>
                   <div className="text-xs font-bold text-gray-700">Average Score</div>
                 </div>
-                <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl p-4 text-center border-2 border-orange-300">
-                  <div className="text-3xl font-black text-orange-600 mb-1">
-                    {Math.floor(learningStats.totalTimePlayed / 60)}
-                  </div>
-                  <div className="text-xs font-bold text-gray-700">Minutes Played</div>
-                </div>
+                
               </div>
 
               {/* Recent Days */}

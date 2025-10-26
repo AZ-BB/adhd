@@ -51,7 +51,6 @@ export async function getLearningDayById(id: number): Promise<LearningDay | null
  * Create a new learning day
  */
 export async function createLearningDay(params: {
-  day_number: number
   title: string
   title_ar?: string
   description?: string
@@ -61,10 +60,26 @@ export async function createLearningDay(params: {
 }): Promise<LearningDay> {
   const supabase = await createSupabaseServerClient()
   
+  // Get the highest day_number and increment
+  const { data: existingDays, error: fetchError } = await supabase
+    .from('learning_days')
+    .select('day_number')
+    .order('day_number', { ascending: false })
+    .limit(1)
+  
+  if (fetchError) {
+    console.error('Error fetching existing days:', fetchError)
+    throw new Error('Failed to fetch existing days: ' + fetchError.message)
+  }
+  
+  const nextDayNumber = existingDays && existingDays.length > 0 
+    ? existingDays[0].day_number + 1 
+    : 1
+  
   const { data, error } = await supabase
     .from('learning_days')
     .insert({
-      day_number: params.day_number,
+      day_number: nextDayNumber,
       title: params.title,
       title_ar: params.title_ar,
       description: params.description,
@@ -394,7 +409,22 @@ export async function updateDayGamesOrder(
 ): Promise<void> {
   const supabase = await createSupabaseServerClient()
   
-  // Update each assignment
+  // First, set all assignments to temporary high values to avoid constraint violations
+  // This ensures we don't have duplicate order_in_day values during the update process
+  // Using 10000 + index ensures no conflicts with final values (which are typically 1-50)
+  for (let i = 0; i < assignments.length; i++) {
+    const { error } = await supabase
+      .from('day_games')
+      .update({ order_in_day: 10000 + i })
+      .eq('id', assignments[i].id)
+    
+    if (error) {
+      console.error('Error setting temporary order:', error)
+      throw new Error('Failed to update game order: ' + error.message)
+    }
+  }
+  
+  // Now update to the final order values
   for (const assignment of assignments) {
     const { error } = await supabase
       .from('day_games')
