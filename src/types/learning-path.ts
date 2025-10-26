@@ -1,5 +1,5 @@
 // Game Types
-export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming'
+export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming' | 'pattern'
 
 export interface GameConfig {
   // Memory game config
@@ -28,6 +28,10 @@ export interface GameConfig {
   // Sorting game config
   colorGroups?: number
   categories?: number
+  
+  // Pattern recognition game config
+  patternType?: string
+  rounds?: number
 }
 
 export interface Game {

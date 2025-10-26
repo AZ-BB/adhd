@@ -9,6 +9,7 @@ import NumberSequenceGame from '@/components/games/NumberSequenceGame'
 import SpotTheItemGame from '@/components/games/SpotTheItemGame'
 import SortingGame from '@/components/games/SortingGame'
 import AimingGame from '@/components/games/AimingGame'
+import PatternRecognitionGame from '@/components/games/PatternRecognitionGame'
 
 interface LearningDayClientProps {
   dayDetails: DayProgressResponse
@@ -268,8 +269,19 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
           />
         )}
         
+        {currentGame?.game?.type === 'pattern' && (
+          <PatternRecognitionGame
+            key={currentGame.dayGame.id}
+            game={currentGame.game}
+            userId={userId}
+            learningDayId={day.id}
+            dayGameId={currentGame.dayGame.id}
+            onComplete={handleGameComplete}
+          />
+        )}
+        
         {/* Placeholder for other game types */}
-        {!['memory', 'matching', 'sequence', 'attention', 'sorting', 'aiming'].includes(currentGame?.game?.type || '') && (
+        {!['memory', 'matching', 'sequence', 'attention', 'sorting', 'aiming', 'pattern'].includes(currentGame?.game?.type || '') && (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">
               {currentGame?.game?.name || ''} - {currentGame?.game?.type || ''}

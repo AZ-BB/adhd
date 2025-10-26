@@ -10,6 +10,7 @@ import NumberSequenceGameConfig from './game-configs/NumberSequenceGameConfig'
 import AttentionGameConfig from './game-configs/AttentionGameConfig'
 import SortingGameConfig from './game-configs/SortingGameConfig'
 import AimingGameConfig from './game-configs/AimingGameConfig'
+import PatternRecognitionGameConfig from './game-configs/PatternRecognitionGameConfig'
 
 interface GameManagementProps {
   initialGames: Game[]
@@ -21,7 +22,8 @@ const gameTypes: { value: GameType; label: string; icon: string }[] = [
   { value: 'sequence', label: 'Sequence Game', icon: '🔢' },
   { value: 'attention', label: 'Attention Game', icon: '👀' },
   { value: 'sorting', label: 'Sorting Game', icon: '📊' },
-  { value: 'aiming', label: 'Aiming Game', icon: '🎪' }
+  { value: 'aiming', label: 'Aiming Game', icon: '🎪' },
+  { value: 'pattern', label: 'Pattern Recognition', icon: '🧩' }
 ]
 
 export default function GameManagement({ initialGames }: GameManagementProps) {
@@ -282,6 +284,27 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       } else if (config.duration > 180) {
         errors.config = 'Duration must not exceed 180 seconds'
       }
+    } else if (formData.type === 'pattern') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        errors.config = 'Please select a valid difficulty level'
+      }
+      
+      // Validate pattern type
+      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers']
+      if (!config.patternType || !validPatternTypes.includes(config.patternType)) {
+        errors.config = 'Please select a valid pattern type'
+      }
+      
+      // Validate rounds
+      if (!config.rounds || config.rounds < 3) {
+        errors.config = 'Number of rounds must be at least 3'
+      } else if (config.rounds > 10) {
+        errors.config = 'Number of rounds must not exceed 10'
+      }
     }
 
     setValidationErrors(errors)
@@ -451,6 +474,25 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       if (!config.duration || config.duration < 30 || config.duration > 180) {
         return false
       }
+    } else if (formData.type === 'pattern') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        return false
+      }
+      
+      // Validate pattern type
+      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers']
+      if (!config.patternType || !validPatternTypes.includes(config.patternType)) {
+        return false
+      }
+      
+      // Validate rounds
+      if (!config.rounds || config.rounds < 3 || config.rounds > 10) {
+        return false
+      }
     }
 
     return true
@@ -542,6 +584,8 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       defaultConfig = { categoryType: 'colors', itemCount: 8 }
     } else if (type === 'aiming') {
       defaultConfig = { difficulty: 'easy', duration: 60 }
+    } else if (type === 'pattern') {
+      defaultConfig = { difficulty: 'easy', patternType: 'colors', rounds: 5 }
     }
     setFormData({ ...formData, type, config: defaultConfig })
   }
@@ -761,7 +805,14 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
                 />
               )}
 
-              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming'].includes(selectedType) && (
+              {selectedType === 'pattern' && (
+                <PatternRecognitionGameConfig 
+                  config={formData.config} 
+                  onChange={handleConfigChange}
+                />
+              )}
+
+              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming', 'pattern'].includes(selectedType) && (
                 <div className="p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-300 text-sm">
                   ⚠️ Configuration UI for {selectedType} games coming soon. You can still create the game, and config can be added later.
                 </div>
