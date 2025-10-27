@@ -63,6 +63,7 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
       } else {
         await createLearningDay(formData)
       }
+      window.location.reload()
       router.refresh()
       resetForm()
     } catch (err) {
@@ -80,7 +81,7 @@ export default function DayManagement({ initialDays }: DayManagementProps) {
     setLoading(true)
     try {
       await deleteLearningDay(id)
-      router.refresh()
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete day')
     } finally {

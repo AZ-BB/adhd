@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Game, GameType, GameConfig } from '@/types/learning-path'
 import { createGame, updateGame, deleteGame } from '@/actions/content-management'
-import { useRouter } from 'next/navigation'
 import MatchingGameConfig from './game-configs/MatchingGameConfig'
 import MemoryGameConfig from './game-configs/MemoryGameConfig'
 import NumberSequenceGameConfig from './game-configs/NumberSequenceGameConfig'
@@ -27,7 +26,6 @@ const gameTypes: { value: GameType; label: string; icon: string }[] = [
 ]
 
 export default function GameManagement({ initialGames }: GameManagementProps) {
-  const router = useRouter()
   const [games, setGames] = useState(initialGames)
   const [isCreating, setIsCreating] = useState(false)
   const [editingGame, setEditingGame] = useState<Game | null>(null)
@@ -526,15 +524,15 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
     }
 
     setLoading(true)
-
+    
     try {
       if (editingGame) {
         await updateGame(editingGame.id, formData)
       } else {
         await createGame(formData)
       }
-      router.refresh()
       resetForm()
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -550,7 +548,7 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
     setLoading(true)
     try {
       await deleteGame(id)
-      router.refresh()
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete game')
     } finally {

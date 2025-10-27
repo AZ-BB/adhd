@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { LearningDay, Game } from '@/types/learning-path'
 import DayManagement from './components/DayManagement'
 import GameManagement from './components/GameManagement'
@@ -17,7 +17,21 @@ export default function ContentManagementClient({
   initialDays, 
   initialGames 
 }: ContentManagementClientProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('days')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
+  // Get active tab from query param or default to 'days'
+  const tabParam = searchParams.get('tab') as TabType | null
+  const activeTab: TabType = tabParam && ['days', 'games', 'assignments'].includes(tabParam) 
+    ? tabParam 
+    : 'days'
+  
+  const setActiveTab = (tab: TabType) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tab)
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: 'days', label: 'Learning Days', icon: '📅' },

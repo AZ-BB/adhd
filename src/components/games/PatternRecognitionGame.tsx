@@ -211,7 +211,7 @@ export default function PatternRecognitionGame({
       learningDayId,
       dayGameId,
       isCorrect: isSuccess,
-      score: isSuccess ? score : 0,
+      score,
       timeTakenSeconds: timeElapsed,
       mistakesCount: mistakes,
       gameData: {
@@ -221,7 +221,8 @@ export default function PatternRecognitionGame({
     })
 
     setTimeout(() => {
-      onComplete(isSuccess, isSuccess ? score : 0)
+      // Always mark as complete, score reflects performance
+      onComplete(true, score)
     }, 2000)
   }
 

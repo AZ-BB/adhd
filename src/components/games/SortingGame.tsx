@@ -141,7 +141,7 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
         learningDayId,
         dayGameId,
         isCorrect,
-        score: isCorrect ? score : 0,
+        score,
         timeTakenSeconds: timeElapsed,
         mistakesCount: mistakes,
         gameData: {
@@ -154,7 +154,8 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
         }
       })
       
-      onComplete(isCorrect, isCorrect ? score : 0)
+      // Always mark as complete, score reflects performance
+      onComplete(true, score)
     } catch (error) {
       console.error('Error recording game attempt:', error)
     }

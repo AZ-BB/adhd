@@ -218,7 +218,7 @@ export default function AimingGame({
       learningDayId,
       dayGameId,
       isCorrect,
-      score: isCorrect ? score : 0,
+      score,
       timeTakenSeconds: timeElapsed,
       mistakesCount: redClicked + missedGreen,
       gameData: {
@@ -229,7 +229,8 @@ export default function AimingGame({
     })
 
     setTimeout(() => {
-      onComplete(isCorrect, isCorrect ? score : 0)
+      // Always mark as complete, score reflects performance
+      onComplete(true, score)
     }, 2000)
   }
 
