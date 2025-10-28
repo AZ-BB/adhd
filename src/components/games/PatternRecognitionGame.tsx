@@ -210,13 +210,15 @@ export default function PatternRecognitionGame({
       gameId: game.id,
       learningDayId,
       dayGameId,
-      isCorrect: isSuccess,
+      isCorrect: true, // Always mark as completed
       score,
       timeTakenSeconds: timeElapsed,
       mistakesCount: mistakes,
       gameData: {
         correctSequence: pattern.map(c => c.value),
-        userSequence: userPattern.map(c => c.value)
+        userSequence: userPattern.map(c => c.value),
+        metSuccessCriteria: isSuccess, // Store actual success for analytics
+        accuracy: accuracy
       }
     })
 

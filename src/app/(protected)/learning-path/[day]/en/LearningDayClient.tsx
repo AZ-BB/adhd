@@ -45,13 +45,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
   }, [games])
 
   const handleGameComplete = (isCorrect: boolean, score: number) => {
-    if (!isCorrect) {
-      // Show try again message
-      alert('Try again! You can do it!')
-      return
-    }
-
-    // Mark game as completed
+    // Mark game as completed (games always pass true for completion)
     const newCompleted = new Set(completedGames)
     newCompleted.add(currentGameIndex)
     setCompletedGames(newCompleted)
@@ -60,7 +54,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
     if (newCompleted.size >= totalGames) {
       setShowCelebration(true)
       setTimeout(() => {
-        router.push('/learning-path')
+        router.push('/learning-path/en')
         router.refresh()
       }, 3000)
     } else if (!isLastGame) {
@@ -124,7 +118,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             <p className="text-gray-600 mt-2">{day.description}</p>
           </div>
           <button
-            onClick={() => router.push('/learning-path')}
+            onClick={() => router.push('/learning-path/en')}
             className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition"
           >
             ← Back to Path

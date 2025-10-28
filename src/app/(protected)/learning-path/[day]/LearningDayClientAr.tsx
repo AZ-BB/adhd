@@ -45,13 +45,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
   }, [games])
 
   const handleGameComplete = (isCorrect: boolean, score: number) => {
-    if (!isCorrect) {
-      // Show try again message
-      alert('حاول مرة أخرى! يمكنك فعلها!')
-      return
-    }
-
-    // Mark game as completed
+    // Mark game as completed (games always pass true for completion)
     const newCompleted = new Set(completedGames)
     newCompleted.add(currentGameIndex)
     setCompletedGames(newCompleted)

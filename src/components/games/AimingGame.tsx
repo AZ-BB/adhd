@@ -217,14 +217,18 @@ export default function AimingGame({
       gameId: game.id,
       learningDayId,
       dayGameId,
-      isCorrect,
+      isCorrect: true, // Always mark as completed
       score,
       timeTakenSeconds: timeElapsed,
       mistakesCount: redClicked + missedGreen,
       gameData: {
         clickAccuracy: accuracy,
         foundItems: [`${greenClicked} green circles`],
-        missedItems: [`${missedGreen} missed`, `${redClicked} red clicked`]
+        missedItems: [`${missedGreen} missed`, `${redClicked} red clicked`],
+        metSuccessCriteria: isCorrect, // Store actual success for analytics
+        greenClicked,
+        redClicked,
+        missedGreen
       }
     })
 

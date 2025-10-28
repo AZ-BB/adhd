@@ -34,7 +34,7 @@ export default function LearningPathClient({ days, stats }: LearningPathClientPr
       }
       return
     }
-    router.push(`/learning-path/${day.day_number}`)
+    router.push(`/learning-path/${day.day_number}/en`)
   }
 
   const getStatusColor = (day: DayWithProgress) => {

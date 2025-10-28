@@ -140,13 +140,14 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
         gameId: game.id,
         learningDayId,
         dayGameId,
-        isCorrect,
+        isCorrect: true, // Always mark as completed
         score,
         timeTakenSeconds: timeElapsed,
         mistakesCount: mistakes,
         gameData: {
           correctSorts,
           incorrectSorts: mistakes,
+          metSuccessCriteria: isCorrect, // Store actual success for analytics
           sortedItems: items.map(item => ({
             item: item.value,
             category: item.currentCategory || 'unsorted'
