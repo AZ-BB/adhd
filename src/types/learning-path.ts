@@ -115,6 +115,9 @@ export interface GameAttemptData {
   greenClicked?: number
   redClicked?: number
   missedGreen?: number
+
+  // Pattern recognition game data
+  accuracy?: number
 }
 
 export interface UserGameAttempt {
