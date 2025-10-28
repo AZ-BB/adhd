@@ -109,6 +109,12 @@ export interface GameAttemptData {
   sortedItems?: Array<{ item: string; category: string }>
   correctSorts?: number
   incorrectSorts?: number
+
+  // Aiming game data
+  metSuccessCriteria?: boolean
+  greenClicked?: number
+  redClicked?: number
+  missedGreen?: number
 }
 
 export interface UserGameAttempt {
