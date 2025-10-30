@@ -1,5 +1,5 @@
 // Game Types
-export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming' | 'pattern'
+export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming' | 'pattern' | 'simon'
 
 export interface GameConfig {
   // Memory game config
@@ -32,6 +32,10 @@ export interface GameConfig {
   // Pattern recognition game config
   patternType?: string
   rounds?: number
+  
+  // Simon Says game config
+  simonTheme?: string
+  maxLevel?: number
 }
 
 export interface Game {

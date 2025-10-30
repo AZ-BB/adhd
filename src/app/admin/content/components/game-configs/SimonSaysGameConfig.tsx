@@ -4,191 +4,152 @@ import { useState, useEffect } from 'react'
 import { GameConfig } from '@/types/learning-path'
 import { uploadImageFromFormData, deleteGameImage } from '@/actions/storage'
 
-interface PatternRecognitionGameConfigProps {
+interface SimonSaysGameConfigProps {
   config: GameConfig
   onChange: (config: GameConfig) => void
 }
 
-interface CustomPatternItem {
+interface CustomSimonItem {
   id: string
-  value: string
   label: string
   type: 'emoji' | 'image'
+  emoji?: string
   imageUrl?: string
   imagePath?: string
+  color: string
+  sound: string
 }
 
-export default function PatternRecognitionGameConfig({ config, onChange }: PatternRecognitionGameConfigProps) {
+export default function SimonSaysGameConfig({ config, onChange }: SimonSaysGameConfigProps) {
   const [difficulty, setDifficulty] = useState(config.difficulty || 'easy')
-  const [patternType, setPatternType] = useState(config.patternType || 'colors')
-  const [rounds, setRounds] = useState(config.rounds || 5)
-  const [customItems, setCustomItems] = useState<CustomPatternItem[]>(
-    (config as any).customPatternItems || []
+  const [simonTheme, setSimonTheme] = useState(config.simonTheme || 'colors')
+  const [maxLevel, setMaxLevel] = useState(config.maxLevel || 10)
+  const [customItems, setCustomItems] = useState<CustomSimonItem[]>(
+    (config as any).customSimonItems || []
   )
-  const [showCustomEditor, setShowCustomEditor] = useState(patternType === 'custom')
+  const [showCustomEditor, setShowCustomEditor] = useState(simonTheme === 'custom')
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     const newConfig: GameConfig = {
       difficulty,
-      patternType,
-      rounds
+      simonTheme,
+      maxLevel
     }
 
-    if (patternType === 'custom' && customItems.length > 0) {
-      (newConfig as any).customPatternItems = customItems
+    if (simonTheme === 'custom' && customItems.length > 0) {
+      (newConfig as any).customSimonItems = customItems
     }
 
     onChange(newConfig)
-  }, [difficulty, patternType, rounds, customItems])
+  }, [difficulty, simonTheme, maxLevel, customItems])
 
   const difficultyLevels = [
     { 
       value: 'very_easy', 
       label: 'Very Easy',
-      description: '2×2 grid, 5s display time'
+      description: 'Starts at 2, slow speed (1.2s)'
     },
     { 
       value: 'easy', 
       label: 'Easy',
-      description: '2×2 grid, 4s display time'
+      description: 'Starts at 2, moderate speed (1.0s)'
     },
     { 
       value: 'easy_medium', 
       label: 'Easy-Medium',
-      description: '2×3 grid, 3.5s display time'
+      description: 'Starts at 3, moderate speed (0.85s)'
     },
     { 
       value: 'medium', 
       label: 'Medium',
-      description: '3×3 grid, 3s display time'
+      description: 'Starts at 3, good speed (0.7s)'
     },
     { 
       value: 'medium_hard', 
       label: 'Medium-Hard',
-      description: '3×3 grid, 2.5s display time'
+      description: 'Starts at 3, fast speed (0.6s)'
     },
     { 
       value: 'hard', 
       label: 'Hard',
-      description: '3×4 grid, 2s display time'
+      description: 'Starts at 4, fast speed (0.5s)'
     },
     { 
       value: 'very_hard', 
       label: 'Very Hard',
-      description: '4×4 grid, 1.5s display time'
+      description: 'Starts at 4, very fast (0.4s)'
     }
   ]
 
-  const patternTypes = [
+  const themes = [
     { 
       value: 'colors', 
       label: 'Colors',
-      preview: '🟥🟦🟩🟨🟪'
+      preview: '🔴🔵🟢🟡',
+      description: 'Red, Blue, Green, Yellow'
     },
     { 
       value: 'shapes', 
       label: 'Shapes',
-      preview: '⭕⬜🔺⬛💠'
-    },
-    { 
-      value: 'emojis', 
-      label: 'Emojis',
-      preview: '😀😎🥳😊🤔'
+      preview: '⭕⬜🔺⭐',
+      description: 'Circle, Square, Triangle, Star'
     },
     { 
       value: 'animals', 
       label: 'Animals',
-      preview: '🐕🐈🐰🐻🦁'
+      preview: '🐕🐈🐰🐻',
+      description: 'Dog, Cat, Rabbit, Bear'
     },
     { 
       value: 'food', 
       label: 'Food',
-      preview: '🍎🍌🍇🍊🍓'
+      preview: '🍎🍌🍇🍊',
+      description: 'Apple, Banana, Grapes, Orange'
     },
     { 
       value: 'numbers', 
       label: 'Numbers',
-      preview: '1️⃣2️⃣3️⃣4️⃣5️⃣'
+      preview: '1️⃣2️⃣3️⃣4️⃣',
+      description: 'Numbers 1-4'
     },
     { 
       value: 'custom', 
       label: 'Custom Images',
-      preview: '📷🖼️✨'
+      preview: '📷🖼️✨',
+      description: 'Upload your own 4 items'
     }
   ]
 
-  // Get required items based on difficulty
-  const getRequiredItemsCount = (diff: string): number => {
-    const counts = {
-      very_easy: 4,  // 2×2
-      easy: 4,       // 2×2
-      easy_medium: 6, // 2×3
-      medium: 9,     // 3×3
-      medium_hard: 9, // 3×3
-      hard: 12,      // 3×4
-      very_hard: 16  // 4×4
-    }
-    return counts[diff as keyof typeof counts] || 4
-  }
+  const predefinedColors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500', 'bg-cyan-500']
+  const predefinedSounds = ['261.63', '329.63', '392.00', '523.25']
 
-  const handlePatternTypeChange = (newType: string) => {
-    setPatternType(newType)
-    setShowCustomEditor(newType === 'custom')
+  const handleThemeChange = (newTheme: string) => {
+    setSimonTheme(newTheme)
+    setShowCustomEditor(newTheme === 'custom')
     
-    // Initialize with exact number of items needed based on difficulty
-    if (newType === 'custom' && customItems.length === 0) {
-      const requiredCount = getRequiredItemsCount(difficulty)
-      const initialItems: CustomPatternItem[] = []
-      for (let i = 0; i < requiredCount; i++) {
+    // Initialize with 4 items if switching to custom
+    if (newTheme === 'custom' && customItems.length === 0) {
+      const initialItems: CustomSimonItem[] = []
+      for (let i = 0; i < 4; i++) {
         initialItems.push({
           id: `custom-${i}`,
-          value: `item-${i}`,
           label: '',
-          type: 'emoji'
+          type: 'emoji',
+          emoji: '',
+          color: predefinedColors[i],
+          sound: predefinedSounds[i]
         })
       }
       setCustomItems(initialItems)
     }
   }
 
-  // Update items when difficulty changes
-  const handleDifficultyChange = (newDifficulty: string) => {
-    setDifficulty(newDifficulty)
-    
-    // If custom pattern is selected, adjust items to match difficulty
-    if (patternType === 'custom') {
-      const requiredCount = getRequiredItemsCount(newDifficulty)
-      const currentCount = customItems.length
-      
-      if (currentCount < requiredCount) {
-        // Add more items
-        const itemsToAdd = requiredCount - currentCount
-        const newItems = [...customItems]
-        for (let i = 0; i < itemsToAdd; i++) {
-          newItems.push({
-            id: `custom-${Date.now()}-${i}`,
-            value: `item-${currentCount + i}`,
-            label: '',
-            type: 'emoji'
-          })
-        }
-        setCustomItems(newItems)
-      } else if (currentCount > requiredCount) {
-        // Remove excess items (from the end)
-        setCustomItems(customItems.slice(0, requiredCount))
-      }
-    }
-  }
-
-  const removeCustomItem = async (index: number) => {
-    const item = customItems[index]
-    // Delete image if exists
-    if (item.imagePath) {
-      await deleteGameImage(item.imagePath)
-    }
-    setCustomItems(customItems.filter((_, i) => i !== index))
+  const updateCustomItem = (index: number, updates: Partial<CustomSimonItem>) => {
+    const newItems = [...customItems]
+    newItems[index] = { ...newItems[index], ...updates }
+    setCustomItems(newItems)
   }
 
   const clearItemImage = async (index: number) => {
@@ -202,14 +163,8 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
       type: 'emoji',
       imageUrl: undefined,
       imagePath: undefined,
-      value: ''
+      emoji: ''
     })
-  }
-
-  const updateCustomItem = (index: number, updates: Partial<CustomPatternItem>) => {
-    const newItems = [...customItems]
-    newItems[index] = { ...newItems[index], ...updates }
-    setCustomItems(newItems)
   }
 
   const handleImageUpload = async (index: number, file: File) => {
@@ -219,7 +174,7 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('gameType', 'pattern')
+      formData.append('gameType', 'simon')
 
       const result = await uploadImageFromFormData(formData)
 
@@ -254,25 +209,26 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
 
   return (
     <div className="space-y-4">
-      {/* Pattern Type Selection */}
+      {/* Theme Selection */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Pattern Type *
+          Game Theme *
         </label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {patternTypes.map((type) => (
+          {themes.map((themeOption) => (
             <button
-              key={type.value}
+              key={themeOption.value}
               type="button"
-              onClick={() => handlePatternTypeChange(type.value)}
+              onClick={() => handleThemeChange(themeOption.value)}
               className={`p-3 rounded-lg border text-left transition-all ${
-                patternType === type.value
+                simonTheme === themeOption.value
                   ? 'border-purple-500 bg-purple-600/20 text-white'
                   : 'border-purple-800/30 bg-black/20 text-gray-400 hover:border-purple-700/50'
               }`}
             >
-              <div className="font-medium mb-1">{type.label}</div>
-              <div className="text-2xl">{type.preview}</div>
+              <div className="font-medium mb-1">{themeOption.label}</div>
+              <div className="text-2xl mb-1">{themeOption.preview}</div>
+              <div className="text-xs opacity-75">{themeOption.description}</div>
             </button>
           ))}
         </div>
@@ -284,14 +240,14 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm font-medium text-gray-300">
-                Custom Pattern Items
+                Custom Simon Items
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                {getRequiredItemsCount(difficulty)} items required for {difficultyLevels.find(d => d.value === difficulty)?.label} difficulty ({difficultyLevels.find(d => d.value === difficulty)?.description})
+                Upload 4 custom images or use emojis. Each gets a unique sound.
               </div>
             </div>
             <div className="px-3 py-2 bg-purple-900/30 text-white text-sm rounded-lg border border-purple-700/50">
-              {customItems.length} / {getRequiredItemsCount(difficulty)} Items
+              {customItems.length} / 4 Items
             </div>
           </div>
 
@@ -303,29 +259,29 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
 
           {customItems.length === 0 ? (
             <div className="text-center py-6 text-gray-400 text-sm">
-              No items yet. Click "Add Item" to create your first pattern item.
+              No items yet. Switch to custom theme to create items.
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {customItems.map((item, index) => (
                 <div key={item.id} className="p-3 bg-black/50 border border-purple-800/50 rounded-lg space-y-2">
-                  {/* Preview */}
-                  <div className="w-full aspect-square bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  {/* Preview with color */}
+                  <div className={`w-full aspect-square ${item.color} rounded-lg flex items-center justify-center overflow-hidden`}>
                     {item.type === 'image' && item.imageUrl ? (
                       <img 
                         src={item.imageUrl} 
                         alt={item.label}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="text-4xl">{item.value || '?'}</div>
+                      <div className="text-4xl">{item.emoji || '?'}</div>
                     )}
                   </div>
 
                   {/* Label Input */}
                   <input
                     type="text"
-                    placeholder="Item label"
+                    placeholder={`Item ${index + 1} label`}
                     value={item.label}
                     onChange={(e) => updateCustomItem(index, { label: e.target.value })}
                     className="w-full px-2 py-1 bg-black/50 border border-purple-800/30 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -334,12 +290,31 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
                   {item.type === 'emoji' && (
                     <input
                       type="text"
-                      placeholder="Emoji (e.g., 🐶)"
-                      value={item.value}
-                      onChange={(e) => updateCustomItem(index, { value: e.target.value })}
+                      placeholder="Emoji (e.g., 🎵)"
+                      value={item.emoji || ''}
+                      onChange={(e) => updateCustomItem(index, { emoji: e.target.value })}
                       className="w-full px-2 py-1 bg-black/50 border border-purple-800/30 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
                     />
                   )}
+
+                  {/* Color Picker */}
+                  <div>
+                    <label className="text-xs text-gray-400">Button Color:</label>
+                    <select
+                      value={item.color}
+                      onChange={(e) => updateCustomItem(index, { color: e.target.value })}
+                      className="w-full px-2 py-1 bg-black/50 border border-purple-800/30 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    >
+                      <option value="bg-red-500">🔴 Red</option>
+                      <option value="bg-blue-500">🔵 Blue</option>
+                      <option value="bg-green-500">🟢 Green</option>
+                      <option value="bg-yellow-500">🟡 Yellow</option>
+                      <option value="bg-purple-500">🟣 Purple</option>
+                      <option value="bg-pink-500">🌸 Pink</option>
+                      <option value="bg-orange-500">🟠 Orange</option>
+                      <option value="bg-cyan-500">🔷 Cyan</option>
+                    </select>
+                  </div>
 
                   {/* Actions */}
                   <div className="flex gap-1">
@@ -362,7 +337,7 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
                         onClick={() => clearItemImage(index)}
                         className="flex-1 px-2 py-1 bg-orange-600/20 border border-orange-500/50 rounded text-orange-300 text-xs hover:bg-orange-600/30"
                       >
-                        🗑️ Clear Image
+                        🗑️ Clear
                       </button>
                     )}
                   </div>
@@ -371,9 +346,9 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
             </div>
           )}
 
-          {customItems.length !== getRequiredItemsCount(difficulty) && (
+          {customItems.length !== 4 && (
             <div className="text-xs text-yellow-400">
-              ⚠️ You have {customItems.length} items but need exactly {getRequiredItemsCount(difficulty)} for {difficultyLevels.find(d => d.value === difficulty)?.label} difficulty. Change difficulty level to adjust grid size.
+              ⚠️ Simon Says game needs exactly 4 items. Current: {customItems.length}
             </div>
           )}
         </div>
@@ -382,14 +357,14 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
       {/* Difficulty Selection */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Difficulty Level * (Controls Grid Size)
+          Difficulty Level *
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {difficultyLevels.map((level) => (
             <button
               key={level.value}
               type="button"
-              onClick={() => handleDifficultyChange(level.value)}
+              onClick={() => setDifficulty(level.value)}
               className={`p-3 rounded-lg border text-left transition-all ${
                 difficulty === level.value
                   ? 'border-purple-500 bg-purple-600/20 text-white'
@@ -403,21 +378,21 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
         </div>
       </div>
 
-      {/* Number of Rounds */}
+      {/* Max Level */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Number of Rounds *
+          Maximum Level *
         </label>
         <input
           type="number"
-          min="3"
-          max="10"
-          value={rounds}
-          onChange={(e) => setRounds(parseInt(e.target.value) || 5)}
+          min="5"
+          max="20"
+          value={maxLevel}
+          onChange={(e) => setMaxLevel(parseInt(e.target.value) || 10)}
           className="w-full px-4 py-2 bg-black/50 border border-purple-800/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <p className="text-xs text-gray-500 mt-1">
-          How many patterns the player needs to memorize (3-10). Recommended: 5 rounds.
+          How many levels before game ends (5-20). Each level adds one item to the sequence.
         </p>
       </div>
 
@@ -428,48 +403,49 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
         </div>
         {(() => {
           const settings = {
-            very_easy: { grid: '2×2', cells: 4, time: '5.0s' },
-            easy: { grid: '2×2', cells: 4, time: '4.0s' },
-            easy_medium: { grid: '2×3', cells: 6, time: '3.5s' },
-            medium: { grid: '3×3', cells: 9, time: '3.0s' },
-            medium_hard: { grid: '3×3', cells: 9, time: '2.5s' },
-            hard: { grid: '3×4', cells: 12, time: '2.0s' },
-            very_hard: { grid: '4×4', cells: 16, time: '1.5s' }
+            very_easy: { start: 2, speed: '1.2s', pace: 'Slow' },
+            easy: { start: 2, speed: '1.0s', pace: 'Moderate' },
+            easy_medium: { start: 3, speed: '0.85s', pace: 'Moderate' },
+            medium: { start: 3, speed: '0.7s', pace: 'Good' },
+            medium_hard: { start: 3, speed: '0.6s', pace: 'Fast' },
+            hard: { start: 4, speed: '0.5s', pace: 'Fast' },
+            very_hard: { start: 4, speed: '0.4s', pace: 'Very Fast' }
           }
           const current = settings[difficulty as keyof typeof settings] || settings.easy
           
           return (
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-gray-500">Grid Size</div>
-                <div className="text-white">{current.grid}</div>
+                <div className="text-gray-500">Starting Length</div>
+                <div className="text-white">{current.start} items</div>
               </div>
               <div>
-                <div className="text-gray-500">Items Needed</div>
-                <div className="text-white">{current.cells} {patternType === 'custom' ? 'custom' : ''} items</div>
+                <div className="text-gray-500">Item Speed</div>
+                <div className="text-white">{current.speed}</div>
               </div>
               <div>
-                <div className="text-gray-500">Display Time</div>
-                <div className="text-white">{current.time}</div>
+                <div className="text-gray-500">Pace</div>
+                <div className="text-white">{current.pace}</div>
               </div>
               <div>
-                <div className="text-gray-500">Rounds</div>
-                <div className="text-white">{rounds}</div>
+                <div className="text-gray-500">Max Level</div>
+                <div className="text-white">{maxLevel}</div>
               </div>
             </div>
           )
         })()}
       </div>
 
-      {/* Game Instructions */}
+      {/* Game Mechanics */}
       <div className="p-4 bg-purple-900/20 border border-purple-800/30 rounded-lg">
-        <div className="text-xs text-gray-400 mb-2">Game Instructions</div>
+        <div className="text-xs text-gray-400 mb-2">Game Mechanics</div>
         <div className="text-sm text-white space-y-1">
-          • Pattern appears for a few seconds<br />
-          • Player must memorize the arrangement<br />
-          • Pattern disappears with 3-second countdown<br />
-          • Player recreates the pattern from memory<br />
-          • Game succeeds with ≥60% accuracy
+          • Sequence starts at configured length<br />
+          • Each level adds one more item<br />
+          • Player gets 3 mistakes before game over<br />
+          • Same sequence repeats after mistake<br />
+          • Audio and visual feedback included<br />
+          • Score based on levels completed
         </div>
       </div>
 
@@ -477,10 +453,10 @@ export default function PatternRecognitionGameConfig({ config, onChange }: Patte
       <div className="p-3 bg-purple-900/20 border border-purple-800/30 rounded-lg">
         <div className="text-xs text-gray-400">Configuration Summary</div>
         <div className="text-sm text-white mt-1">
-          • Pattern type: <span className="text-purple-400">{patternTypes.find(p => p.value === patternType)?.label}</span><br />
+          • Theme: <span className="text-purple-400">{themes.find(t => t.value === simonTheme)?.label}</span><br />
           • Difficulty: <span className="text-purple-400">{difficultyLevels.find(d => d.value === difficulty)?.label}</span><br />
-          • Rounds: <span className="text-purple-400">{rounds}</span><br />
-          {patternType === 'custom' && (
+          • Max Level: <span className="text-purple-400">{maxLevel}</span><br />
+          {simonTheme === 'custom' && (
             <>• Custom items: <span className="text-purple-400">{customItems.length}</span></>
           )}
         </div>

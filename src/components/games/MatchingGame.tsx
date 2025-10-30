@@ -16,6 +16,9 @@ interface MatchItem {
   id: string
   value: string
   matched: boolean
+  type?: 'text' | 'image'
+  imageUrl?: string
+  pairId?: string
 }
 
 export default function MatchingGame({ game, userId, learningDayId, dayGameId, onComplete }: MatchingGameProps) {
@@ -40,16 +43,22 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
     const items = generateMatchingItems(itemCount, category, customPairs)
     const shuffledRight = shuffleArray([...items.right])
     
-    setLeftItems(items.left.map((value, index) => ({
+    setLeftItems(items.left.map((item, index) => ({
       id: `left-${index}`,
-      value,
-      matched: false
+      value: typeof item === 'string' ? item : item.value,
+      matched: false,
+      type: typeof item === 'string' ? 'text' : item.type,
+      imageUrl: typeof item === 'string' ? undefined : item.imageUrl,
+      pairId: typeof item === 'string' ? undefined : item.pairId
     })))
     
-    setRightItems(shuffledRight.map((value, index) => ({
+    setRightItems(shuffledRight.map((item, index) => ({
       id: `right-${index}`,
-      value,
-      matched: false
+      value: typeof item === 'string' ? item : item.value,
+      matched: false,
+      type: typeof item === 'string' ? 'text' : item.type,
+      imageUrl: typeof item === 'string' ? undefined : item.imageUrl,
+      pairId: typeof item === 'string' ? undefined : item.pairId
     })))
 
     // Store the matching map for validation
@@ -108,8 +117,15 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
     
     if (!leftItem || !rightItem) return
     
-    // Check if values match using the matching map
-    const isMatch = matchingMap[leftItem.value] === rightItem.value
+    // Check if values match using pairId for custom pairs, or matching map for built-in categories
+    let isMatch = false
+    if (leftItem.pairId && rightItem.pairId) {
+      // For custom pairs, match by pairId
+      isMatch = leftItem.pairId === rightItem.pairId
+    } else {
+      // For built-in categories, use matching map
+      isMatch = matchingMap[leftItem.value] === rightItem.value
+    }
     
     if (isMatch) {
       // Correct match
@@ -180,7 +196,7 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-8 w-full max-w-4xl">
+      <div className="grid grid-cols-2 gap-6 w-full max-w-6xl mx-auto">
         {/* Left Column */}
         <div className="space-y-3">
           {leftItems.map((item) => (
@@ -189,17 +205,33 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
               onClick={() => handleLeftClick(item.id)}
               disabled={item.matched || gameCompleted}
               className={`
-                w-full p-4 rounded-lg font-medium transition-all
+                w-full p-5 rounded-2xl font-semibold transition-all min-h-[110px] 
+                flex items-center justify-center border-2
                 ${item.matched
-                  ? 'bg-green-500 text-white opacity-50'
+                  ? 'bg-green-500 text-white opacity-60 border-green-600'
                   : selectedLeft === item.id
-                  ? 'bg-blue-500 text-white scale-105'
-                  : 'bg-gray-200 hover:bg-gray-300'
+                  ? 'bg-blue-500 text-white scale-[1.03] shadow-xl border-blue-600'
+                  : 'bg-white hover:bg-gray-50 hover:scale-[1.02] border-gray-300 shadow-md hover:shadow-lg'
                 }
                 disabled:cursor-not-allowed
               `}
             >
-              {item.value}
+              {item.type === 'image' && item.imageUrl ? (
+                <div className="flex flex-col items-center gap-2 w-full">
+                  <div className="w-24 h-24 flex items-center justify-center">
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.value || 'Match item'}
+                      className="max-w-full max-h-full object-contain rounded-lg"
+                    />
+                  </div>
+                  {item.value && item.value.trim() && !item.value.startsWith('Image') && !item.value.startsWith('Match') && (
+                    <div className="text-base font-bold mt-1">{item.value}</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-2xl font-bold">{item.value}</div>
+              )}
             </button>
           ))}
         </div>
@@ -212,17 +244,33 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
               onClick={() => handleRightClick(item.id)}
               disabled={item.matched || gameCompleted}
               className={`
-                w-full p-4 rounded-lg font-medium transition-all
+                w-full p-5 rounded-2xl font-semibold transition-all min-h-[110px] 
+                flex items-center justify-center border-2
                 ${item.matched
-                  ? 'bg-green-500 text-white opacity-50'
+                  ? 'bg-green-500 text-white opacity-60 border-green-600'
                   : selectedRight === item.id
-                  ? 'bg-blue-500 text-white scale-105'
-                  : 'bg-gray-200 hover:bg-gray-300'
+                  ? 'bg-blue-500 text-white scale-[1.03] shadow-xl border-blue-600'
+                  : 'bg-white hover:bg-gray-50 hover:scale-[1.02] border-gray-300 shadow-md hover:shadow-lg'
                 }
                 disabled:cursor-not-allowed
               `}
             >
-              {item.value}
+              {item.type === 'image' && item.imageUrl ? (
+                <div className="flex flex-col items-center gap-2 w-full">
+                  <div className="w-24 h-24 flex items-center justify-center">
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.value || 'Match item'}
+                      className="max-w-full max-h-full object-contain rounded-lg"
+                    />
+                  </div>
+                  {item.value && item.value.trim() && !item.value.startsWith('Image') && !item.value.startsWith('Match') && (
+                    <div className="text-base font-bold mt-1">{item.value}</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-2xl font-bold">{item.value}</div>
+              )}
             </button>
           ))}
         </div>
@@ -247,18 +295,40 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
 function generateMatchingItems(
   count: number, 
   category: string, 
-  customPairs: Array<{ left: string; right: string }>
-): { left: string[]; right: string[]; matchingMap: Record<string, string> } {
+  customPairs: Array<any>
+): { left: any[]; right: any[]; matchingMap: Record<string, string> } {
   // If custom pairs are provided, use them
   if (category === 'custom' && customPairs.length > 0) {
     const pairs = customPairs.slice(0, count)
     const matchingMap: Record<string, string> = {}
-    pairs.forEach(pair => {
-      matchingMap[pair.left] = pair.right
+    
+    const leftItems = pairs.map((pair: any, index: number) => {
+      const pairId = `pair-${index}`
+      const leftValue = pair.leftType === 'image' ? (pair.left || `Image ${index + 1}`) : pair.left
+      const rightValue = pair.rightType === 'image' ? (pair.right || `Match ${index + 1}`) : pair.right
+      matchingMap[leftValue] = rightValue
+      
+      return {
+        value: leftValue,
+        type: pair.leftType || 'text',
+        imageUrl: pair.leftImageUrl,
+        pairId
+      }
     })
+    
+    const rightItems = pairs.map((pair: any, index: number) => {
+      const pairId = `pair-${index}`
+      return {
+        value: pair.rightType === 'image' ? (pair.right || `Match ${index + 1}`) : pair.right,
+        type: pair.rightType || 'text',
+        imageUrl: pair.rightImageUrl,
+        pairId
+      }
+    })
+    
     return {
-      left: pairs.map(p => p.left),
-      right: pairs.map(p => p.right),
+      left: leftItems,
+      right: rightItems,
       matchingMap
     }
   }

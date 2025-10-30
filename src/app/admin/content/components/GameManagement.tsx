@@ -10,6 +10,7 @@ import AttentionGameConfig from './game-configs/AttentionGameConfig'
 import SortingGameConfig from './game-configs/SortingGameConfig'
 import AimingGameConfig from './game-configs/AimingGameConfig'
 import PatternRecognitionGameConfig from './game-configs/PatternRecognitionGameConfig'
+import SimonSaysGameConfig from './game-configs/SimonSaysGameConfig'
 
 interface GameManagementProps {
   initialGames: Game[]
@@ -22,7 +23,8 @@ const gameTypes: { value: GameType; label: string; icon: string }[] = [
   { value: 'attention', label: 'Attention Game', icon: '👀' },
   { value: 'sorting', label: 'Sorting Game', icon: '📊' },
   { value: 'aiming', label: 'Aiming Game', icon: '🎪' },
-  { value: 'pattern', label: 'Pattern Recognition', icon: '🧩' }
+  { value: 'pattern', label: 'Pattern Recognition', icon: '🧩' },
+  { value: 'simon', label: 'Simon Says', icon: '🎵' }
 ]
 
 export default function GameManagement({ initialGames }: GameManagementProps) {
@@ -125,12 +127,14 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
         if (!config.customPairs || config.customPairs.length === 0) {
           errors.config = 'Custom matching game must have at least one pair'
         } else {
-          // Validate each pair has both values
-          const invalidPairs = config.customPairs.some((p: any) => 
-            !p.left?.trim() || !p.right?.trim()
-          )
+          // Validate each pair has both values (text or image)
+          const invalidPairs = config.customPairs.some((p: any) => {
+            const hasLeftValue = p.leftType === 'image' ? !!p.leftImageUrl : !!p.left?.trim()
+            const hasRightValue = p.rightType === 'image' ? !!p.rightImageUrl : !!p.right?.trim()
+            return !hasLeftValue || !hasRightValue
+          })
           if (invalidPairs) {
-            errors.config = 'All custom pairs must have both left and right values'
+            errors.config = 'All custom pairs must have both left and right values (text or image)'
           } else if (config.customPairs.length < config.itemCount) {
             errors.config = `You need at least ${config.itemCount} custom pairs (currently have ${config.customPairs.length})`
           }
@@ -292,9 +296,40 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       }
       
       // Validate pattern type
-      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers']
+      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers', 'custom']
       if (!config.patternType || !validPatternTypes.includes(config.patternType)) {
         errors.config = 'Please select a valid pattern type'
+      } else if (config.patternType === 'custom') {
+        // Get required items based on difficulty
+        const requiredItemsCounts: Record<string, number> = {
+          very_easy: 4,
+          easy: 4,
+          easy_medium: 6,
+          medium: 9,
+          medium_hard: 9,
+          hard: 12,
+          very_hard: 16
+        }
+        const requiredCount = requiredItemsCounts[config.difficulty || 'easy'] || 4
+        
+        // Validate custom pattern items
+        if (!config.customPatternItems || config.customPatternItems.length === 0) {
+          errors.config = 'Custom pattern game must have items'
+        } else if (config.customPatternItems.length !== requiredCount) {
+          errors.config = `Need exactly ${requiredCount} items for ${config.difficulty} difficulty (current: ${config.customPatternItems.length})`
+        } else {
+          // Validate each item has required fields
+          const invalidItems = config.customPatternItems.some((item: any) => {
+            if (!item.label?.trim()) return true
+            // If emoji type, must have value; if image type, must have imageUrl
+            if (item.type === 'emoji' && !item.value?.trim()) return true
+            if (item.type === 'image' && !item.imageUrl) return true
+            return false
+          })
+          if (invalidItems) {
+            errors.config = 'All custom items must have a label and either an emoji/text or an image'
+          }
+        }
       }
       
       // Validate rounds
@@ -302,6 +337,48 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
         errors.config = 'Number of rounds must be at least 3'
       } else if (config.rounds > 10) {
         errors.config = 'Number of rounds must not exceed 10'
+      }
+    } else if (formData.type === 'simon') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        errors.config = 'Please select a valid difficulty level'
+      }
+      
+      // Validate theme
+      const validThemes = ['colors', 'shapes', 'animals', 'food', 'numbers', 'custom']
+      if (!config.simonTheme || !validThemes.includes(config.simonTheme)) {
+        errors.config = 'Please select a valid game theme'
+      }
+      
+      // Validate custom items if custom theme is selected
+      if (config.simonTheme === 'custom') {
+        if (!config.customSimonItems || config.customSimonItems.length !== 4) {
+          errors.config = 'Custom Simon game must have exactly 4 items'
+        } else {
+          // Validate each item has required fields
+          const invalidItems = config.customSimonItems.some((item: any) => {
+            if (!item.label?.trim()) return true
+            // Must have either emoji or image
+            if (item.type === 'emoji' && !item.emoji?.trim()) return true
+            if (item.type === 'image' && !item.imageUrl) return true
+            // Must have color and sound
+            if (!item.color || !item.sound) return true
+            return false
+          })
+          if (invalidItems) {
+            errors.config = 'All custom items must have a label, emoji/image, color, and sound'
+          }
+        }
+      }
+      
+      // Validate max level
+      if (!config.maxLevel || config.maxLevel < 5) {
+        errors.config = 'Maximum level must be at least 5'
+      } else if (config.maxLevel > 20) {
+        errors.config = 'Maximum level must not exceed 20'
       }
     }
 
@@ -347,9 +424,11 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
         if (!config.customPairs || config.customPairs.length === 0) {
           return false
         }
-        const invalidPairs = config.customPairs.some((p: any) => 
-          !p.left?.trim() || !p.right?.trim()
-        )
+        const invalidPairs = config.customPairs.some((p: any) => {
+          const hasLeftValue = p.leftType === 'image' ? !!p.leftImageUrl : !!p.left?.trim()
+          const hasRightValue = p.rightType === 'image' ? !!p.rightImageUrl : !!p.right?.trim()
+          return !hasLeftValue || !hasRightValue
+        })
         if (invalidPairs || config.customPairs.length < config.itemCount) {
           return false
         }
@@ -482,13 +561,78 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       }
       
       // Validate pattern type
-      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers']
+      const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers', 'custom']
       if (!config.patternType || !validPatternTypes.includes(config.patternType)) {
         return false
       }
       
+      if (config.patternType === 'custom') {
+        const requiredItemsCounts: Record<string, number> = {
+          very_easy: 4,
+          easy: 4,
+          easy_medium: 6,
+          medium: 9,
+          medium_hard: 9,
+          hard: 12,
+          very_hard: 16
+        }
+        const requiredCount = requiredItemsCounts[config.difficulty || 'easy'] || 4
+        
+        if (!config.customPatternItems || config.customPatternItems.length === 0) {
+          return false
+        }
+        if (config.customPatternItems.length !== requiredCount) {
+          return false
+        }
+        const invalidItems = config.customPatternItems.some((item: any) => {
+          if (!item.label?.trim()) return true
+          if (item.type === 'emoji' && !item.value?.trim()) return true
+          if (item.type === 'image' && !item.imageUrl) return true
+          return false
+        })
+        if (invalidItems) {
+          return false
+        }
+      }
+      
       // Validate rounds
       if (!config.rounds || config.rounds < 3 || config.rounds > 10) {
+        return false
+      }
+    } else if (formData.type === 'simon') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        return false
+      }
+      
+      // Validate theme
+      const validThemes = ['colors', 'shapes', 'animals', 'food', 'numbers', 'custom']
+      if (!config.simonTheme || !validThemes.includes(config.simonTheme)) {
+        return false
+      }
+      
+      // Validate custom items if custom theme is selected
+      if (config.simonTheme === 'custom') {
+        if (!config.customSimonItems || config.customSimonItems.length !== 4) {
+          return false
+        }
+        const invalidItems = config.customSimonItems.some((item: any) => {
+          if (!item.label?.trim()) return true
+          if (item.type === 'emoji' && !item.emoji?.trim()) return true
+          if (item.type === 'image' && !item.imageUrl) return true
+          if (!item.color || !item.sound) return true
+          return false
+        })
+        if (invalidItems) {
+          return false
+        }
+      }
+      
+      // Validate max level
+      if (!config.maxLevel || config.maxLevel < 5 || config.maxLevel > 20) {
         return false
       }
     }
@@ -524,7 +668,7 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
     }
 
     setLoading(true)
-    
+
     try {
       if (editingGame) {
         await updateGame(editingGame.id, formData)
@@ -584,6 +728,8 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       defaultConfig = { difficulty: 'easy', duration: 60 }
     } else if (type === 'pattern') {
       defaultConfig = { difficulty: 'easy', patternType: 'colors', rounds: 5 }
+    } else if (type === 'simon') {
+      defaultConfig = { difficulty: 'easy', simonTheme: 'colors', maxLevel: 10 }
     }
     setFormData({ ...formData, type, config: defaultConfig })
   }
@@ -810,7 +956,14 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
                 />
               )}
 
-              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming', 'pattern'].includes(selectedType) && (
+              {selectedType === 'simon' && (
+                <SimonSaysGameConfig 
+                  config={formData.config} 
+                  onChange={handleConfigChange}
+                />
+              )}
+
+              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming', 'pattern', 'simon'].includes(selectedType) && (
                 <div className="p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-300 text-sm">
                   ⚠️ Configuration UI for {selectedType} games coming soon. You can still create the game, and config can be added later.
                 </div>
@@ -858,9 +1011,108 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
                 </button>
               </div>
               {!loading && !isFormValid() && (
-                <div className="text-sm text-yellow-400 flex items-start gap-2">
-                  <span>⚠️</span>
-                  <span>Submit is disabled: Please complete all required fields and fix any validation errors.</span>
+                <div className="p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+                  <div className="text-sm text-yellow-300 flex items-start gap-2 mb-2">
+                    <span className="text-lg">⚠️</span>
+                    <span className="font-medium">Submit is disabled. Please fix the following:</span>
+                  </div>
+                  <ul className="text-xs text-yellow-200 ml-6 space-y-1">
+                    {!formData.name.trim() && <li>• Game name is required</li>}
+                    {formData.name.trim() && formData.name.trim().length < 2 && <li>• Name must be at least 2 characters</li>}
+                    {formData.name.trim() && games.find(g => g.name.toLowerCase() === formData.name.trim().toLowerCase() && (!editingGame || g.id !== editingGame.id)) && <li>• A game with this name already exists</li>}
+                    {formData.difficulty_level < 1 || formData.difficulty_level > 5 && <li>• Difficulty must be between 1 and 5</li>}
+                    {(() => {
+                      if (formData.type === 'matching') {
+                        const config = formData.config as any
+                        if (!config.category) return <li>• Please select a matching category</li>
+                        if (!config.itemCount || config.itemCount < 3) return <li>• Item count must be at least 3</li>
+                        if (config.category === 'custom' && (!config.customPairs || config.customPairs.length === 0)) return <li>• Custom matching game needs pairs</li>
+                        if (config.category === 'custom' && config.customPairs?.some((p: any) => {
+                          const hasLeftValue = p.leftType === 'image' ? !!p.leftImageUrl : !!p.left?.trim()
+                          const hasRightValue = p.rightType === 'image' ? !!p.rightImageUrl : !!p.right?.trim()
+                          return !hasLeftValue || !hasRightValue
+                        })) return <li>• All custom pairs need both values (text or image)</li>
+                        if (config.category === 'custom' && config.customPairs?.length < config.itemCount) return <li>• Need at least {config.itemCount} custom pairs</li>
+                        const availablePairs = { colors: 5, shapes: 5, animals: 5 }
+                        if (config.category !== 'custom' && config.itemCount > (availablePairs[config.category as keyof typeof availablePairs] || 0)) {
+                          return <li>• "{config.category}" only has {availablePairs[config.category as keyof typeof availablePairs]} pairs</li>
+                        }
+                      } else if (formData.type === 'memory') {
+                        const config = formData.config as any
+                        if (!config.theme) return <li>• Please select a memory game theme</li>
+                        if (!config.pairs || config.pairs < 3) return <li>• Number of pairs must be at least 3</li>
+                        if (config.theme === 'custom' && (!config.customCards || config.customCards.length === 0)) return <li>• Custom memory game needs cards</li>
+                        if (config.theme === 'custom' && config.customCards?.some((c: any) => !c.label?.trim() || (c.type === 'emoji' && !c.value?.trim()) || (c.type === 'image' && !c.imageUrl))) {
+                          return <li>• All custom cards need a label and emoji/image</li>
+                        }
+                        if (config.theme === 'custom' && config.customCards?.length < config.pairs) return <li>• Need at least {config.pairs} custom cards</li>
+                        const availableCards = { animals: 8, shapes: 6, colors: 6 }
+                        if (config.theme !== 'custom' && config.pairs > (availableCards[config.theme as keyof typeof availableCards] || 0)) {
+                          return <li>• "{config.theme}" only has {availableCards[config.theme as keyof typeof availableCards]} cards</li>
+                        }
+                      } else if (formData.type === 'pattern') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        const validPatternTypes = ['colors', 'shapes', 'emojis', 'animals', 'food', 'numbers', 'custom']
+                        if (!config.patternType || !validPatternTypes.includes(config.patternType)) return <li>• Please select a valid pattern type</li>
+                        if (config.patternType === 'custom') {
+                          const requiredCounts: Record<string, number> = { very_easy: 4, easy: 4, easy_medium: 6, medium: 9, medium_hard: 9, hard: 12, very_hard: 16 }
+                          const requiredCount = requiredCounts[config.difficulty] || 4
+                          if (!config.customPatternItems || config.customPatternItems.length === 0) return <li>• Custom pattern needs items</li>
+                          if (config.customPatternItems.length !== requiredCount) return <li>• Need exactly {requiredCount} items for {config.difficulty} difficulty (have {config.customPatternItems.length})</li>
+                          if (config.customPatternItems.some((item: any) => !item.label?.trim() || (item.type === 'emoji' && !item.value?.trim()) || (item.type === 'image' && !item.imageUrl))) {
+                            return <li>• All items need a label and emoji/image</li>
+                          }
+                        }
+                        if (!config.rounds || config.rounds < 3 || config.rounds > 10) return <li>• Rounds must be between 3 and 10</li>
+                      } else if (formData.type === 'sequence') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        if (!config.sequenceLength || config.sequenceLength < 3 || config.sequenceLength > 7) return <li>• Sequence length must be between 3 and 7</li>
+                      } else if (formData.type === 'attention') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        if (!config.targetCount || config.targetCount < 2) return <li>• Target count must be at least 2</li>
+                        const maxTargets: Record<string, number> = { very_easy: 3, easy: 5, easy_medium: 6, medium: 8, medium_hard: 10, hard: 12, very_hard: 16 }
+                        const max = maxTargets[config.difficulty] || 5
+                        if (config.targetCount > max) return <li>• Target count exceeds {max} for {config.difficulty} difficulty</li>
+                        if (!config.duration || config.duration < 30 || config.duration > 180) return <li>• Duration must be between 30-180 seconds</li>
+                      } else if (formData.type === 'sorting') {
+                        const config = formData.config as any
+                        if (!config.categoryType) return <li>• Please select a category type</li>
+                        if (!config.itemCount || config.itemCount < 4) return <li>• Item count must be at least 4</li>
+                        if (config.categoryType === 'custom') {
+                          if (!config.customCategories || config.customCategories.length < 2) return <li>• Need at least 2 custom categories</li>
+                          if (!config.customItems || config.customItems.length === 0) return <li>• Need custom items</li>
+                          if (config.customCategories?.some((cat: any) => !cat.name?.trim() || !cat.emoji?.trim() || !cat.color)) return <li>• All categories need name, emoji, and color</li>
+                          if (config.customItems?.some((item: any) => !item.value?.trim() || !item.emoji?.trim() || !item.category)) return <li>• All items need name, emoji, and category</li>
+                          if (config.customItems?.length < config.itemCount) return <li>• Need at least {config.itemCount} custom items</li>
+                        }
+                      } else if (formData.type === 'aiming') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        if (!config.duration || config.duration < 30 || config.duration > 180) return <li>• Duration must be between 30-180 seconds</li>
+                      } else if (formData.type === 'simon') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        const validThemes = ['colors', 'shapes', 'animals', 'food', 'numbers', 'custom']
+                        if (!config.simonTheme || !validThemes.includes(config.simonTheme)) return <li>• Please select a valid theme</li>
+                        if (config.simonTheme === 'custom') {
+                          if (!config.customSimonItems || config.customSimonItems.length !== 4) return <li>• Custom Simon needs exactly 4 items (have {config.customSimonItems?.length || 0})</li>
+                          if (config.customSimonItems?.some((item: any) => !item.label?.trim() || (item.type === 'emoji' && !item.emoji?.trim()) || (item.type === 'image' && !item.imageUrl) || !item.color || !item.sound)) {
+                            return <li>• All items need label, emoji/image, color, and sound</li>
+                          }
+                        }
+                        if (!config.maxLevel || config.maxLevel < 5 || config.maxLevel > 20) return <li>• Max level must be between 5-20</li>
+                      }
+                      return null
+                    })()}
+                  </ul>
                 </div>
               )}
             </div>

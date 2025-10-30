@@ -17,6 +17,8 @@ interface PatternCell {
   value: string
   color?: string
   emoji?: string
+  imageUrl?: string
+  isImage?: boolean
 }
 
 export default function PatternRecognitionGame({ 
@@ -89,7 +91,18 @@ export default function PatternRecognitionGame({
     return times[difficulty as keyof typeof times] || 4000
   }
 
-  function getPatternItems(): string[] {
+  function getPatternItems(): Array<{ value: string; imageUrl?: string; type: 'emoji' | 'image' }> {
+    // Check if custom items exist
+    const customItems = (config as any).customPatternItems
+    if (patternType === 'custom' && customItems && customItems.length > 0) {
+      return customItems.map((item: any) => ({
+        value: item.type === 'image' ? item.label : item.value,
+        imageUrl: item.imageUrl,
+        type: item.type
+      }))
+    }
+
+    // Default built-in items
     const items = {
       colors: ['🟥', '🟦', '🟩', '🟨', '🟪', '🟧', '⬜', '⬛'],
       shapes: ['⭕', '⬜', '🔺', '⬛', '💠', '🔶', '💎', '⭐'],
@@ -98,7 +111,8 @@ export default function PatternRecognitionGame({
       food: ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉', '🥝', '🍒'],
       numbers: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
     }
-    return items[patternType as keyof typeof items] || items.colors
+    const emojiArray = items[patternType as keyof typeof items] || items.colors
+    return emojiArray.map(emoji => ({ value: emoji, type: 'emoji' }))
   }
 
   function generatePattern(): PatternCell[] {
@@ -110,8 +124,10 @@ export default function PatternRecognitionGame({
       const randomItem = items[Math.floor(Math.random() * items.length)]
       pattern.push({
         id: `cell-${i}`,
-        value: randomItem,
-        emoji: randomItem
+        value: randomItem.value,
+        emoji: randomItem.value,
+        imageUrl: randomItem.imageUrl,
+        isImage: randomItem.type === 'image'
       })
     }
 
@@ -121,7 +137,13 @@ export default function PatternRecognitionGame({
   function startNewRound() {
     const newPattern = generatePattern()
     setPattern(newPattern)
-    setUserPattern(newPattern.map(cell => ({ ...cell, value: '', emoji: '❓' })))
+    setUserPattern(newPattern.map(cell => ({ 
+      ...cell, 
+      value: '', 
+      emoji: '❓',
+      imageUrl: undefined,
+      isImage: false
+    })))
     setShowPattern(true)
     setShowRecreate(false)
     setShowFeedback(false)
@@ -143,14 +165,16 @@ export default function PatternRecognitionGame({
     }, getDisplayTime())
   }
 
-  function handleCellClick(index: number, value: string) {
+  function handleCellClick(index: number, itemData: { value: string; imageUrl?: string; type: 'emoji' | 'image' }) {
     if (!showRecreate || showFeedback) return
 
     const newUserPattern = [...userPattern]
     newUserPattern[index] = {
       ...newUserPattern[index],
-      value,
-      emoji: value
+      value: itemData.value,
+      emoji: itemData.value,
+      imageUrl: itemData.imageUrl,
+      isImage: itemData.type === 'image'
     }
     setUserPattern(newUserPattern)
   }
@@ -188,7 +212,13 @@ export default function PatternRecognitionGame({
   }
 
   function handleClearPattern() {
-    setUserPattern(pattern.map(cell => ({ ...cell, value: '', emoji: '❓' })))
+    setUserPattern(pattern.map(cell => ({ 
+      ...cell, 
+      value: '', 
+      emoji: '❓',
+      imageUrl: undefined,
+      isImage: false
+    })))
   }
 
   const handleGameEnd = async () => {
@@ -347,14 +377,22 @@ export default function PatternRecognitionGame({
                 gridTemplateRows: `repeat(${gridSize.rows}, minmax(0, 1fr))`
               }}
             >
-              {pattern.map((cell, index) => (
-                <div
-                  key={cell.id}
-                  className="w-20 h-20 bg-white rounded-lg flex items-center justify-center text-4xl shadow-md border-2 border-purple-300"
-                >
-                  {cell.emoji}
-                </div>
-              ))}
+               {pattern.map((cell, index) => (
+                 <div
+                   key={cell.id}
+                   className="w-20 h-20 bg-white rounded-lg flex items-center justify-center text-4xl shadow-md border-2 border-purple-300 overflow-hidden"
+                 >
+                   {cell.isImage && cell.imageUrl ? (
+                     <img 
+                       src={cell.imageUrl} 
+                       alt={cell.value}
+                       className="w-full h-full object-cover"
+                     />
+                   ) : (
+                     <span>{cell.emoji}</span>
+                   )}
+                 </div>
+               ))}
             </div>
           </div>
         )}
@@ -384,43 +422,66 @@ export default function PatternRecognitionGame({
                 gridTemplateRows: `repeat(${gridSize.rows}, minmax(0, 1fr))`
               }}
             >
-              {userPattern.map((cell, index) => (
-                <div key={cell.id} className="relative">
-                  <button
-                    className={`w-20 h-20 rounded-lg flex items-center justify-center text-4xl shadow-md border-2 transition-all ${
-                      cell.value === '' || cell.value === '❓'
-                        ? 'bg-gray-200 border-gray-400 hover:bg-gray-300'
-                        : 'bg-white border-green-400'
-                    } ${showFeedback ? (cell.value === pattern[index].value ? 'border-green-500 bg-green-100' : 'border-red-500 bg-red-100') : ''}`}
-                    onClick={() => {
-                      // Cycle through available items
-                      const currentIndex = patternItems.indexOf(cell.value)
-                      const nextIndex = (currentIndex + 1) % patternItems.length
-                      handleCellClick(index, patternItems[nextIndex])
-                    }}
-                    disabled={showFeedback}
-                  >
-                    {cell.emoji}
-                  </button>
-                </div>
-              ))}
+               {userPattern.map((cell, index) => (
+                 <div key={cell.id} className="relative">
+                   <button
+                     className={`w-20 h-20 rounded-lg flex items-center justify-center text-4xl shadow-md border-2 transition-all overflow-hidden ${
+                       cell.value === '' || cell.value === '❓'
+                         ? 'bg-gray-200 border-gray-400 hover:bg-gray-300'
+                         : 'bg-white border-green-400'
+                     } ${showFeedback ? (cell.value === pattern[index].value ? 'border-green-500 bg-green-100' : 'border-red-500 bg-red-100') : ''}`}
+                     onClick={() => {
+                       // Cycle through available items
+                       const currentIndex = patternItems.findIndex(item => item.value === cell.value)
+                       const nextIndex = (currentIndex + 1) % patternItems.length
+                       handleCellClick(index, patternItems[nextIndex])
+                     }}
+                     disabled={showFeedback}
+                   >
+                     {cell.isImage && cell.imageUrl ? (
+                       <img 
+                         src={cell.imageUrl} 
+                         alt={cell.value}
+                         className="w-full h-full object-cover"
+                       />
+                     ) : (
+                       <span>{cell.emoji}</span>
+                     )}
+                   </button>
+                 </div>
+               ))}
             </div>
 
-            {/* Item Selector */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-3">Click on items below to use them:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {patternItems.map((item, index) => (
-                  <button
-                    key={index}
-                    className="w-14 h-14 bg-white rounded-lg flex items-center justify-center text-3xl shadow hover:shadow-md hover:scale-110 transition-all border-2 border-gray-300 hover:border-purple-500"
-                    disabled={showFeedback}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
+             {/* Item Selector */}
+             <div className="mb-6">
+               <p className="text-sm text-gray-600 mb-3">Click on cells above to cycle through items, or click items below:</p>
+               <div className="flex flex-wrap justify-center gap-2">
+                 {patternItems.map((item, index) => (
+                   <button
+                     key={index}
+                     className="w-14 h-14 bg-white rounded-lg flex items-center justify-center text-3xl shadow hover:shadow-md hover:scale-110 transition-all border-2 border-gray-300 hover:border-purple-500 overflow-hidden"
+                     disabled={showFeedback}
+                     onClick={() => {
+                       // Find first empty cell and fill it
+                       const emptyIndex = userPattern.findIndex(c => c.value === '' || c.value === '❓')
+                       if (emptyIndex !== -1) {
+                         handleCellClick(emptyIndex, item)
+                       }
+                     }}
+                   >
+                     {item.type === 'image' && item.imageUrl ? (
+                       <img 
+                         src={item.imageUrl} 
+                         alt={item.value}
+                         className="w-full h-full object-cover"
+                       />
+                     ) : (
+                       <span>{item.value}</span>
+                     )}
+                   </button>
+                 ))}
+               </div>
+             </div>
 
             {/* Action Buttons */}
             {!showFeedback && (
