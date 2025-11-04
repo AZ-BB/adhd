@@ -103,6 +103,8 @@ export interface GameAttemptData {
   // Sequence game data
   userSequence?: (string | number)[]
   correctSequence?: (string | number)[]
+  levelsCompleted?: number
+  maxLevel?: number
   
   // Attention game data
   foundItems?: string[]
