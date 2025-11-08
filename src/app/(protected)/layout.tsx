@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/server";
 import { getUserLearningPathStats } from "@/actions/learning-path";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SidebarNav from "@/components/SidebarNav";
 import "../globals.css";
 import Image from "next/image";
 
@@ -56,14 +57,6 @@ export default async function RootLayout({
   const pathname = headersList.get("x-pathname") || "/";
   const isEnglish = pathname.includes('/en');
 
-  function getNavLinkClass(path: string) {
-    const isActive = pathname === path || (path !== "/" && pathname.startsWith(path));
-    const baseClass = "flex items-center gap-3 rounded-xl px-4 py-3 transition-all group";
-    const activeClass = "bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 shadow-sm border-2 border-indigo-300";
-    const inactiveClass = "text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700";
-    return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
-  }
-
   const navItems = !isEnglish ? [
     { href: "/dashboard", icon: "🏠", label: "الرئيسية" },
     { href: "/quiz", icon: "📝", label: "الاختبار" },
@@ -73,13 +66,13 @@ export default async function RootLayout({
     { href: "/profile", icon: "👤", label: "الملف الشخصي" },
     { href: "/settings", icon: "⚙️", label: "الإعدادات" },
   ] : [
-    { href: "/", icon: "🏠", label: "Home" },
-    { href: "/quiz", icon: "📝", label: "Quiz" },
-    { href: "/progress", icon: "📊", label: "Progress" },
-    { href: "/sessions", icon: "🎯", label: "Sessions" },
+    { href: "/dashboard/en", icon: "🏠", label: "Home" },
+    { href: "/quiz/en", icon: "📝", label: "Quiz" },
+    { href: "/progress/en", icon: "📊", label: "Progress" },
+    { href: "/sessions/en", icon: "🎯", label: "Sessions" },
     { href: "/learning-path/en", icon: "🎮", label: "Learning Path" },
-    { href: "/profile", icon: "👤", label: "Profile" },
-    { href: "/settings", icon: "⚙️", label: "Settings" },
+    { href: "/profile/en", icon: "👤", label: "Profile" },
+    { href: "/settings/en", icon: "⚙️", label: "Settings" },
   ];
 
   async function logout() {
@@ -97,21 +90,7 @@ export default async function RootLayout({
             <Image src="/logo/1.png" alt="Movokids" width={200} height={200} />
           </Link>
         </div>
-        <nav className={`p-4 flex-1 overflow-y-auto ${!isEnglish ? 'text-right' : ''}`} dir={!isEnglish ? 'rtl' : 'ltr'}>
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={getNavLinkClass(item.href)}
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SidebarNav navItems={navItems} isRtl={!isEnglish} />
         <div className={`p-4 border-t border-indigo-100 space-y-3 flex-shrink-0 ${!isEnglish ? 'text-right' : ''}`} dir={!isEnglish ? 'rtl' : 'ltr'}>
           {learningStats && learningStats.totalDays > 0 ? (
             <>
