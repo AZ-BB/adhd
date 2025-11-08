@@ -127,7 +127,13 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
     const firstCardObj = cards[firstCard]
     const secondCardObj = cards[secondCard]
     
-    if (firstCardObj.value === secondCardObj.value) {
+    // For image-based custom cards, match by imageUrl for more reliability
+    // For emoji/text cards, match by value
+    const isMatch = firstCardObj.type === 'image' && firstCardObj.imageUrl
+      ? firstCardObj.imageUrl === secondCardObj.imageUrl
+      : firstCardObj.value === secondCardObj.value
+    
+    if (isMatch) {
       // Match found
       setMatchedPairs(prev => [...prev, firstCard, secondCard])
       setCards(prev => prev.map(card => {

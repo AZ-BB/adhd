@@ -90,9 +90,9 @@ export default function MemoryGameConfig({ config, onChange }: MemoryGameConfigP
       const initialCards: CardItem[] = []
       for (let i = 0; i < pairs; i++) {
         initialCards.push({
-          id: `custom-${i}`,
-          value: `card-${i}`,
-          label: '',
+          id: `custom-${i}-${Date.now()}`,
+          value: `custom-card-${i}`,
+          label: `Card ${i + 1}`,
           type: 'emoji'
         })
       }
@@ -101,12 +101,13 @@ export default function MemoryGameConfig({ config, onChange }: MemoryGameConfigP
   }
 
   const addCustomCard = () => {
+    const timestamp = Date.now()
     setCustomCards([
       ...customCards,
       {
-        id: `custom-${Date.now()}`,
-        value: `card-${customCards.length}`,
-        label: '',
+        id: `custom-${timestamp}`,
+        value: `custom-card-${customCards.length}-${timestamp}`,
+        label: `Card ${customCards.length + 1}`,
         type: 'emoji'
       }
     ])
@@ -147,10 +148,14 @@ export default function MemoryGameConfig({ config, onChange }: MemoryGameConfigP
           await deleteGameImage(oldPath)
         }
 
+        // Use the image path as the unique value for matching
+        const uniqueValue = result.path || `custom-image-${index}`
+        
         updateCustomCard(index, {
           type: 'image',
           imageUrl: result.url,
-          imagePath: result.path
+          imagePath: result.path,
+          value: uniqueValue
         })
       }
     } catch (error) {
