@@ -38,6 +38,8 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   const [gameStarted, setGameStarted] = useState(false)
   const [gameCompleted, setGameCompleted] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [loadingProgress, setLoadingProgress] = useState(0)
 
   // Initialize cards - only run once on mount
   useEffect(() => {
@@ -55,6 +57,50 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
     })))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Preload all images
+  useEffect(() => {
+    if (cards.length === 0) return
+    
+    const imageUrls = cards
+      .filter(card => card.type === 'image' && card.imageUrl)
+      .map(card => card.imageUrl!)
+    
+    // If no images to load, mark as loaded
+    if (imageUrls.length === 0) {
+      setImagesLoaded(true)
+      setLoadingProgress(100)
+      return
+    }
+    
+    // Get unique URLs only
+    const uniqueUrls = Array.from(new Set(imageUrls))
+    let loadedCount = 0
+    
+    const preloadImage = (url: string): Promise<void> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => {
+          loadedCount++
+          setLoadingProgress(Math.round((loadedCount / uniqueUrls.length) * 100))
+          resolve()
+        }
+        img.onerror = () => {
+          // Still resolve even on error to avoid blocking the game
+          loadedCount++
+          setLoadingProgress(Math.round((loadedCount / uniqueUrls.length) * 100))
+          resolve()
+        }
+        img.src = url
+      })
+    }
+    
+    // Preload all images
+    Promise.all(uniqueUrls.map(url => preloadImage(url)))
+      .then(() => {
+        setImagesLoaded(true)
+      })
+  }, [cards])
 
   // Timer
   useEffect(() => {
@@ -205,6 +251,27 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
     return emojiMap[card.value] || card.value || '❓'
   }
 
+  // Show loading screen while images are being preloaded
+  if (!imagesLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto min-h-[400px]">
+        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
+        <p className="text-gray-600 text-center mb-4">{game.description}</p>
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
+          <p className="text-gray-600">Loading images...</p>
+          <div className="w-64 bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-500">{loadingProgress}%</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
       <div className="w-full mb-6">
@@ -258,6 +325,8 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
                   src={card.imageUrl} 
                   alt={card.label || card.value}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
                 />
               ) : (
                 <span className="text-4xl">{renderCardContent(card)}</span>
