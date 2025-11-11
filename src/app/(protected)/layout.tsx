@@ -79,7 +79,7 @@ export default async function RootLayout({
     "use server";
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();
-    redirect("/auth/login");
+    redirect(isEnglish ? "/auth/login/en" : "/auth/login");
   }
 
   return (

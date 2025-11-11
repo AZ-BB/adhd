@@ -5,9 +5,9 @@ import { getDayProgressDetails, getDayAvailability } from '@/actions/learning-pa
 import LearningDayClient from './LearningDayClient'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     day: string
-  }
+  }>
 }
 
 export default async function LearningDayPageEn({ params }: PageProps) {
@@ -27,7 +27,9 @@ export default async function LearningDayPageEn({ params }: PageProps) {
     redirect('/auth/signup/en')
   }
   
-  const dayNumber = parseInt(params.day)
+  // Await params before accessing its properties (Next.js 15 requirement)
+  const { day } = await params
+  const dayNumber = parseInt(day)
   
   if (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 30) {
     redirect('/learning-path/en')
