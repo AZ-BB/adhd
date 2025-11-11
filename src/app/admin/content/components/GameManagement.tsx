@@ -11,6 +11,8 @@ import SortingGameConfig from './game-configs/SortingGameConfig'
 import AimingGameConfig from './game-configs/AimingGameConfig'
 import PatternRecognitionGameConfig from './game-configs/PatternRecognitionGameConfig'
 import SimonSaysGameConfig from './game-configs/SimonSaysGameConfig'
+import ReactionTimeGameConfig from './game-configs/ReactionTimeGameConfig'
+import ColorSwitchingGameConfig from './game-configs/ColorSwitchingGameConfig'
 
 interface GameManagementProps {
   initialGames: Game[]
@@ -24,7 +26,9 @@ const gameTypes: { value: GameType; label: string; icon: string }[] = [
   { value: 'sorting', label: 'Sorting Game', icon: '📊' },
   { value: 'aiming', label: 'Aiming Game', icon: '🎪' },
   { value: 'pattern', label: 'Pattern Recognition', icon: '🧩' },
-  { value: 'simon', label: 'Simon Says', icon: '🎵' }
+  { value: 'simon', label: 'Simon Says', icon: '🎵' },
+  { value: 'reaction', label: 'Reaction Time', icon: '⚡' },
+  { value: 'colorswitch', label: 'Color Switching', icon: '🎨' }
 ]
 
 export default function GameManagement({ initialGames }: GameManagementProps) {
@@ -380,6 +384,92 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       } else if (config.maxLevel > 20) {
         errors.config = 'Maximum level must not exceed 20'
       }
+    } else if (formData.type === 'reaction') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        errors.config = 'Please select a valid difficulty level'
+      }
+      
+      // Validate stimulus type
+      const validStimuli = ['color', 'emoji', 'shape', 'target', 'star', 'custom']
+      if (!config.stimulusType || !validStimuli.includes(config.stimulusType)) {
+        errors.config = 'Please select a valid stimulus type'
+      }
+      
+      // Validate custom stimulus if custom type is selected
+      if (config.stimulusType === 'custom') {
+        const customStimulus = config.customStimulus
+        if (!customStimulus) {
+          errors.config = 'Custom stimulus configuration is required'
+        } else if (customStimulus.type === 'emoji' && !customStimulus.emoji?.trim()) {
+          errors.config = 'Custom stimulus must have an emoji or text'
+        } else if (customStimulus.type === 'image' && !customStimulus.imageUrl) {
+          errors.config = 'Custom stimulus must have an image uploaded'
+        }
+      }
+      
+      // Validate rounds
+      if (!config.rounds || config.rounds < 3) {
+        errors.config = 'Number of rounds must be at least 3'
+      } else if (config.rounds > 15) {
+        errors.config = 'Number of rounds must not exceed 15'
+      }
+      
+      // Validate delays
+      if (!config.minDelay || config.minDelay < 200) {
+        errors.config = 'Minimum delay must be at least 200ms'
+      }
+      if (!config.maxDelay || config.maxDelay < 500) {
+        errors.config = 'Maximum delay must be at least 500ms'
+      }
+      if (config.minDelay && config.maxDelay && config.minDelay >= config.maxDelay) {
+        errors.config = 'Maximum delay must be greater than minimum delay'
+      }
+    } else if (formData.type === 'colorswitch') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        errors.config = 'Please select a valid difficulty level'
+      }
+      
+      // Validate game mode
+      const validModes = ['word', 'color', 'mixed']
+      if (!config.gameMode || !validModes.includes(config.gameMode)) {
+        errors.config = 'Please select a valid game mode'
+      }
+      
+      // Validate rounds
+      if (!config.rounds || config.rounds < 5) {
+        errors.config = 'Number of rounds must be at least 5'
+      } else if (config.rounds > 30) {
+        errors.config = 'Number of rounds must not exceed 30'
+      }
+      
+      // Validate time per round
+      if (!config.timePerRound || config.timePerRound < 1000) {
+        errors.config = 'Time per round must be at least 1000ms (1 second)'
+      }
+      
+      // Validate custom colors if used
+      if (config.useCustomColors) {
+        if (!config.customColors || config.customColors.length < 3) {
+          errors.config = 'Custom colors mode requires at least 3 colors'
+        } else if (config.customColors.length > 10) {
+          errors.config = 'Custom colors must not exceed 10'
+        } else {
+          const invalidColors = config.customColors.some((c: any) => {
+            return !c.name?.trim() || !c.word?.trim() || !c.value
+          })
+          if (invalidColors) {
+            errors.config = 'All custom colors must have a name, word, and color value'
+          }
+        }
+      }
     }
 
     setValidationErrors(errors)
@@ -635,6 +725,55 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       if (!config.maxLevel || config.maxLevel < 5 || config.maxLevel > 20) {
         return false
       }
+    } else if (formData.type === 'reaction') {
+      const config = formData.config as any
+      
+      // Validate difficulty
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) {
+        return false
+      }
+      
+      // Validate stimulus type
+      const validStimuli = ['color', 'emoji', 'shape', 'target', 'star', 'custom']
+      if (!config.stimulusType || !validStimuli.includes(config.stimulusType)) {
+        return false
+      }
+      
+      // Validate custom stimulus
+      if (config.stimulusType === 'custom') {
+        const customStimulus = config.customStimulus
+        if (!customStimulus) return false
+        if (customStimulus.type === 'emoji' && !customStimulus.emoji?.trim()) return false
+        if (customStimulus.type === 'image' && !customStimulus.imageUrl) return false
+      }
+      
+      // Validate rounds
+      if (!config.rounds || config.rounds < 3 || config.rounds > 15) {
+        return false
+      }
+      
+      // Validate delays
+      if (!config.minDelay || config.minDelay < 200) return false
+      if (!config.maxDelay || config.maxDelay < 500) return false
+      if (config.minDelay >= config.maxDelay) return false
+    } else if (formData.type === 'colorswitch') {
+      const config = formData.config as any
+      
+      const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+      if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return false
+      
+      const validModes = ['word', 'color', 'mixed']
+      if (!config.gameMode || !validModes.includes(config.gameMode)) return false
+      
+      if (!config.rounds || config.rounds < 5 || config.rounds > 30) return false
+      if (!config.timePerRound || config.timePerRound < 1000) return false
+      
+      if (config.useCustomColors) {
+        if (!config.customColors || config.customColors.length < 3 || config.customColors.length > 10) return false
+        const invalidColors = config.customColors.some((c: any) => !c.name?.trim() || !c.word?.trim() || !c.value)
+        if (invalidColors) return false
+      }
     }
 
     return true
@@ -730,6 +869,10 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
       defaultConfig = { difficulty: 'easy', patternType: 'colors', rounds: 5 }
     } else if (type === 'simon') {
       defaultConfig = { difficulty: 'easy', simonTheme: 'colors', maxLevel: 10 }
+    } else if (type === 'reaction') {
+      defaultConfig = { difficulty: 'easy', stimulusType: 'color', rounds: 5, minDelay: 1200, maxDelay: 3000 }
+    } else if (type === 'colorswitch') {
+      defaultConfig = { difficulty: 'easy', gameMode: 'mixed', rounds: 15, timePerRound: 3000, showTimer: true, congruentRatio: 0.5, useCustomColors: false }
     }
     setFormData({ ...formData, type, config: defaultConfig })
   }
@@ -963,7 +1106,21 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
                 />
               )}
 
-              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming', 'pattern', 'simon'].includes(selectedType) && (
+              {selectedType === 'reaction' && (
+                <ReactionTimeGameConfig 
+                  config={formData.config} 
+                  onChange={handleConfigChange}
+                />
+              )}
+
+              {selectedType === 'colorswitch' && (
+                <ColorSwitchingGameConfig 
+                  config={formData.config} 
+                  onChange={handleConfigChange}
+                />
+              )}
+
+              {!['matching', 'memory', 'sequence', 'attention', 'sorting', 'aiming', 'pattern', 'simon', 'reaction', 'colorswitch'].includes(selectedType) && (
                 <div className="p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-300 text-sm">
                   ⚠️ Configuration UI for {selectedType} games coming soon. You can still create the game, and config can be added later.
                 </div>
@@ -1109,6 +1266,37 @@ export default function GameManagement({ initialGames }: GameManagementProps) {
                           }
                         }
                         if (!config.maxLevel || config.maxLevel < 5 || config.maxLevel > 20) return <li>• Max level must be between 5-20</li>
+                      } else if (formData.type === 'reaction') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        const validStimuli = ['color', 'emoji', 'shape', 'target', 'star', 'custom']
+                        if (!config.stimulusType || !validStimuli.includes(config.stimulusType)) return <li>• Please select a valid stimulus type</li>
+                        if (config.stimulusType === 'custom') {
+                          const customStimulus = config.customStimulus
+                          if (!customStimulus) return <li>• Custom stimulus is required</li>
+                          if (customStimulus.type === 'emoji' && !customStimulus.emoji?.trim()) return <li>• Custom stimulus needs an emoji or text</li>
+                          if (customStimulus.type === 'image' && !customStimulus.imageUrl) return <li>• Custom stimulus needs an image</li>
+                        }
+                        if (!config.rounds || config.rounds < 3 || config.rounds > 15) return <li>• Rounds must be between 3 and 15</li>
+                        if (!config.minDelay || config.minDelay < 200) return <li>• Min delay must be at least 200ms</li>
+                        if (!config.maxDelay || config.maxDelay < 500) return <li>• Max delay must be at least 500ms</li>
+                        if (config.minDelay && config.maxDelay && config.minDelay >= config.maxDelay) return <li>• Max delay must be greater than min delay</li>
+                      } else if (formData.type === 'colorswitch') {
+                        const config = formData.config as any
+                        const validDifficulties = ['very_easy', 'easy', 'easy_medium', 'medium', 'medium_hard', 'hard', 'very_hard']
+                        if (!config.difficulty || !validDifficulties.includes(config.difficulty)) return <li>• Please select a valid difficulty level</li>
+                        const validModes = ['word', 'color', 'mixed']
+                        if (!config.gameMode || !validModes.includes(config.gameMode)) return <li>• Please select a valid game mode</li>
+                        if (!config.rounds || config.rounds < 5 || config.rounds > 30) return <li>• Rounds must be between 5 and 30</li>
+                        if (!config.timePerRound || config.timePerRound < 1000) return <li>• Time per round must be at least 1000ms</li>
+                        if (config.useCustomColors) {
+                          if (!config.customColors || config.customColors.length < 3) return <li>• Need at least 3 custom colors</li>
+                          if (config.customColors.length > 10) return <li>• Maximum 10 custom colors</li>
+                          if (config.customColors.some((c: any) => !c.name?.trim() || !c.word?.trim() || !c.value)) {
+                            return <li>• All colors need name, word, and color value</li>
+                          }
+                        }
                       }
                       return null
                     })()}

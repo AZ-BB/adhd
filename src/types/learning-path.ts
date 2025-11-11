@@ -1,5 +1,5 @@
 // Game Types
-export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming' | 'pattern' | 'simon'
+export type GameType = 'memory' | 'matching' | 'sequence' | 'attention' | 'sorting' | 'aiming' | 'pattern' | 'simon' | 'reaction' | 'colorswitch'
 
 export interface GameConfig {
   // Memory game config
@@ -36,6 +36,19 @@ export interface GameConfig {
   // Simon Says game config
   simonTheme?: string
   maxLevel?: number
+  
+  // Reaction Time game config
+  stimulusType?: string
+  minDelay?: number
+  maxDelay?: number
+  
+  // Color Switching game config
+  gameMode?: string
+  timePerRound?: number
+  showTimer?: boolean
+  congruentRatio?: number
+  useCustomColors?: boolean
+  customColors?: Array<{ name: string; value: string; word: string }>
 }
 
 export interface Game {
@@ -124,6 +137,23 @@ export interface GameAttemptData {
 
   // Pattern recognition game data
   accuracy?: number
+  
+  // Reaction Time game data
+  averageReactionTime?: number
+  validRounds?: number
+  totalRounds?: number
+  falseStarts?: number
+  bestTime?: number
+  worstTime?: number
+  targetTime?: number
+  
+  // Color Switching game data
+  correctRounds?: number
+  incorrectRounds?: number
+  averageResponseTime?: number
+  congruentAccuracy?: number
+  incongruentAccuracy?: number
+  gameMode?: string
 }
 
 export interface UserGameAttempt {

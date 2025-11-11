@@ -11,6 +11,8 @@ import SortingGame from '@/components/games/SortingGame'
 import AimingGame from '@/components/games/AimingGame'
 import PatternRecognitionGame from '@/components/games/PatternRecognitionGame'
 import SimonSaysGame from '@/components/games/SimonSaysGame'
+import ReactionTimeGame from '@/components/games/ReactionTimeGame'
+import ColorSwitchingGame from '@/components/games/ColorSwitchingGame'
 
 interface LearningDayClientProps {
   dayDetails: DayProgressResponse
@@ -286,8 +288,30 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
           />
         )}
         
+        {currentGame?.game?.type === 'reaction' && (
+          <ReactionTimeGame
+            key={currentGame.dayGame.id}
+            game={currentGame.game}
+            userId={userId}
+            learningDayId={day.id}
+            dayGameId={currentGame.dayGame.id}
+            onComplete={handleGameComplete}
+          />
+        )}
+        
+        {currentGame?.game?.type === 'colorswitch' && (
+          <ColorSwitchingGame
+            key={currentGame.dayGame.id}
+            game={currentGame.game}
+            userId={userId}
+            learningDayId={day.id}
+            dayGameId={currentGame.dayGame.id}
+            onComplete={handleGameComplete}
+          />
+        )}
+        
         {/* Placeholder for other game types */}
-        {!['memory', 'matching', 'sequence', 'attention', 'sorting', 'aiming', 'pattern', 'simon'].includes(currentGame?.game?.type || '') && (
+        {!['memory', 'matching', 'sequence', 'attention', 'sorting', 'aiming', 'pattern', 'simon', 'reaction', 'colorswitch'].includes(currentGame?.game?.type || '') && (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">
               {currentGame?.game?.name_ar || currentGame?.game?.name || ''} - {currentGame?.game?.type || ''}
