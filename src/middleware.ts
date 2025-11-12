@@ -34,6 +34,11 @@ export function middleware(req: NextRequest) {
     return res
   }
 
+  // Allow blog routes without authentication or quiz requirements
+  if (pathname.startsWith('/blogs')) {
+    return res
+  }
+
   // Determine if quiz is incomplete (started but not completed)
   const isQuizIncomplete = hasStartedQuiz && !hasCompletedQuiz
 
