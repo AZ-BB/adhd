@@ -1,6 +1,7 @@
 "use server"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 
 export async function createSupabaseServerClient() {
   // Create server client that can access cookies
@@ -29,7 +30,16 @@ export async function createSupabaseServerClient() {
   )
 }
 
-
+/**
+ * Create a public Supabase client for anonymous access (no cookies needed)
+ * Use this for public blog pages that don't require authentication
+ */
+export async function createSupabasePublicClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 export async function createSupabaseAdminServerClient() {
   // Create server client that can access cookies
