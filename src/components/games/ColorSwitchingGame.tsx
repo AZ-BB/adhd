@@ -152,7 +152,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
 
     // Start visual timer (updates display only)
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 100))
+      setTimeLeft((prev: number) => Math.max(0, prev - 100))
     }, 100)
 
     // Separate timeout handler
@@ -177,7 +177,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
       correctAnswer = currentItem.word
     } else {
       // Should select based on the color
-      const colorMatch = colors.find(c => c.value === currentItem.color)
+      const colorMatch = colors.find((c: { name: string; value: string; word: string }) => c.value === currentItem.color)
       correctAnswer = colorMatch?.word || ''
     }
 
@@ -244,7 +244,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
 
     const correctAnswer = currentMode === 'word' 
       ? currentItem.word 
-      : colors.find(c => c.value === currentItem.color)?.word || ''
+      : colors.find((c: { name: string; value: string; word: string }) => c.value === currentItem.color)?.word || ''
 
     const round: Round = {
       item: currentItem,
@@ -459,7 +459,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
 
             {/* Answer Options */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {colors.map((color) => (
+              {colors.map((color: { name: string; value: string; word: string }) => (
                 <button
                   key={color.word}
                   onClick={() => handleAnswer(color)}

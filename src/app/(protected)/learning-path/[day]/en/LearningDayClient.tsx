@@ -291,10 +291,18 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
         {currentGame?.game?.type === 'reaction' && (
           <ReactionTimeGame
             key={currentGame.dayGame.id}
-            game={currentGame.game}
-            userId={userId}
-            learningDayId={day.id}
-            dayGameId={currentGame.dayGame.id}
+            game={{
+              id: String(currentGame.game.id),
+              name: currentGame.game.name,
+              name_ar: currentGame.game.name_ar || '',
+              description: currentGame.game.description,
+              description_ar: currentGame.game.description_ar,
+              type: currentGame.game.type,
+              config: currentGame.game.config || {}
+            }}
+            userId={String(userId)}
+            learningDayId={String(day.id)}
+            dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
           />
         )}
@@ -302,10 +310,18 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
         {currentGame?.game?.type === 'colorswitch' && (
           <ColorSwitchingGame
             key={currentGame.dayGame.id}
-            game={currentGame.game}
-            userId={userId}
-            learningDayId={day.id}
-            dayGameId={currentGame.dayGame.id}
+            game={{
+              id: String(currentGame.game.id),
+              name: currentGame.game.name,
+              name_ar: currentGame.game.name_ar || '',
+              description: currentGame.game.description,
+              description_ar: currentGame.game.description_ar,
+              type: currentGame.game.type,
+              config: currentGame.game.config || {}
+            }}
+            userId={String(userId)}
+            learningDayId={String(day.id)}
+            dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
           />
         )}

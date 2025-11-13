@@ -111,7 +111,8 @@ export default function ReactionTimeGameConfig({ config, onChange }: ReactionTim
           imagePath: result.path
         })
       } else {
-        alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+        const errorMessage = 'error' in result ? result.error : 'Unknown error'
+        alert('Failed to upload image: ' + errorMessage)
       }
     } catch (error) {
       console.error('Error uploading image:', error)
