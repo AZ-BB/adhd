@@ -268,7 +268,7 @@ export default async function DashboardPageEn() {
               </div>
             </Link>
 
-            <Link href="/learning-path" className="group bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all">
+            <Link href="/learning-path/en" className="group bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all">
               <div className="flex items-center gap-4">
                 <div className="text-6xl group-hover:animate-bounce">🎮</div>
                 <div>
