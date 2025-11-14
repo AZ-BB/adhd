@@ -40,6 +40,8 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   const [isProcessing, setIsProcessing] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
+  const [isPreviewPhase, setIsPreviewPhase] = useState(true)
+  const [previewTimeLeft, setPreviewTimeLeft] = useState(5)
 
   // Initialize cards - only run once on mount
   useEffect(() => {
@@ -101,6 +103,22 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
         setImagesLoaded(true)
       })
   }, [cards])
+
+  // Preview phase countdown
+  useEffect(() => {
+    if (!imagesLoaded || !isPreviewPhase) return
+    
+    if (previewTimeLeft <= 0) {
+      setIsPreviewPhase(false)
+      return
+    }
+    
+    const timer = setTimeout(() => {
+      setPreviewTimeLeft(prev => prev - 1)
+    }, 1000)
+    
+    return () => clearTimeout(timer)
+  }, [imagesLoaded, isPreviewPhase, previewTimeLeft])
 
   // Timer
   useEffect(() => {
@@ -171,6 +189,9 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   }
 
   const handleCardClick = (cardId: number) => {
+    // Prevent clicks during preview phase
+    if (isPreviewPhase) return
+    
     if (!gameStarted) setGameStarted(true)
     if (isProcessing || gameCompleted) return
     
@@ -284,6 +305,20 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
         <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
         <p className="text-gray-600 text-center mb-4">{game.description}</p>
         
+        {isPreviewPhase && (
+          <div className="mb-4 p-4 bg-blue-100 rounded-lg text-center">
+            <div className="text-blue-800 font-semibold text-lg mb-2">
+              Memorize the cards!
+            </div>
+            <div className="text-blue-600 text-3xl font-bold">
+              {previewTimeLeft}
+            </div>
+            <div className="text-blue-600 text-sm">
+              seconds remaining
+            </div>
+          </div>
+        )}
+        
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
           <div className="text-center">
             <div className="text-sm text-gray-600">Moves</div>
@@ -308,40 +343,43 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
           gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(pairs * 2))}, minmax(0, 1fr))`
         }}
       >
-        {cards.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => handleCardClick(card.id)}
-            disabled={card.isFlipped || card.isMatched || isProcessing || gameCompleted}
-            className={`
-              aspect-square w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden
-              transition-all duration-300 transform flex items-center justify-center
-              ${card.isFlipped || card.isMatched
-                ? 'bg-blue-500 text-white scale-105'
-                : 'bg-gray-300 hover:bg-gray-400 hover:scale-105'
-              }
-              ${card.isMatched ? 'opacity-50' : ''}
-              disabled:cursor-not-allowed
-              ${!(card.isFlipped || card.isMatched) ? 'text-4xl' : ''}
-            `}
-          >
-            {(card.isFlipped || card.isMatched) ? (
-              card.type === 'image' && card.imageUrl ? (
-                <img 
-                  src={card.imageUrl} 
-                  alt={card.label || card.value}
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                />
+        {cards.map((card) => {
+          const shouldShowCard = isPreviewPhase || card.isFlipped || card.isMatched
+          return (
+            <button
+              key={card.id}
+              onClick={() => handleCardClick(card.id)}
+              disabled={card.isFlipped || card.isMatched || isProcessing || gameCompleted || isPreviewPhase}
+              className={`
+                aspect-square w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden
+                transition-all duration-300 transform flex items-center justify-center
+                ${shouldShowCard
+                  ? 'bg-blue-500 text-white scale-105'
+                  : 'bg-gray-300 hover:bg-gray-400 hover:scale-105'
+                }
+                ${card.isMatched ? 'opacity-50' : ''}
+                ${isPreviewPhase ? 'cursor-not-allowed' : 'disabled:cursor-not-allowed'}
+                ${!shouldShowCard ? 'text-4xl' : ''}
+              `}
+            >
+              {shouldShowCard ? (
+                card.type === 'image' && card.imageUrl ? (
+                  <img 
+                    src={card.imageUrl} 
+                    alt={card.label || card.value}
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                    decoding="async"
+                  />
+                ) : (
+                  <span className="text-4xl">{renderCardContent(card)}</span>
+                )
               ) : (
-                <span className="text-4xl">{renderCardContent(card)}</span>
-              )
-            ) : (
-              <span className="text-4xl">?</span>
-            )}
-          </button>
-        ))}
+                <span className="text-4xl">?</span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {gameCompleted && (
@@ -362,7 +400,7 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
         </div>
       )}
 
-      {!gameStarted && (
+      {!gameStarted && !isPreviewPhase && (
         <div className="text-center text-gray-500">
           Click any card to start!
         </div>
