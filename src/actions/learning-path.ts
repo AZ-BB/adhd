@@ -1,6 +1,5 @@
 'use server'
 
-import { cache } from 'react'
 import { createSupabaseServerClient } from "@/lib/server"
 import {
   LearningDay,
@@ -375,9 +374,8 @@ export async function getUserCurrentDay(userId: number): Promise<LearningDayWith
 
 /**
  * Initialize learning path start date for a user
- * Cached to avoid redundant database queries within the same request
  */
-const initializeLearningPathStartDate = cache(async (userId: number): Promise<void> => {
+async function initializeLearningPathStartDate(userId: number): Promise<void> {
   const supabase = await createSupabaseServerClient()
   
   // Check if already initialized
@@ -394,13 +392,12 @@ const initializeLearningPathStartDate = cache(async (userId: number): Promise<vo
       .update({ learning_path_started_at: new Date().toISOString() })
       .eq('id', userId)
   }
-})
+}
 
 /**
  * Get which day number user should be on based on time elapsed
- * Cached to avoid redundant database queries within the same request
  */
-const getAvailableDayByTime = cache(async (userId: number): Promise<number> => {
+async function getAvailableDayByTime(userId: number): Promise<number> {
   const supabase = await createSupabaseServerClient()
   
   const { data: user } = await supabase
@@ -435,7 +432,7 @@ const getAvailableDayByTime = cache(async (userId: number): Promise<number> => {
   // Day 1 available on day 0, Day 2 on day 1, etc.
   // So available day = daysElapsed + 1
   return Math.min(daysElapsed + 1, totalDays) // Max totalDays days
-})
+}
 
 /**
  * Check if user can access a specific day (only time-based restriction)
