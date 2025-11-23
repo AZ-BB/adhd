@@ -103,3 +103,107 @@ export async function uploadImageFromFormData(
   }
 }
 
+/**
+ * Upload a video to Supabase Storage (for physical activities)
+ * Returns the public URL and path of the uploaded video
+ */
+export async function uploadPhysicalActivityVideo(
+  file: File,
+  videoNumber: number
+): Promise<{ url: string; path: string } | { error: string }> {
+  try {
+    const supabase = await createSupabaseServerClient()
+    
+    // Generate filename based on video number
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${videoNumber}.${fileExt}`
+    const filePath = fileName
+    
+    // Convert File to ArrayBuffer then to Buffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    
+    // Upload to storage
+    const { data, error } = await supabase.storage
+      .from('physical-activities')
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: true // Allow overwriting existing videos
+      })
+    
+    if (error) {
+      console.error('Upload error:', error)
+      return { error: `Failed to upload video: ${error.message}` }
+    }
+    
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('physical-activities')
+      .getPublicUrl(data.path)
+    
+    return { url: publicUrl, path: data.path }
+  } catch (error) {
+    console.error('Upload error:', error)
+    return { error: 'Failed to upload video' }
+  }
+}
+
+/**
+ * Delete a video from Supabase Storage (for physical activities)
+ */
+export async function deletePhysicalActivityVideo(
+  path: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createSupabaseServerClient()
+    
+    const { error } = await supabase.storage
+      .from('physical-activities')
+      .remove([path])
+    
+    if (error) {
+      console.error('Delete error:', error)
+      return { success: false, error: error.message }
+    }
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Delete error:', error)
+    return { success: false, error: 'Failed to delete video' }
+  }
+}
+
+/**
+ * Upload video from FormData (client-safe)
+ */
+export async function uploadVideoFromFormData(
+  formData: FormData
+): Promise<{ url: string; path: string } | { error: string }> {
+  try {
+    const file = formData.get('file') as File
+    const videoNumber = parseInt(formData.get('videoNumber') as string)
+    
+    if (!file) {
+      return { error: 'No file provided' }
+    }
+    
+    if (!file.type.startsWith('video/')) {
+      return { error: 'File must be a video' }
+    }
+    
+    // Max file size: 100MB for videos
+    if (file.size > 100 * 1024 * 1024) {
+      return { error: 'File size must be less than 100MB' }
+    }
+    
+    if (isNaN(videoNumber) || videoNumber < 1) {
+      return { error: 'Invalid video number' }
+    }
+    
+    return await uploadPhysicalActivityVideo(file, videoNumber)
+  } catch (error) {
+    console.error('FormData upload error:', error)
+    return { error: 'Failed to process upload' }
+  }
+}
+

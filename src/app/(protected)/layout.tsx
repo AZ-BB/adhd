@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/server";
 import { getUserLearningPathStats } from "@/actions/learning-path";
+import { getUserPhysicalActivityStats } from "@/actions/physical-activities";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SidebarNav from "@/components/SidebarNav";
 import "../globals.css";
@@ -35,8 +36,9 @@ export default async function RootLayout({
     }
   }
 
-  // Get user profile and learning stats
+  // Get user profile and stats
   let learningStats = null;
+  let physicalActivityStats = null;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
@@ -49,6 +51,15 @@ export default async function RootLayout({
         learningStats = await getUserLearningPathStats(profile.id);
       } catch (error) {
         console.error("Error fetching learning stats:", error);
+      }
+      
+      try {
+        const physicalStats = await getUserPhysicalActivityStats(profile.id);
+        if (!('error' in physicalStats)) {
+          physicalActivityStats = physicalStats;
+        }
+      } catch (error) {
+        console.error("Error fetching physical activity stats:", error);
       }
     }
   }
@@ -63,6 +74,7 @@ export default async function RootLayout({
     { href: "/progress", icon: "📊", label: "التقدم" },
     { href: "/sessions", icon: "🎯", label: "الجلسات" },
     { href: "/learning-path", icon: "🎮", label: "مسار التعلم" },
+    { href: "/physical-activities", icon: "🏃", label: "النشاط البدني" },
     { href: "/profile", icon: "👤", label: "الملف الشخصي" },
     { href: "/settings", icon: "⚙️", label: "الإعدادات" },
   ] : [
@@ -71,6 +83,7 @@ export default async function RootLayout({
     { href: "/progress/en", icon: "📊", label: "Progress" },
     { href: "/sessions/en", icon: "🎯", label: "Sessions" },
     { href: "/learning-path/en", icon: "🎮", label: "Learning Path" },
+    { href: "/physical-activities/en", icon: "🏃", label: "Physical Activity" },
     { href: "/profile/en", icon: "👤", label: "Profile" },
     { href: "/settings/en", icon: "⚙️", label: "Settings" },
   ];
@@ -94,10 +107,12 @@ export default async function RootLayout({
         <div className={`p-4 border-t border-indigo-100 space-y-3 flex-shrink-0 ${!isEnglish ? 'text-right' : ''}`} dir={!isEnglish ? 'rtl' : 'ltr'}>
           {learningStats && learningStats.totalDays > 0 ? (
             <>
-              {/* Progress Widget */}
+              {/* Learning Progress Widget */}
               <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-3 border-2 border-purple-200">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-bold text-purple-700">{!isEnglish ? 'تقدمك' : 'Your Progress'}</p>
+                  <p className="text-xs font-bold text-purple-700">
+                    {!isEnglish ? '🎮 مسار التعلم' : '🎮 Learning'}
+                  </p>
                   <span className="text-xs font-semibold text-purple-600">
                     {Math.round((learningStats.completedDays / learningStats.totalDays) * 100)}%
                   </span>
@@ -108,25 +123,13 @@ export default async function RootLayout({
                     style={{ width: `${(learningStats.completedDays / learningStats.totalDays) * 100}%` }}
                   />
                 </div>
-                <div className="flex justify-between items-center">
-                  <div className="text-center">
-                    <div className="text-lg font-black text-purple-700">
-                      {learningStats.completedDays}
-                    </div>
-                    <div className="text-[10px] text-purple-600">{!isEnglish ? 'مكتمل' : 'Completed'}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-black text-orange-600">
-                      {learningStats.streak}🔥
-                    </div>
-                    <div className="text-[10px] text-orange-600">{!isEnglish ? 'سلسلة' : 'Streak'}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-black text-blue-600">
-                      {learningStats.currentDay}
-                    </div>
-                    <div className="text-[10px] text-blue-600">{!isEnglish ? 'الحالي' : 'Current'}</div>
-                  </div>
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="text-purple-600">
+                    {!isEnglish ? `يوم ${learningStats.currentDay}` : `Day ${learningStats.currentDay}`}
+                  </span>
+                  <span className="text-orange-600">
+                    {learningStats.streak}🔥
+                  </span>
                 </div>
               </div>
               
@@ -147,6 +150,42 @@ export default async function RootLayout({
               <p className="text-xs font-semibold text-purple-700">{!isEnglish ? 'استمر في التعلم!' : 'Keep Learning!'}</p>
               <p className="text-2xl mt-1">🌟</p>
             </div>
+          )}
+          
+          {/* Physical Activity Progress Widget */}
+          {physicalActivityStats && physicalActivityStats.totalVideosWatched > 0 && (
+            <>
+              <div className="bg-gradient-to-br from-green-100 to-blue-100 rounded-xl p-3 border-2 border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold text-green-700">
+                    {!isEnglish ? '🏃 النشاط البدني' : '🏃 Physical Activity'}
+                  </p>
+                  <span className="text-xs font-semibold text-green-600">
+                    {physicalActivityStats.totalVideosWatched} {!isEnglish ? 'فيديو' : 'videos'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="text-green-600">
+                    {!isEnglish ? 'اليوم:' : 'Today:'} {physicalActivityStats.currentVideoNumber}
+                  </span>
+                  {physicalActivityStats.streak > 0 && (
+                    <span className="text-orange-600">
+                      {physicalActivityStats.streak}🔥
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Physical Activity CTA */}
+              <Link 
+                href={!isEnglish ? "/physical-activities" : "/physical-activities/en"}
+                className="block bg-gradient-to-r from-green-500 to-blue-600 rounded-xl p-3 text-center hover:shadow-lg transition-all"
+              >
+                <p className="text-xs font-bold text-white">
+                  {!isEnglish ? '🏃 شاهد فيديوهات اليوم' : '🏃 Watch Today\'s Videos'}
+                </p>
+              </Link>
+            </>
           )}
           
           <p className="text-xs text-gray-500 text-center">© {new Date().getFullYear()} ADHD</p>

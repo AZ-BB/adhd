@@ -21,6 +21,7 @@ export default async function AdminLayout({
     { href: "/admin/analytics", icon: "📈", label: "Analytics" },
     { href: "/admin/content", icon: "📚", label: "Content" },
     { href: "/admin/blogs", icon: "✍️", label: "Blogs" },
+    { href: "/admin/physical-activities", icon: "🏃", label: "Physical Activities" },
     { href: "/admin/settings", icon: "⚙️", label: "Settings" },
   ]
 
