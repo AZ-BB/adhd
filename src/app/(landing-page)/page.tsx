@@ -2,6 +2,7 @@ import Link from "next/link"
 import { createSupabaseServerClient } from "@/lib/server"
 import { redirect } from "next/navigation"
 import Image from "next/image"
+import { getBlogsCached } from "@/actions/blogs"
 
 export default async function Home() {
   // Redirect logged-in users to dashboard
@@ -13,19 +14,26 @@ export default async function Home() {
     redirect("/dashboard")
   }
 
+  // Fetch latest 3 blogs
+  const { rows: blogs } = await getBlogsCached({
+    offset: 0,
+    limit: 3,
+    search: "",
+  })
+
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
       dir="rtl"
     >
       {/* Navbar */}
-      <header className="relative z-10 bg-gradient-to-b from-[#F37423] from-60% to-[#fc8a2c]">
+      <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
           <Link
             href="/"
-            className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-green-600"
+            className="text-2xl font-extrabold"
           >
-            <Image src="/logo/1.png" alt="Movokids" width={200} height={200} />
+            <Image src="/logo/1.png" alt="Movokids" width={200} height={60} className="object-contain" />
           </Link>
           <nav className="flex items-center gap-3">
             <Link
@@ -438,92 +446,192 @@ export default async function Home() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Blog Post 1 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  🧠
-                </div>
-              </div>
-              <div className="p-6 text-right">
-                <div className="text-xs text-sky-700 mb-2">15 أكتوبر، 2024</div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  كيف تساعد طفلك على تحسين التركيز؟
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  نصائح عملية يومية لتعزيز قدرة طفلك على الانتباه والتركيز في
-                  الأنشطة اليومية والدراسة.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+            {blogs.length > 0 ? (
+              blogs.map((blog) => (
+                <article
+                  key={blog.id}
+                  className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <span>اقرأ المزيد</span>
-                  <span>←</span>
-                </a>
+                  <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
+                    {blog.thumbnailUrl ? (
+                      <Image
+                        src={blog.thumbnailUrl}
+                        alt={blog.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-6xl">
+                        📝
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6 text-right">
+                    <div className="text-xs text-sky-700 mb-2">
+                      {new Date(blog.createdAt).toLocaleDateString("ar-SA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </div>
+                    <h3 className="text-xl font-bold text-sky-900 mb-3 line-clamp-2">
+                      {blog.title}
+                    </h3>
+                    <p className="text-sky-900/70 text-sm mb-4 line-clamp-3">
+                      {blog.description}
+                    </p>
+                    <Link
+                      href={`/blogs/${blog.slug}`}
+                      className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+                    >
+                      <span>اقرأ المزيد</span>
+                      <span>←</span>
+                    </Link>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-sky-900/70">لا توجد مقالات حاليًا</p>
               </div>
-            </article>
-
-            {/* Blog Post 2 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-green-100 to-sky-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  👨‍👩‍👧‍👦
-                </div>
-              </div>
-              <div className="p-6 text-right">
-                <div className="text-xs text-sky-700 mb-2">12 أكتوبر، 2024</div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  دور الأهل في دعم الأطفال ذوي فرط الحركة
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  استراتيجيات فعّالة للتعامل مع التحديات اليومية وتقديم الدعم
-                  المناسب لطفلك.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
-                >
-                  <span>اقرأ المزيد</span>
-                  <span>←</span>
-                </a>
-              </div>
-            </article>
-
-            {/* Blog Post 3 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  🎯
-                </div>
-              </div>
-              <div className="p-6 text-right">
-                <div className="text-xs text-sky-700 mb-2">8 أكتوبر، 2024</div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  التدريبات اليومية: المفتاح لتطوير المهارات
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  كيف تساعد التمارين القصيرة اليومية في بناء عادات إيجابية
-                  وتحسين الأداء الأكاديمي.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
-                >
-                  <span>اقرأ المزيد</span>
-                  <span>←</span>
-                </a>
-              </div>
-            </article>
+            )}
           </div>
-          <div className="text-center mt-8">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow"
-            >
-              <span>عرض جميع المقالات</span>
-              <span>←</span>
-            </a>
+          {blogs.length > 0 && (
+            <div className="text-center mt-8">
+              <Link
+                href="/blogs"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow"
+              >
+                <span>عرض جميع المقالات</span>
+                <span>←</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section dir="rtl" className="relative z-10 pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-2">
+              الأسئلة الشائعة
+            </h2>
+            <p className="text-sky-900/70">
+              إجابات على الأسئلة الأكثر شيوعًا حول Movokids
+            </p>
+          </div>
+          <div className="space-y-4">
+            {/* FAQ 1 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>ما هي منصة MovoKids؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                MovoKids هي منصة تعليمية رقمية للأطفال من عمر 6 إلى 12 عام متخصصة في تحسين الانتباه، التركيز، والمهارات السلوكية من خلال تمارين تفاعلية وأنشطة يومية مصممة من متخصصين.
+              </p>
+            </details>
+
+            {/* FAQ 2 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>هل منصة MovoKids مناسبة للأطفال المصابين باضطراب فرط الحركة وتشتت الانتباه (ADHD)؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                نعم، المنصة يمكن أن تساعد في دعم الأطفال المصابين بصعوبات التركيز من خلال تقديم أنشطة قصيرة وتفاعلية، وتمارين حسية تساعد على تحسين الانتباه بشكل تدريجي دون ضغط.
+              </p>
+            </details>
+
+            {/* FAQ 3 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>ما نوع الأنشطة المقدمة داخل منصة MovoKids؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                <p className="mb-2">تحتوي المنصة على أكثر من 300 تمرين تشمل:</p>
+                <ul className="space-y-2 mr-6">
+                  <li>• ألعاب تحسين الانتباه</li>
+                  <li>• تمارين حسية لتحسين التنظيم السلوكي</li>
+                  <li>• تدريبات ذاكرة وتركيز</li>
+                  <li>• أنشطة رقمية</li>
+                  <li>• ألعاب سرعة استجابة</li>
+                  <li>• جلسات مع متخصصين في مجالات الأطفال</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 4 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>هل المنصة مناسبة للأطفال الذين ليس لديهم ADHD ولكن لديهم ضعف تركيز فقط؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                <p className="mb-2">نعم. MovoKids مفيدة للأطفال الذين لديهم:</p>
+                <ul className="space-y-2 mr-6">
+                  <li>• ضعف تركيز</li>
+                  <li>• بطء في الاستجابة</li>
+                  <li>• مشاكل بالذاكرة</li>
+                  <li>• تشتت ذهني</li>
+                  <li>• حاجة لأنشطة ذكية بدل الجلوس على الشاشات بدون فائدة</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 5 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>هل الأنشطة يومية أم أسبوعية؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                يوجد برنامج تدريبات يومية من 10–15 دقيقة، بالإضافة إلى جلسات أسبوعية تتابع تقدم الطفل.
+              </p>
+            </details>
+
+            {/* FAQ 6 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>هل المحتوى آمن للأطفال؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                نعم، جميع التمارين خالية من الإعلانات، وتستخدم ألوانًا آمنة بصريًا، وتم تصميمها بالتعاون مع مختصين في تعديل السلوك وتنمية المهارات.
+              </p>
+            </details>
+
+            {/* FAQ 7 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>ما الذي يميز MovoKids عن التطبيقات الأخرى؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                <ul className="space-y-2 mr-6">
+                  <li>• أنشطة تفاعلية قصيرة وممتعة</li>
+                  <li>• تقارير للأهل</li>
+                  <li>• جلسات مع متخصصين</li>
+                  <li>• مناسب لعمر 5–12 عام</li>
+                  <li>• بدون إعلانات</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 8 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>هل MovoKids بديل عن العلاج السلوكي أو الدوائي مع الطبيب؟</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
+                لا، منصة MovoKids ليست بديلاً عن العلاج السلوكي أو الدوائي الذي يحدده الطبيب المختص. المنصة تقدم تدريبات وأنشطة تفاعلية فقط لتحسين التركيز والانتباه عند الأطفال، ولا نُقدّم أي أدوية ولا ننصح باستخدام أي دواء.
+                <br /><br />
+                الدور الأساسي لـ MovoKids هو الدعم والتطوير من خلال تمارين يومية وجلسات تدريبية اختيارية، بينما يبقى التشخيص ووضع الخطة العلاجية — سواء سلوكية أو دوائية — مسؤولية الطبيب المعالج فقط.
+              </p>
+            </details>
           </div>
         </div>
       </section>

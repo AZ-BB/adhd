@@ -2,6 +2,7 @@ import Link from "next/link"
 import { createSupabaseServerClient } from "@/lib/server"
 import { redirect } from "next/navigation"
 import Image from "next/image"
+import { getBlogsCached } from "@/actions/blogs"
 
 export default async function HomeEn() {
   // Redirect logged-in users to dashboard
@@ -13,6 +14,13 @@ export default async function HomeEn() {
     redirect("/dashboard")
   }
 
+  // Fetch latest 3 blogs
+  const { rows: blogs } = await getBlogsCached({
+    offset: 0,
+    limit: 3,
+    search: "",
+  })
+
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
@@ -20,14 +28,13 @@ export default async function HomeEn() {
     >
 
       {/* Navbar */}
-      <header className="relative z-10 bg-gradient-to-b from-[#F37423] from-60% to-[#fc8a2c]">
+      <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
           <Link
             href="/en"
-            className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-green-600"
+            className="text-2xl font-extrabold"
           >
-            <Image src="/logo/1.png" alt="Movokids" width={200} height={200} />
-
+            <Image src="/logo/1.png" alt="Movokids" width={200} height={60} className="object-contain" />
           </Link>
           <nav className="flex items-center gap-3">
             <Link
@@ -443,98 +450,192 @@ export default async function HomeEn() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Blog Post 1 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  🧠
-                </div>
-              </div>
-              <div className="p-6 text-left">
-                <div className="text-xs text-sky-700 mb-2">
-                  October 15, 2024
-                </div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  How to Help Your Child Improve Focus
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  Practical daily tips to enhance your child's ability to pay
-                  attention and focus during daily activities and studying.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+            {blogs.length > 0 ? (
+              blogs.map((blog) => (
+                <article
+                  key={blog.id}
+                  className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <span>Read more</span>
-                  <span>→</span>
-                </a>
+                  <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
+                    {blog.thumbnailUrl ? (
+                      <Image
+                        src={blog.thumbnailUrl}
+                        alt={blog.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-6xl">
+                        📝
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6 text-left">
+                    <div className="text-xs text-sky-700 mb-2">
+                      {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </div>
+                    <h3 className="text-xl font-bold text-sky-900 mb-3 line-clamp-2">
+                      {blog.title}
+                    </h3>
+                    <p className="text-sky-900/70 text-sm mb-4 line-clamp-3">
+                      {blog.description}
+                    </p>
+                    <Link
+                      href={`/blogs/${blog.slug}`}
+                      className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
+                    >
+                      <span>Read more</span>
+                      <span>→</span>
+                    </Link>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-sky-900/70">No articles available yet</p>
               </div>
-            </article>
-
-            {/* Blog Post 2 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-green-100 to-sky-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  👨‍👩‍👧‍👦
-                </div>
-              </div>
-              <div className="p-6 text-left">
-                <div className="text-xs text-sky-700 mb-2">
-                  October 12, 2024
-                </div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  The Role of Parents in Supporting Children with ADHD
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  Effective strategies for dealing with daily challenges and
-                  providing appropriate support for your child.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
-                >
-                  <span>Read more</span>
-                  <span>→</span>
-                </a>
-              </div>
-            </article>
-
-            {/* Blog Post 3 */}
-            <article className="bg-white/90 rounded-3xl border border-sky-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-48 bg-gradient-to-br from-sky-100 to-green-100">
-                <div className="absolute inset-0 flex items-center justify-center text-6xl">
-                  🎯
-                </div>
-              </div>
-              <div className="p-6 text-left">
-                <div className="text-xs text-sky-700 mb-2">
-                  October 8, 2024
-                </div>
-                <h3 className="text-xl font-bold text-sky-900 mb-3">
-                  Daily Training: The Key to Skill Development
-                </h3>
-                <p className="text-sky-900/70 text-sm mb-4">
-                  How short daily exercises help build positive habits and
-                  improve academic performance.
-                </p>
-                <a
-                  href="#"
-                  className="text-sky-700 hover:text-sky-900 font-semibold text-sm inline-flex items-center gap-1"
-                >
-                  <span>Read more</span>
-                  <span>→</span>
-                </a>
-              </div>
-            </article>
+            )}
           </div>
-          <div className="text-center mt-8">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow"
-            >
-              <span>View all articles</span>
-              <span>→</span>
-            </a>
+          {blogs.length > 0 && (
+            <div className="text-center mt-8">
+              <Link
+                href="/blogs"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow"
+              >
+                <span>View all articles</span>
+                <span>→</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative z-10 pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-2">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sky-900/70">
+              Answers to the most common questions about Movokids
+            </p>
+          </div>
+          <div className="space-y-4">
+            {/* FAQ 1 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>What is MovoKids platform?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                MovoKids is a digital educational platform for children ages 6 to 12, specialized in improving attention, focus, and behavioral skills through interactive exercises and daily activities designed by specialists.
+              </p>
+            </details>
+
+            {/* FAQ 2 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>Is MovoKids suitable for children with ADHD?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                Yes, the platform can help support children with attention difficulties by providing short, interactive activities and sensory exercises that help improve attention gradually without pressure.
+              </p>
+            </details>
+
+            {/* FAQ 3 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>What types of activities are offered on MovoKids?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                <p className="mb-2">The platform contains more than 300 exercises including:</p>
+                <ul className="space-y-2 ml-6 list-disc">
+                  <li>Attention improvement games</li>
+                  <li>Sensory exercises to improve behavioral regulation</li>
+                  <li>Memory and focus training</li>
+                  <li>Digital activities</li>
+                  <li>Response speed games</li>
+                  <li>Sessions with child development specialists</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 4 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>Is the platform suitable for children without ADHD who just have weak focus?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                <p className="mb-2">Yes. MovoKids is useful for children who have:</p>
+                <ul className="space-y-2 ml-6 list-disc">
+                  <li>Weak concentration</li>
+                  <li>Slow response</li>
+                  <li>Memory problems</li>
+                  <li>Mental distraction</li>
+                  <li>Need for smart activities instead of sitting in front of screens without benefit</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 5 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>Are the activities daily or weekly?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                There is a daily training program of 10–15 minutes, in addition to weekly sessions that track the child's progress.
+              </p>
+            </details>
+
+            {/* FAQ 6 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>Is the content safe for children?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                Yes, all exercises are ad-free, use visually safe colors, and were designed in collaboration with specialists in behavior modification and skill development.
+              </p>
+            </details>
+
+            {/* FAQ 7 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>What makes MovoKids different from other apps?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                <ul className="space-y-2 ml-6 list-disc">
+                  <li>Short and fun interactive activities</li>
+                  <li>Reports for parents</li>
+                  <li>Sessions with specialists</li>
+                  <li>Suitable for ages 5–12</li>
+                  <li>No advertisements</li>
+                </ul>
+              </div>
+            </details>
+
+            {/* FAQ 8 */}
+            <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
+              <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
+                <span>Is MovoKids a substitute for behavioral or medical treatment with a doctor?</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <p className="mt-4 text-sky-900/80 text-left leading-relaxed">
+                No, MovoKids platform is not a substitute for behavioral or medical treatment prescribed by a qualified physician. The platform only provides training and interactive activities to improve focus and attention in children, and we do not provide any medications or advise the use of any medication.
+                <br /><br />
+                The primary role of MovoKids is support and development through daily exercises and optional training sessions, while diagnosis and treatment planning — whether behavioral or medical — remains the sole responsibility of the treating physician.
+              </p>
+            </details>
           </div>
         </div>
       </section>
