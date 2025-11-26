@@ -32,10 +32,24 @@ export default function PhysicalActivityClientEn({ activityInfo, userId }: Physi
   
   const handleVideoEnd = async () => {
     const currentVideo = activityInfo.availableVideos[currentVideoIndex]
-    if (!currentVideo || !watchStartTime) return
+    if (!currentVideo) return
+    
+    const autoAdvance = () => {
+      if (currentVideoIndex < activityInfo.availableVideos.length - 1) {
+        handleNext()
+      } else {
+        // All videos watched, refresh page
+        router.refresh()
+      }
+    }
     
     // Check if already watched
-    if (localWatchedVideos.includes(currentVideo.video_number)) return
+    if (localWatchedVideos.includes(currentVideo.video_number)) {
+      autoAdvance()
+      return
+    }
+
+    if (!watchStartTime) return
     
     const watchDuration = Math.floor((Date.now() - watchStartTime) / 1000)
     
@@ -52,14 +66,7 @@ export default function PhysicalActivityClientEn({ activityInfo, userId }: Physi
       // Hide message after 3 seconds
       setTimeout(() => {
         setShowCompletionMessage(false)
-        
-        // Auto-advance to next video if available
-        if (currentVideoIndex < activityInfo.availableVideos.length - 1) {
-          handleNext()
-        } else {
-          // All videos watched, refresh page
-          router.refresh()
-        }
+        autoAdvance()
       }, 3000)
     }
   }
