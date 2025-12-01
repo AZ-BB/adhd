@@ -35,6 +35,14 @@ export async function uploadGameImage(
     
     if (error) {
       console.error('Upload error:', error)
+      
+      // Check for RLS error
+      if (error.message.includes('row-level security') || error.message.includes('policy')) {
+        const errorMsg = `Upload failed due to RLS policy. \n\nPlease run the SQL migration in supabase/migrations/20251201000000_fix_storage_buckets.sql or run:\n\nINSERT INTO storage.buckets (id, name, public) VALUES ('game-assets', 'game-assets', true) ON CONFLICT (id) DO NOTHING;\n\nCREATE POLICY "Authenticated users can upload game assets" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'game-assets');`
+        console.error(errorMsg)
+        return { error: errorMsg }
+      }
+      
       return { error: `Failed to upload image: ${error.message}` }
     }
     
@@ -133,6 +141,14 @@ export async function uploadPhysicalActivityVideo(
     
     if (error) {
       console.error('Upload error:', error)
+      
+      // Check for RLS error
+      if (error.message.includes('row-level security') || error.message.includes('policy')) {
+        const errorMsg = `Upload failed due to RLS policy. \n\nPlease run the SQL migration in supabase/migrations/20251201000000_fix_storage_buckets.sql or run:\n\nINSERT INTO storage.buckets (id, name, public) VALUES ('physical-activities', 'physical-activities', true) ON CONFLICT (id) DO NOTHING;\n\nCREATE POLICY "Authenticated users can upload physical activities" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'physical-activities');`
+        console.error(errorMsg)
+        return { error: errorMsg }
+      }
+
       return { error: `Failed to upload video: ${error.message}` }
     }
     
