@@ -10,6 +10,7 @@ interface SimonSaysGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface SimonItem {
@@ -27,12 +28,64 @@ export default function SimonSaysGame({
   userId, 
   learningDayId, 
   dayGameId, 
-  onComplete 
+  onComplete,
+  language = 'en'
 }: SimonSaysGameProps) {
   const config = game.config as GameConfig
   const difficulty = config.difficulty || 'easy'
   const theme = config.simonTheme || 'colors'
   const maxLevel = config.maxLevel || 10
+
+  // Translations
+  const t = {
+    en: {
+      howToPlay: '🎮 How to Play:',
+      watchSequence: 'Watch the sequence of items light up and play sounds',
+      waitForFinish: 'Wait for the sequence to finish',
+      repeatSequence: 'Repeat the sequence by clicking the items in the same order',
+      eachLevel: 'Each level adds one more item to remember!',
+      maxLevels: 'Max Levels',
+      startingLength: 'Starting Length',
+      startGame: 'Start Game',
+      level: 'Level',
+      sequenceLength: 'Sequence Length',
+      mistakes: 'Mistakes',
+      time: 'Time',
+      watchCarefully: '👀 Watch carefully!',
+      yourTurn: '🎯 Your turn! ({current}/{total})',
+      perfect: 'Perfect! Moving to next level!',
+      oops: 'Oops! Try again!',
+      amazingMemory: 'Amazing Memory!',
+      goodJob: 'Good Job!',
+      keepPracticing: 'Keep Practicing!',
+      completedLevels: 'You completed {completed} out of {max} levels!',
+      longestSequence: 'Longest sequence:',
+    },
+    ar: {
+      howToPlay: '🎮 كيف تلعب:',
+      watchSequence: 'شاهد تسلسل العناصر وهي تضيء وتصدر أصواتًا',
+      waitForFinish: 'انتظر حتى ينتهي التسلسل',
+      repeatSequence: 'كرر التسلسل بالنقر على العناصر بنفس الترتيب',
+      eachLevel: 'كل مستوى يضيف عنصرًا واحدًا للتذكر!',
+      maxLevels: 'أقصى مستوى',
+      startingLength: 'الطول الابتدائي',
+      startGame: 'ابدأ اللعبة',
+      level: 'المستوى',
+      sequenceLength: 'طول التسلسل',
+      mistakes: 'الأخطاء',
+      time: 'الوقت',
+      watchCarefully: '👀 شاهد بعناية!',
+      yourTurn: '🎯 دورك! ({current}/{total})',
+      perfect: 'رائع! الانتقال إلى المستوى التالي!',
+      oops: 'عفواً! حاول مرة أخرى!',
+      amazingMemory: 'ذاكرة مذهلة!',
+      goodJob: 'أحسنت!',
+      keepPracticing: 'استمر في التدريب!',
+      completedLevels: 'لقد أكملت {completed} من {max} مستويات!',
+      longestSequence: 'أطول تسلسل:',
+    }
+  }
+  const text = t[language]
   
   const [sequence, setSequence] = useState<number[]>([])
   const [userSequence, setUserSequence] = useState<number[]>([])
@@ -323,13 +376,13 @@ export default function SimonSaysGame({
           {successRate >= 70 ? '🎉' : successRate >= 50 ? '👍' : '💪'}
         </div>
         <h3 className="text-3xl font-bold mb-2">
-          {successRate >= 70 ? 'Amazing Memory!' : successRate >= 50 ? 'Good Job!' : 'Keep Practicing!'}
+          {successRate >= 70 ? text.amazingMemory : successRate >= 50 ? text.goodJob : text.keepPracticing}
         </h3>
         <p className="text-gray-600 mb-4 text-xl">
-          You completed {levelsCompleted} out of {maxLevel} levels!
+          {text.completedLevels.replace('{completed}', levelsCompleted.toString()).replace('{max}', maxLevel.toString())}
         </p>
         <p className="text-gray-500">
-          Longest sequence: {sequence.length} | Mistakes: {mistakes} | Time: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
+          {text.longestSequence} {sequence.length} | {text.mistakes}: {mistakes} | {text.time}: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
         </p>
       </div>
     )
@@ -339,27 +392,27 @@ export default function SimonSaysGame({
     return (
       <div className="flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center mb-4">{game.name}</h2>
-          <p className="text-gray-600 text-center mb-6 text-lg">{game.description}</p>
+          <h2 className="text-3xl font-bold text-center mb-4">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+          <p className="text-gray-600 text-center mb-6 text-lg">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
 
           <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 mb-6">
-            <h3 className="text-xl font-bold text-blue-800 mb-3">🎮 How to Play:</h3>
+            <h3 className="text-xl font-bold text-blue-800 mb-3">{text.howToPlay}</h3>
             <ol className="space-y-2 text-blue-900">
               <li className="flex items-start gap-2">
                 <span className="font-bold">1.</span>
-                <span>Watch the sequence of items light up and play sounds</span>
+                <span>{text.watchSequence}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">2.</span>
-                <span>Wait for the sequence to finish</span>
+                <span>{text.waitForFinish}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">3.</span>
-                <span>Repeat the sequence by clicking the items in the same order</span>
+                <span>{text.repeatSequence}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">4.</span>
-                <span>Each level adds one more item to remember!</span>
+                <span>{text.eachLevel}</span>
               </li>
             </ol>
           </div>
@@ -367,11 +420,11 @@ export default function SimonSaysGame({
           <div className="bg-gray-100 rounded-lg p-4 mb-6">
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
-                <div className="text-sm text-gray-600">Max Levels</div>
+                <div className="text-sm text-gray-600">{text.maxLevels}</div>
                 <div className="text-2xl font-bold text-purple-600">{maxLevel}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Starting Length</div>
+                <div className="text-sm text-gray-600">{text.startingLength}</div>
                 <div className="text-2xl font-bold text-purple-600">{getStartingLength()}</div>
               </div>
             </div>
@@ -381,7 +434,7 @@ export default function SimonSaysGame({
             onClick={startGame}
             className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
-            Start Game
+            {text.startGame}
           </button>
         </div>
       </div>
@@ -391,24 +444,24 @@ export default function SimonSaysGame({
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
 
         {/* Stats */}
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-6">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Level</div>
+            <div className="text-sm text-gray-600">{text.level}</div>
             <div className="text-2xl font-bold text-blue-600">{currentLevel} / {maxLevel}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Sequence Length</div>
+            <div className="text-sm text-gray-600">{text.sequenceLength}</div>
             <div className="text-2xl font-bold text-purple-600">{sequence.length}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">{mistakes} / 3</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -419,13 +472,13 @@ export default function SimonSaysGame({
         <div className="text-center mb-6">
           {isShowingSequence && (
             <div className="bg-blue-100 border-2 border-blue-400 rounded-lg p-4">
-              <p className="text-blue-800 font-bold text-xl">👀 Watch carefully!</p>
+              <p className="text-blue-800 font-bold text-xl">{text.watchCarefully}</p>
             </div>
           )}
           {canPlay && !showFeedback && (
             <div className="bg-green-100 border-2 border-green-400 rounded-lg p-4">
               <p className="text-green-800 font-bold text-xl">
-                🎯 Your turn! ({userSequence.length}/{sequence.length})
+                {text.yourTurn.replace('{current}', userSequence.length.toString()).replace('{total}', sequence.length.toString())}
               </p>
             </div>
           )}
@@ -437,7 +490,7 @@ export default function SimonSaysGame({
             }`}>
               <div className="text-3xl mb-2">{isCorrectRound ? '✅' : '❌'}</div>
               <p className="font-bold text-xl">
-                {isCorrectRound ? 'Perfect! Moving to next level!' : 'Oops! Try again!'}
+                {isCorrectRound ? text.perfect : text.oops}
               </p>
             </div>
           )}

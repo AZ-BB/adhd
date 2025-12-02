@@ -208,6 +208,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -219,6 +220,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -230,6 +232,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -241,6 +244,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -252,6 +256,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -263,6 +268,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -274,6 +280,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -285,6 +292,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -304,6 +312,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={String(day.id)}
             dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         
@@ -323,6 +332,7 @@ export default function LearningDayClientAr({ dayDetails, userId }: LearningDayC
             learningDayId={String(day.id)}
             dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
+            language="ar"
           />
         )}
         

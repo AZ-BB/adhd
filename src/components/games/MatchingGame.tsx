@@ -10,6 +10,7 @@ interface MatchingGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface MatchItem {
@@ -21,7 +22,7 @@ interface MatchItem {
   pairId?: string
 }
 
-export default function MatchingGame({ game, userId, learningDayId, dayGameId, onComplete }: MatchingGameProps) {
+export default function MatchingGame({ game, userId, learningDayId, dayGameId, onComplete, language = 'en' }: MatchingGameProps) {
   const config = game.config as GameConfig
   const itemCount = config.itemCount || 5
   const category = config.category || 'colors'
@@ -37,6 +38,25 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
   const [gameCompleted, setGameCompleted] = useState(false)
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [matchingMap, setMatchingMap] = useState<Record<string, string>>({})
+
+  // Translations
+  const t = {
+    en: {
+      matches: 'Matches',
+      mistakes: 'Mistakes',
+      time: 'Time',
+      greatJob: 'Great Job!',
+      madeMistakes: 'You made {matches} matches with {mistakes} mistakes!'
+    },
+    ar: {
+      matches: 'المتطابقات',
+      mistakes: 'الأخطاء',
+      time: 'الوقت',
+      greatJob: 'أحسنت!',
+      madeMistakes: 'لقد أجريت {matches} تطابق مع {mistakes} أخطاء!'
+    }
+  }
+  const text = t[language]
 
   // Initialize items
   useEffect(() => {
@@ -175,20 +195,20 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="w-full mb-6">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-4">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-4">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
         
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Matches</div>
+            <div className="text-sm text-gray-600">{text.matches}</div>
             <div className="text-2xl font-bold">{matches.length} / {itemCount}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">{mistakes}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -280,9 +300,9 @@ export default function MatchingGame({ game, userId, learningDayId, dayGameId, o
         <div className="mt-6 text-center">
           <div className="text-green-600">
             <div className="text-3xl mb-2">🎉</div>
-            <div className="text-xl font-bold">Great Job!</div>
+            <div className="text-xl font-bold">{text.greatJob}</div>
             <div className="text-gray-600">
-              You made {matches.length} matches with {mistakes} mistakes!
+              {text.madeMistakes.replace('{matches}', matches.length.toString()).replace('{mistakes}', mistakes.toString())}
             </div>
           </div>
         </div>

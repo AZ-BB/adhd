@@ -17,6 +17,7 @@ interface ReactionTimeGameProps {
   learningDayId: string
   dayGameId: string
   onComplete: (success: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface Round {
@@ -27,7 +28,7 @@ interface Round {
 
 type GameState = 'instructions' | 'ready' | 'waiting' | 'react' | 'result' | 'complete'
 
-export default function ReactionTimeGame({ game, userId, learningDayId, dayGameId, onComplete }: ReactionTimeGameProps) {
+export default function ReactionTimeGame({ game, userId, learningDayId, dayGameId, onComplete, language = 'en' }: ReactionTimeGameProps) {
   const config = game.config || {}
   const difficulty = config.difficulty || 'easy'
   const stimulusType = config.stimulusType || 'color'
@@ -49,6 +50,81 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isWaitingRef = useRef(false)
   const stimulusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Translations
+  const t = {
+    en: {
+      testReaction: 'Test your reaction time!',
+      waitFor: 'Wait for the screen to turn',
+      green: 'GREEN',
+      thenClick: 'Then click as',
+      fast: 'FAST',
+      asYouCan: 'as you can!',
+      dontClickEarly: "⚠️ Don't click too early or it's a false start!",
+      roundsDifficulty: '{rounds} rounds • {difficulty} difficulty',
+      clickToStart: 'Click anywhere to start',
+      getRound: 'Round {round} of {total}',
+      getReady: 'Get ready...',
+      wait: 'Wait...',
+      dontClick: "Don't click yet!",
+      clickNow: 'CLICK NOW!',
+      falseStart: 'False Start!',
+      clickedEarly: 'You clicked too early. Wait for the green signal!',
+      excellent: 'Excellent!',
+      great: 'Great!',
+      good: 'Good!',
+      keepPracticing: 'Keep Practicing!',
+      correct: 'Correct!',
+      wrong: 'Wrong!',
+      correctAnswer: 'Correct answer: {answer}',
+      gameComplete: 'Game Complete!',
+      averageReaction: 'Average Reaction Time',
+      validRounds: 'Valid Rounds',
+      bestTime: 'Best Time',
+      falseStarts: 'False Starts',
+      finalScore: 'Final Score:',
+      noValidRounds: 'No valid rounds completed. Try again!',
+      continue: 'Continue',
+      nextRound: 'Next Round',
+      seeResults: 'See Results'
+    },
+    ar: {
+      testReaction: 'اختبر سرعة رد فعلك!',
+      waitFor: 'انتظر حتى تتحول الشاشة إلى',
+      green: 'الأخضر',
+      thenClick: 'ثم انقر بأسرع',
+      fast: 'سرعة',
+      asYouCan: 'ممكنة!',
+      dontClickEarly: '⚠️ لا تضغط مبكرًا وإلا ستكون بداية خاطئة!',
+      roundsDifficulty: '{rounds} جولات • صعوبة {difficulty}',
+      clickToStart: 'انقر في أي مكان للبدء',
+      getRound: 'الجولة {round} من {total}',
+      getReady: 'استعد...',
+      wait: 'انتظر...',
+      dontClick: 'لا تضغط بعد!',
+      clickNow: 'اضغط الآن!',
+      falseStart: 'بداية خاطئة!',
+      clickedEarly: 'لقد ضغطت مبكرًا جدًا. انتظر الإشارة الخضراء!',
+      excellent: 'ممتاز!',
+      great: 'رائع!',
+      good: 'جيد!',
+      keepPracticing: 'استمر في التدريب!',
+      correct: 'صحيح!',
+      wrong: 'خطأ!',
+      correctAnswer: 'الإجابة الصحيحة: {answer}',
+      gameComplete: 'انتهت اللعبة!',
+      averageReaction: 'متوسط وقت رد الفعل',
+      validRounds: 'الجولات الصحيحة',
+      bestTime: 'أفضل وقت',
+      falseStarts: 'البدايات الخاطئة',
+      finalScore: 'النتيجة النهائية:',
+      noValidRounds: 'لم تكتمل أي جولات صحيحة. حاول مرة أخرى!',
+      continue: 'متابعة',
+      nextRound: 'الجولة التالية',
+      seeResults: 'رؤية النتائج'
+    }
+  }
+  const text = t[language]
 
   // Get difficulty settings
   const getDifficultySettings = (diff: string) => {
@@ -264,10 +340,10 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
 
   // Get rating text
   const getRatingText = (time: number) => {
-    if (time <= difficultySettings.excellentTime) return { text: 'Excellent!', emoji: '🚀', color: 'text-yellow-400' }
-    if (time <= difficultySettings.goodTime) return { text: 'Great!', emoji: '⭐', color: 'text-green-400' }
-    if (time <= difficultySettings.targetTime) return { text: 'Good!', emoji: '👍', color: 'text-blue-400' }
-    return { text: 'Keep Practicing!', emoji: '💪', color: 'text-orange-400' }
+    if (time <= difficultySettings.excellentTime) return { text: text.excellent, emoji: '🚀', color: 'text-yellow-400' }
+    if (time <= difficultySettings.goodTime) return { text: text.great, emoji: '⭐', color: 'text-green-400' }
+    if (time <= difficultySettings.targetTime) return { text: text.good, emoji: '👍', color: 'text-blue-400' }
+    return { text: text.keepPracticing, emoji: '💪', color: 'text-orange-400' }
   }
 
   return (
@@ -280,18 +356,18 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
             onClick={handleClick}
           >
             <div className="text-6xl mb-6">⚡</div>
-            <h2 className="text-4xl font-bold text-white mb-6">{game.name}</h2>
+            <h2 className="text-4xl font-bold text-white mb-6">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
             <div className="text-xl text-white/90 mb-8 space-y-3">
-              <p>Test your reaction time!</p>
-              <p className="text-lg">Wait for the screen to turn <span className="font-bold text-green-300">GREEN</span></p>
-              <p className="text-lg">Then click as <span className="font-bold">FAST</span> as you can!</p>
-              <p className="text-base text-white/70 mt-4">⚠️ Don't click too early or it's a false start!</p>
+              <p>{text.testReaction}</p>
+              <p className="text-lg">{text.waitFor} <span className="font-bold text-green-300">{text.green}</span></p>
+              <p className="text-lg">{text.thenClick} <span className="font-bold">{text.fast}</span> {text.asYouCan}</p>
+              <p className="text-base text-white/70 mt-4">{text.dontClickEarly}</p>
             </div>
             <div className="text-white/80 text-lg">
-              {rounds} rounds • {difficulty.replace('_', ' ')} difficulty
+              {text.roundsDifficulty.replace('{rounds}', rounds.toString()).replace('{difficulty}', difficulty.replace('_', ' '))}
             </div>
             <div className="mt-8 text-2xl font-bold text-white animate-pulse">
-              Click anywhere to start
+              {text.clickToStart}
             </div>
           </div>
         )}
@@ -300,8 +376,8 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
         {gameState === 'ready' && (
           <div className="bg-blue-500 rounded-3xl p-12 text-center shadow-2xl">
             <div className="text-6xl mb-4">🏁</div>
-            <div className="text-4xl font-bold text-white mb-4">Round {currentRound + 1} of {rounds}</div>
-            <div className="text-2xl text-white/90">Get ready...</div>
+            <div className="text-4xl font-bold text-white mb-4">{text.getRound.replace('{round}', (currentRound + 1).toString()).replace('{total}', rounds.toString())}</div>
+            <div className="text-2xl text-white/90">{text.getReady}</div>
           </div>
         )}
 
@@ -313,8 +389,8 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
           >
             <div>
               <div className="text-6xl mb-6">⏳</div>
-              <div className="text-5xl font-bold text-white">Wait...</div>
-              <div className="text-xl text-white/70 mt-4">Don't click yet!</div>
+              <div className="text-5xl font-bold text-white">{text.wait}</div>
+              <div className="text-xl text-white/70 mt-4">{text.dontClick}</div>
             </div>
           </div>
         )}
@@ -338,8 +414,8 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
             
             {reactionTime === -1 ? (
               <>
-                <div className="text-4xl font-bold text-white mb-4">False Start!</div>
-                <div className="text-xl text-white/80 mb-8">You clicked too early. Wait for the green signal!</div>
+                <div className="text-4xl font-bold text-white mb-4">{text.falseStart}</div>
+                <div className="text-xl text-white/80 mb-8">{text.clickedEarly}</div>
               </>
             ) : (
               <>
@@ -353,14 +429,14 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
             )}
 
             <div className="text-white/70 mb-8">
-              Round {currentRound} of {rounds}
+              {text.getRound.replace('{round}', currentRound.toString()).replace('{total}', rounds.toString())}
             </div>
 
             <button
               onClick={continueToNextRound}
               className="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-xl hover:bg-gray-100 transition-colors shadow-lg"
             >
-              {currentRound >= rounds ? 'See Results' : 'Next Round'}
+              {currentRound >= rounds ? text.seeResults : text.nextRound}
             </button>
           </div>
         )}
@@ -369,12 +445,12 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
         {gameState === 'complete' && (
           <div className="bg-gradient-to-br from-green-600 to-blue-600 rounded-3xl p-12 text-center shadow-2xl">
             <div className="text-6xl mb-6">🏆</div>
-            <h2 className="text-4xl font-bold text-white mb-8">Game Complete!</h2>
+            <h2 className="text-4xl font-bold text-white mb-8">{text.gameComplete}</h2>
 
             {averageTime !== null ? (
               <>
                 <div className="bg-white/10 rounded-2xl p-6 mb-6">
-                  <div className="text-white/80 text-lg mb-2">Average Reaction Time</div>
+                  <div className="text-white/80 text-lg mb-2">{text.averageReaction}</div>
                   <div className={`text-6xl font-bold ${getRatingText(averageTime).color} mb-2`}>
                     {Math.round(averageTime)}ms
                   </div>
@@ -385,13 +461,13 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
 
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="bg-white/10 rounded-xl p-4">
-                    <div className="text-white/70 text-sm mb-1">Valid Rounds</div>
+                    <div className="text-white/70 text-sm mb-1">{text.validRounds}</div>
                     <div className="text-3xl font-bold text-white">
                       {roundResults.filter(r => !r.falseStart).length}/{rounds}
                     </div>
                   </div>
                   <div className="bg-white/10 rounded-xl p-4">
-                    <div className="text-white/70 text-sm mb-1">Best Time</div>
+                    <div className="text-white/70 text-sm mb-1">{text.bestTime}</div>
                     <div className="text-3xl font-bold text-green-300">
                       {roundResults.filter(r => !r.falseStart && r.reactionTime).length > 0
                         ? Math.min(...roundResults.filter(r => !r.falseStart && r.reactionTime).map(r => r.reactionTime!))
@@ -399,7 +475,7 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
                     </div>
                   </div>
                   <div className="bg-white/10 rounded-xl p-4">
-                    <div className="text-white/70 text-sm mb-1">False Starts</div>
+                    <div className="text-white/70 text-sm mb-1">{text.falseStarts}</div>
                     <div className="text-3xl font-bold text-red-300">
                       {roundResults.filter(r => r.falseStart).length}
                     </div>
@@ -407,12 +483,12 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
                 </div>
 
                 <div className="text-white/80 text-lg mb-8">
-                  Final Score: <span className="font-bold text-2xl text-yellow-300">{score}</span>
+                  {text.finalScore} <span className="font-bold text-2xl text-yellow-300">{score}</span>
                 </div>
               </>
             ) : (
               <div className="text-white/80 text-xl mb-8">
-                No valid rounds completed. Try again!
+                {text.noValidRounds}
               </div>
             )}
 
@@ -420,7 +496,7 @@ export default function ReactionTimeGame({ game, userId, learningDayId, dayGameI
               onClick={handleComplete}
               className="px-8 py-4 bg-white text-green-600 rounded-xl font-bold text-xl hover:bg-gray-100 transition-colors shadow-lg"
             >
-              Continue
+              {text.continue}
             </button>
           </div>
         )}

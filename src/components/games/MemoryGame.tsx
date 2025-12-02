@@ -10,6 +10,7 @@ interface MemoryGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface Card {
@@ -22,7 +23,7 @@ interface Card {
   label?: string
 }
 
-export default function MemoryGame({ game, userId, learningDayId, dayGameId, onComplete }: MemoryGameProps) {
+export default function MemoryGame({ game, userId, learningDayId, dayGameId, onComplete, language = 'en' }: MemoryGameProps) {
   const config = game.config as GameConfig
   const pairs = config.pairs || 4
   const timeLimit = config.timeLimit || 60
@@ -42,6 +43,37 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [isPreviewPhase, setIsPreviewPhase] = useState(true)
   const [previewTimeLeft, setPreviewTimeLeft] = useState(5)
+
+  // Translations
+  const t = {
+    en: {
+      loadingImages: 'Loading images...',
+      memorizeCards: 'Memorize the cards!',
+      secondsRemaining: 'seconds remaining',
+      moves: 'Moves',
+      matches: 'Matches',
+      time: 'Time',
+      congratulations: 'Congratulations!',
+      completedInMoves: 'You completed the game in {moves} moves!',
+      timesUp: "Time's Up!",
+      tryAgain: 'Try again to improve your time!',
+      clickToStart: 'Click any card to start!'
+    },
+    ar: {
+      loadingImages: 'جاري تحميل الصور...',
+      memorizeCards: 'احفظ البطاقات!',
+      secondsRemaining: 'ثانية متبقية',
+      moves: 'التحركات',
+      matches: 'المتطابقات',
+      time: 'الوقت',
+      congratulations: 'تهانينا!',
+      completedInMoves: 'لقد أكملت اللعبة في {moves} تحرك!',
+      timesUp: 'انتهى الوقت!',
+      tryAgain: 'حاول مرة أخرى لتحسين وقتك!',
+      clickToStart: 'انقر فوق أي بطاقة للبدء!'
+    }
+  }
+  const text = t[language]
 
   // Initialize cards - only run once on mount
   useEffect(() => {
@@ -282,11 +314,11 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   if (!imagesLoaded) {
     return (
       <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto min-h-[400px]">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-4">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-4">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
-          <p className="text-gray-600">Loading images...</p>
+          <p className="text-gray-600">{text.loadingImages}</p>
           <div className="w-64 bg-gray-200 rounded-full h-2.5">
             <div 
               className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
@@ -302,34 +334,34 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
       <div className="w-full mb-6">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-4">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-4">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
         
         {isPreviewPhase && (
           <div className="mb-4 p-4 bg-blue-100 rounded-lg text-center">
             <div className="text-blue-800 font-semibold text-lg mb-2">
-              Memorize the cards!
+              {text.memorizeCards}
             </div>
             <div className="text-blue-600 text-3xl font-bold">
               {previewTimeLeft}
             </div>
             <div className="text-blue-600 text-sm">
-              seconds remaining
+              {text.secondsRemaining}
             </div>
           </div>
         )}
         
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Moves</div>
+            <div className="text-sm text-gray-600">{text.moves}</div>
             <div className="text-2xl font-bold">{moves}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Matches</div>
+            <div className="text-sm text-gray-600">{text.matches}</div>
             <div className="text-2xl font-bold">{matchedPairs.length / 2} / {pairs}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -387,14 +419,14 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
           {matchedPairs.length === pairs * 2 ? (
             <div className="text-green-600">
               <div className="text-3xl mb-2">🎉</div>
-              <div className="text-xl font-bold">Congratulations!</div>
-              <div className="text-gray-600">You completed the game in {moves} moves!</div>
+              <div className="text-xl font-bold">{text.congratulations}</div>
+              <div className="text-gray-600">{text.completedInMoves.replace('{moves}', moves.toString())}</div>
             </div>
           ) : (
             <div className="text-red-600">
               <div className="text-3xl mb-2">⏱️</div>
-              <div className="text-xl font-bold">Time's Up!</div>
-              <div className="text-gray-600">Try again to improve your time!</div>
+              <div className="text-xl font-bold">{text.timesUp}</div>
+              <div className="text-gray-600">{text.tryAgain}</div>
             </div>
           )}
         </div>
@@ -402,7 +434,7 @@ export default function MemoryGame({ game, userId, learningDayId, dayGameId, onC
 
       {!gameStarted && !isPreviewPhase && (
         <div className="text-center text-gray-500">
-          Click any card to start!
+          {text.clickToStart}
         </div>
       )}
     </div>

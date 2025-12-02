@@ -208,6 +208,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -219,6 +220,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -230,6 +232,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -241,6 +244,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -252,6 +256,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -263,6 +268,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -274,6 +280,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -285,6 +292,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={day.id}
             dayGameId={currentGame.dayGame.id}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -304,6 +312,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={String(day.id)}
             dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         
@@ -323,6 +332,7 @@ export default function LearningDayClient({ dayDetails, userId }: LearningDayCli
             learningDayId={String(day.id)}
             dayGameId={String(currentGame.dayGame.id)}
             onComplete={handleGameComplete}
+            language="en"
           />
         )}
         

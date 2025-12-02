@@ -10,6 +10,7 @@ interface PatternRecognitionGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface PatternCell {
@@ -26,12 +27,67 @@ export default function PatternRecognitionGame({
   userId, 
   learningDayId, 
   dayGameId, 
-  onComplete 
+  onComplete,
+  language = 'en'
 }: PatternRecognitionGameProps) {
   const config = game.config as GameConfig
   const difficulty = config.difficulty || 'easy'
   const patternType = config.patternType || 'colors'
   const totalRounds = config.rounds || 5
+
+  const t = {
+    en: {
+      howToPlay: '📝 How to Play:',
+      patternAppear: 'A pattern will appear for a few seconds -',
+      memorize: 'memorize it!',
+      patternDisappear: 'The pattern will disappear and you\'ll get a countdown',
+      recreatePattern: 'Recreate the pattern by clicking on the cells and selecting items',
+      submitAnswer: 'Submit your answer and see if you got it right!',
+      rounds: 'Rounds',
+      gridSize: 'Grid Size',
+      startGame: 'Start Game',
+      round: 'Round',
+      correct: 'Correct',
+      mistakes: 'Mistakes',
+      time: 'Time',
+      memorizePattern: '👀 Memorize this pattern!',
+      getReady: 'Get ready to recreate the pattern...',
+      recreate: '🧩 Recreate the pattern!',
+      clear: 'Clear',
+      perfectRight: 'Perfect! You got it right!',
+      notQuite: 'Not quite! Try to focus more next time.',
+      excellentMemory: 'Excellent Memory!',
+      keepPracticing: 'Keep Practicing!',
+      gotCorrect: 'You got {correct} out of {total} patterns correct!',
+      accuracy2: 'Accuracy:',
+    },
+    ar: {
+      howToPlay: '📝 كيف تلعب:',
+      patternAppear: 'سيظهر نمط لبضع ثوان -',
+      memorize: 'احفظه!',
+      patternDisappear: 'سيختفي النمط وستحصل على عد تنازلي',
+      recreatePattern: 'أعد إنشاء النمط بالنقر على الخلايا واختيار العناصر',
+      submitAnswer: 'قدم إجابتك وشاهد إذا كنت قد حصلت عليها بشكل صحيح!',
+      rounds: 'الجولات',
+      gridSize: 'حجم الشبكة',
+      startGame: 'ابدأ اللعبة',
+      round: 'الجولة',
+      correct: 'صحيح',
+      mistakes: 'الأخطاء',
+      time: 'الوقت',
+      memorizePattern: '👀 احفظ هذا النمط!',
+      getReady: 'استعد لإعادة إنشاء النمط...',
+      recreate: '🧩 أعد إنشاء النمط!',
+      clear: 'مسح',
+      perfectRight: 'رائع! لقد حصلت عليه بشكل صحيح!',
+      notQuite: 'ليس تمامًا! حاول التركيز أكثر في المرة القادمة.',
+      excellentMemory: 'ذاكرة ممتازة!',
+      keepPracticing: 'استمر في التدريب!',
+      gotCorrect: 'لقد حصلت على {correct} من أصل {total} أنماط بشكل صحيح!',
+      accuracy2: 'الدقة:',
+    }
+  }
+  const text = t[language]
   
   const [currentRound, setCurrentRound] = useState(1)
   const [pattern, setPattern] = useState<PatternCell[]>([])

@@ -17,6 +17,7 @@ interface ColorSwitchingGameProps {
   learningDayId: string
   dayGameId: string
   onComplete: (success: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface ColorItem {
@@ -36,7 +37,7 @@ interface Round {
 type GameMode = 'word' | 'color' | 'mixed'
 type GameState = 'instructions' | 'countdown' | 'playing' | 'result' | 'complete'
 
-export default function ColorSwitchingGame({ game, userId, learningDayId, dayGameId, onComplete }: ColorSwitchingGameProps) {
+export default function ColorSwitchingGame({ game, userId, learningDayId, dayGameId, onComplete, language = 'en' }: ColorSwitchingGameProps) {
   const config = game.config || {}
   const difficulty = config.difficulty || 'easy'
   const gameMode = (config.gameMode || 'mixed') as GameMode
@@ -71,6 +72,81 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
   const roundStartTime = useRef<number>(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const timeoutTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Translations
+  const t = {
+    en: {
+      howToPlay: 'How to Play:',
+      readWord: 'Read the',
+      word: 'WORD',
+      selectWord: 'and select the matching color below.',
+      ignoreColor: '(Ignore the color of the text)',
+      lookColor: 'Look at the',
+      color: 'COLOR',
+      selectColor: 'of the text and select it below.',
+      ignoreWord: '(Ignore what the word says)',
+      gameTellYou: 'The game will tell you what to do:',
+      selectTheWord: 'Select the WORD',
+      chooseWord: 'Choose based on what the word says',
+      selectTheColor: 'Select the COLOR',
+      chooseColor: 'Choose based on the text color',
+      roundsDuration: '{rounds} rounds • {time} seconds per round',
+      startGame: 'Start Game',
+      getReady: 'Get Ready!',
+      round: 'Round',
+      of: 'of',
+      score: 'Score',
+      selectWord2: 'Select the WORD',
+      selectColor2: 'Select the COLOR',
+      correct: 'Correct!',
+      wrong: 'Wrong!',
+      correctAnswer: 'Correct answer: {answer}',
+      gameComplete: 'Game Complete!',
+      accuracy: 'Accuracy',
+      correct2: 'correct',
+      avgResponse: 'Avg Response',
+      finalScore: 'Final Score',
+      matchingEasy: 'Matching (Easy)',
+      conflictingHard: 'Conflicting (Hard)',
+      continue: 'Continue'
+    },
+    ar: {
+      howToPlay: 'كيف تلعب:',
+      readWord: 'اقرأ',
+      word: 'الكلمة',
+      selectWord: 'واختر اللون المطابق أدناه.',
+      ignoreColor: '(تجاهل لون النص)',
+      lookColor: 'انظر إلى',
+      color: 'اللون',
+      selectColor: 'للنص واختره أدناه.',
+      ignoreWord: '(تجاهل ما تقوله الكلمة)',
+      gameTellYou: 'ستخبرك اللعبة بما يجب فعله:',
+      selectTheWord: 'اختر الكلمة',
+      chooseWord: 'اختر بناءً على ما تقوله الكلمة',
+      selectTheColor: 'اختر اللون',
+      chooseColor: 'اختر بناءً على لون النص',
+      roundsDuration: '{rounds} جولات • {time} ثانية لكل جولة',
+      startGame: 'ابدأ اللعبة',
+      getReady: 'استعد!',
+      round: 'الجولة',
+      of: 'من',
+      score: 'النتيجة',
+      selectWord2: 'اختر الكلمة',
+      selectColor2: 'اختر اللون',
+      correct: 'صحيح!',
+      wrong: 'خطأ!',
+      correctAnswer: 'الإجابة الصحيحة: {answer}',
+      gameComplete: 'انتهت اللعبة!',
+      accuracy: 'الدقة',
+      correct2: 'صحيح',
+      avgResponse: 'متوسط الاستجابة',
+      finalScore: 'النتيجة النهائية',
+      matchingEasy: 'متطابق (سهل)',
+      conflictingHard: 'متضارب (صعب)',
+      continue: 'متابعة'
+    }
+  }
+  const text = t[language]
 
   // Generate a random color item
   const generateColorItem = (): ColorItem => {
@@ -364,37 +440,37 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
         {gameState === 'instructions' && (
           <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-12 text-center shadow-2xl">
             <div className="text-6xl mb-6">🎨</div>
-            <h2 className="text-4xl font-bold text-white mb-6">{game.name}</h2>
+            <h2 className="text-4xl font-bold text-white mb-6">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
             
             <div className="text-xl text-white/90 mb-8 space-y-4">
-              <p className="text-2xl font-bold">How to Play:</p>
+              <p className="text-2xl font-bold">{text.howToPlay}</p>
               
               {gameMode === 'word' && (
                 <p className="text-lg">
-                  Read the <span className="font-bold underline">WORD</span> and select the matching color below.<br/>
-                  <span className="text-sm text-white/70">(Ignore the color of the text)</span>
+                  {text.readWord} <span className="font-bold underline">{text.word}</span> {text.selectWord}<br/>
+                  <span className="text-sm text-white/70">{text.ignoreColor}</span>
                 </p>
               )}
               
               {gameMode === 'color' && (
                 <p className="text-lg">
-                  Look at the <span className="font-bold underline">COLOR</span> of the text and select it below.<br/>
-                  <span className="text-sm text-white/70">(Ignore what the word says)</span>
+                  {text.lookColor} <span className="font-bold underline">{text.color}</span> {text.selectColor}<br/>
+                  <span className="text-sm text-white/70">{text.ignoreWord}</span>
                 </p>
               )}
               
               {gameMode === 'mixed' && (
                 <div className="space-y-3">
-                  <p className="text-lg">The game will tell you what to do:</p>
+                  <p className="text-lg">{text.gameTellYou}</p>
                   <div className="bg-white/20 rounded-lg p-4 text-base">
-                    <p className="mb-2">📖 <span className="font-bold">"Select the WORD"</span> - Choose based on what the word says</p>
-                    <p>🎨 <span className="font-bold">"Select the COLOR"</span> - Choose based on the text color</p>
+                    <p className="mb-2">📖 <span className="font-bold">"{text.selectTheWord}"</span> - {text.chooseWord}</p>
+                    <p>🎨 <span className="font-bold">"{text.selectTheColor}"</span> - {text.chooseColor}</p>
                   </div>
                 </div>
               )}
 
               <p className="text-sm text-white/70 mt-4">
-                {rounds} rounds • {timePerRound / 1000} seconds per round
+                {text.roundsDuration.replace('{rounds}', rounds.toString()).replace('{time}', (timePerRound / 1000).toString())}
               </p>
             </div>
 
@@ -402,7 +478,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
               onClick={startCountdown}
               className="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-xl hover:bg-gray-100 transition-colors shadow-lg"
             >
-              Start Game
+              {text.startGame}
             </button>
           </div>
         )}
@@ -413,7 +489,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
             <div className="text-9xl font-bold text-white animate-bounce">
               {countdown}
             </div>
-            <div className="text-2xl text-white/80 mt-6">Get Ready!</div>
+            <div className="text-2xl text-white/80 mt-6">{text.getReady}</div>
           </div>
         )}
 
@@ -423,17 +499,17 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
             {/* Header */}
             <div className="flex justify-between items-center">
               <div className="text-2xl font-bold text-gray-800">
-                Round {currentRound + 1} / {rounds}
+                {text.round} {currentRound + 1} {text.of} {rounds}
               </div>
               <div className="text-xl font-semibold text-gray-600">
-                Score: {score} / {currentRound}
+                {text.score}: {score} / {currentRound}
               </div>
             </div>
 
             {/* Instruction */}
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-center shadow-lg">
               <div className="text-3xl font-bold text-white">
-                {currentMode === 'word' ? '📖 Select the WORD' : '🎨 Select the COLOR'}
+                {currentMode === 'word' ? `📖 ${text.selectWord2}` : `🎨 ${text.selectColor2}`}
               </div>
             </div>
 
@@ -480,11 +556,11 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
               {rounds_data[rounds_data.length - 1]?.isCorrect ? '✅' : '❌'}
             </div>
             <div className="text-3xl font-bold text-white">
-              {rounds_data[rounds_data.length - 1]?.isCorrect ? 'Correct!' : 'Wrong!'}
+              {rounds_data[rounds_data.length - 1]?.isCorrect ? text.correct : text.wrong}
             </div>
             {!rounds_data[rounds_data.length - 1]?.isCorrect && (
               <div className="text-lg text-white/80 mt-4">
-                Correct answer: {rounds_data[rounds_data.length - 1]?.correctAnswer}
+                {text.correctAnswer.replace('{answer}', rounds_data[rounds_data.length - 1]?.correctAnswer || '')}
               </div>
             )}
           </div>
@@ -494,7 +570,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
         {gameState === 'complete' && (
           <div className="bg-gradient-to-br from-green-600 to-blue-600 rounded-3xl p-12 text-center shadow-2xl">
             <div className="text-6xl mb-6">🏆</div>
-            <h2 className="text-4xl font-bold text-white mb-8">Game Complete!</h2>
+            <h2 className="text-4xl font-bold text-white mb-8">{text.gameComplete}</h2>
 
             {(() => {
               const { finalScore, correctRounds, accuracy, avgResponseTime } = calculateScore()
@@ -504,24 +580,24 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
               return (
                 <>
                   <div className="bg-white/10 rounded-2xl p-6 mb-6">
-                    <div className="text-white/80 text-lg mb-2">Accuracy</div>
+                    <div className="text-white/80 text-lg mb-2">{text.accuracy}</div>
                     <div className="text-6xl font-bold text-yellow-300 mb-2">
                       {Math.round(accuracy)}%
                     </div>
                     <div className="text-xl text-white">
-                      {correctRounds} / {rounds_data.length} correct
+                      {correctRounds} / {rounds_data.length} {text.correct2}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/10 rounded-xl p-4">
-                      <div className="text-white/70 text-sm mb-1">Avg Response</div>
+                      <div className="text-white/70 text-sm mb-1">{text.avgResponse}</div>
                       <div className="text-2xl font-bold text-white">
                         {Math.round(avgResponseTime)}ms
                       </div>
                     </div>
                     <div className="bg-white/10 rounded-xl p-4">
-                      <div className="text-white/70 text-sm mb-1">Final Score</div>
+                      <div className="text-white/70 text-sm mb-1">{text.finalScore}</div>
                       <div className="text-2xl font-bold text-yellow-300">
                         {finalScore}
                       </div>
@@ -532,13 +608,13 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
                     <div className="bg-white/10 rounded-xl p-4 mb-6 text-sm">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <div className="text-white/70 mb-1">Matching (Easy)</div>
+                          <div className="text-white/70 mb-1">{text.matchingEasy}</div>
                           <div className="text-xl font-bold text-green-300">
                             {Math.round((congruentRounds.filter(r => r.isCorrect).length / congruentRounds.length) * 100)}%
                           </div>
                         </div>
                         <div>
-                          <div className="text-white/70 mb-1">Conflicting (Hard)</div>
+                          <div className="text-white/70 mb-1">{text.conflictingHard}</div>
                           <div className="text-xl font-bold text-red-300">
                             {Math.round((incongruentRounds.filter(r => r.isCorrect).length / incongruentRounds.length) * 100)}%
                           </div>
@@ -551,7 +627,7 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
                     onClick={handleComplete}
                     className="px-8 py-4 bg-white text-green-600 rounded-xl font-bold text-xl hover:bg-gray-100 transition-colors shadow-lg"
                   >
-                    Continue
+                    {text.continue}
                   </button>
                 </>
               )
@@ -562,4 +638,3 @@ export default function ColorSwitchingGame({ game, userId, learningDayId, dayGam
     </div>
   )
 }
-

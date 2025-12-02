@@ -10,6 +10,7 @@ interface SortingGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface SortingItem {
@@ -31,12 +32,46 @@ interface Category {
   type?: 'emoji' | 'image'
 }
 
-export default function SortingGame({ game, userId, learningDayId, dayGameId, onComplete }: SortingGameProps) {
+export default function SortingGame({ game, userId, learningDayId, dayGameId, onComplete, language = 'en' }: SortingGameProps) {
   const config = game.config as GameConfig
   const categoryType = (config as any).categoryType || 'colors'
   const itemCount = (config as any).itemCount || 8
   const customCategories = (config as any).customCategories || []
   const customItems = (config as any).customItems || []
+
+  const t = {
+    en: {
+      sorted: 'Sorted',
+      mistakes: 'Mistakes',
+      time: 'Time',
+      dragItems: 'Drag items to the correct category',
+      allSorted: 'All items sorted!',
+      dragHere: 'Drag items here',
+      item: 'item',
+      items: 'items',
+      perfectSorting: 'Perfect Sorting!',
+      sortedCorrectly: 'You sorted all items correctly in {time}s with {mistakes} mistake{s}!',
+      gameComplete: 'Game Complete!',
+      sortedOut: 'You sorted {correct} out of {total} items correctly.',
+      dragToStart: 'Drag any item to start!'
+    },
+    ar: {
+      sorted: 'مرتبة',
+      mistakes: 'الأخطاء',
+      time: 'الوقت',
+      dragItems: 'اسحب العناصر إلى الفئة الصحيحة',
+      allSorted: 'جميع العناصر مرتبة!',
+      dragHere: 'اسحب العناصر هنا',
+      item: 'عنصر',
+      items: 'عناصر',
+      perfectSorting: 'فرز مثالي!',
+      sortedCorrectly: 'لقد رتبت جميع العناصر بشكل صحيح في {time}ث مع {mistakes} خطأ{s}!',
+      gameComplete: 'انتهت اللعبة!',
+      sortedOut: 'لقد رتبت {correct} من أصل {total} عنصر بشكل صحيح.',
+      dragToStart: 'اسحب أي عنصر للبدء!'
+    }
+  }
+  const text = t[language]
   
   const [items, setItems] = useState<SortingItem[]>([])
   const [categories, setCategories] = useState<Category[]>([])

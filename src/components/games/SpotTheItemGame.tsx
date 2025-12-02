@@ -10,6 +10,7 @@ interface SpotTheItemGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface GameItem {
@@ -25,12 +26,41 @@ export default function SpotTheItemGame({
   userId, 
   learningDayId, 
   dayGameId, 
-  onComplete 
+  onComplete,
+  language = 'en'
 }: SpotTheItemGameProps) {
   const config = game.config as GameConfig
   const targetCount = config.targetCount || 3
   const duration = config.duration || 60
   const difficulty = config.difficulty || 'easy'
+
+  const t = {
+    en: {
+      findThis: 'Find This',
+      found: 'Found',
+      mistakes: 'Mistakes',
+      timeLeft: 'Time Left',
+      clickAll: 'Click on all {emoji} items as fast as you can!',
+      greatJob: 'Great Job!',
+      foundAll: 'You found all {count} items in {time} seconds!',
+      timesUp: "Time's Up!",
+      foundOut: 'You found {found} out of {target} items.',
+      tryAgain: 'Try again to improve!'
+    },
+    ar: {
+      findThis: 'ابحث عن هذا',
+      found: 'تم العثور',
+      mistakes: 'الأخطاء',
+      timeLeft: 'الوقت المتبقي',
+      clickAll: 'انقر على جميع العناصر {emoji} بأسرع ما يمكن!',
+      greatJob: 'أحسنت!',
+      foundAll: 'لقد وجدت جميع {count} العناصر في {time} ثانية!',
+      timesUp: 'انتهى الوقت!',
+      foundOut: 'لقد وجدت {found} من أصل {target} عنصر.',
+      tryAgain: 'حاول مرة أخرى للتحسين!'
+    }
+  }
+  const text = t[language]
   
   const [items, setItems] = useState<GameItem[]>([])
   const [targetEmoji, setTargetEmoji] = useState('')
@@ -218,25 +248,25 @@ export default function SpotTheItemGame({
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-5xl">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-6">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-6">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
 
         {/* Stats */}
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-6">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Find This</div>
+            <div className="text-sm text-gray-600">{text.findThis}</div>
             <div className="text-4xl">{targetEmoji}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Found</div>
+            <div className="text-sm text-gray-600">{text.found}</div>
             <div className="text-2xl font-bold text-green-600">{foundCount} / {targetCount}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">{mistakes}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time Left</div>
+            <div className="text-sm text-gray-600">{text.timeLeft}</div>
             <div className="text-2xl font-bold">
               {Math.floor((duration - timeElapsed) / 60)}:{((duration - timeElapsed) % 60).toString().padStart(2, '0')}
             </div>
@@ -247,7 +277,7 @@ export default function SpotTheItemGame({
         {showInstruction && (
           <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-6 text-center">
             <p className="text-blue-800 font-medium">
-              Click on all {targetEmoji} items as fast as you can!
+              {text.clickAll.replace('{emoji}', targetEmoji)}
             </p>
           </div>
         )}
@@ -291,16 +321,16 @@ export default function SpotTheItemGame({
             {foundCount >= targetCount ? (
               <>
                 <div className="text-4xl mb-2">🎉</div>
-                <h3 className="text-2xl font-bold mb-2">Great Job!</h3>
-                <p>You found all {targetCount} items in {timeElapsed} seconds!</p>
-                <p className="text-sm mt-2">Mistakes: {mistakes}</p>
+                <h3 className="text-2xl font-bold mb-2">{text.greatJob}</h3>
+                <p>{text.foundAll.replace('{count}', targetCount.toString()).replace('{time}', timeElapsed.toString())}</p>
+                <p className="text-sm mt-2">{text.mistakes}: {mistakes}</p>
               </>
             ) : (
               <>
                 <div className="text-4xl mb-2">⏱️</div>
-                <h3 className="text-2xl font-bold mb-2">Time's Up!</h3>
-                <p>You found {foundCount} out of {targetCount} items.</p>
-                <p className="text-sm mt-2">Try again to improve!</p>
+                <h3 className="text-2xl font-bold mb-2">{text.timesUp}</h3>
+                <p>{text.foundOut.replace('{found}', foundCount.toString()).replace('{target}', targetCount.toString())}</p>
+                <p className="text-sm mt-2">{text.tryAgain}</p>
               </>
             )}
           </div>

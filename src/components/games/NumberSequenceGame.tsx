@@ -10,6 +10,7 @@ interface NumberSequenceGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface SequencePattern {
@@ -24,7 +25,8 @@ export default function NumberSequenceGame({
   userId, 
   learningDayId, 
   dayGameId, 
-  onComplete 
+  onComplete,
+  language = 'en'
 }: NumberSequenceGameProps) {
   const config = game.config as GameConfig
   const difficulty = config.difficulty || 'easy'
@@ -40,6 +42,37 @@ export default function NumberSequenceGame({
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [roundsCorrect, setRoundsCorrect] = useState(0)
   const totalRounds = 5
+
+  // Translations
+  const t = {
+    en: {
+      whatNext: 'What comes next in this sequence?',
+      pattern: 'Pattern:',
+      round: 'Round',
+      correct: 'Correct',
+      mistakes: 'Mistakes',
+      time: 'Time',
+      correctAnswer: 'The correct answer was {answer}',
+      incorrect: 'Incorrect',
+      excellentWork: 'Excellent Work!',
+      keepPracticing: 'Keep Practicing!',
+      gotCorrect: 'You got {correct} out of {total} correct!'
+    },
+    ar: {
+      whatNext: 'ما التالي في هذا التسلسل؟',
+      pattern: 'النمط:',
+      round: 'الجولة',
+      correct: 'صحيح',
+      mistakes: 'الأخطاء',
+      time: 'الوقت',
+      correctAnswer: 'الإجابة الصحيحة كانت {answer}',
+      incorrect: 'خطأ',
+      excellentWork: 'عمل ممتاز!',
+      keepPracticing: 'استمر في التدريب!',
+      gotCorrect: 'لقد حصلت على {correct} من أصل {total} صحيح!'
+    }
+  }
+  const text = t[language]
 
   // Initialize pattern
   useEffect(() => {
@@ -419,13 +452,13 @@ export default function NumberSequenceGame({
           {isSuccess ? '🎉' : '😔'}
         </div>
         <h3 className="text-2xl font-bold mb-2">
-          {isSuccess ? 'Excellent Work!' : 'Keep Practicing!'}
+          {isSuccess ? text.excellentWork : text.keepPracticing}
         </h3>
         <p className="text-gray-600 mb-4">
-          You got {roundsCorrect} out of {totalRounds} correct!
+          {text.gotCorrect.replace('{correct}', roundsCorrect.toString()).replace('{total}', totalRounds.toString())}
         </p>
         <div className="text-sm text-gray-500">
-          Time: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
+          {text.time}: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
         </div>
       </div>
     )
@@ -434,25 +467,25 @@ export default function NumberSequenceGame({
   return (
     <div className="flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-2xl">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-6">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-6">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
         
         {/* Stats */}
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-6">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Round</div>
+            <div className="text-sm text-gray-600">{text.round}</div>
             <div className="text-2xl font-bold">{round} / {totalRounds}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Correct</div>
+            <div className="text-sm text-gray-600">{text.correct}</div>
             <div className="text-2xl font-bold text-green-600">{roundsCorrect}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">{mistakes}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -462,7 +495,7 @@ export default function NumberSequenceGame({
         {/* Sequence Display */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
           <h3 className="text-lg font-semibold mb-4 text-center text-gray-700">
-            What comes next in this sequence?
+            {text.whatNext}
           </h3>
           
           <div className="flex justify-center items-center gap-4 mb-6 flex-wrap">
@@ -481,7 +514,7 @@ export default function NumberSequenceGame({
 
           {/* Hint */}
           <div className="text-center text-sm text-gray-500 mb-6">
-            Pattern: {currentPattern.pattern}
+            {text.pattern} {currentPattern.pattern}
           </div>
 
           {/* Options */}
@@ -519,14 +552,14 @@ export default function NumberSequenceGame({
               {selectedAnswer === currentPattern.correctAnswer ? (
                 <>
                   <div className="text-2xl mb-2">✓</div>
-                  <div className="font-bold">Correct!</div>
+                  <div className="font-bold">{text.correct}!</div>
                 </>
               ) : (
                 <>
                   <div className="text-2xl mb-2">✗</div>
-                  <div className="font-bold">Incorrect</div>
+                  <div className="font-bold">{text.incorrect}</div>
                   <div className="text-sm mt-1">
-                    The correct answer was {currentPattern.correctAnswer}
+                    {text.correctAnswer.replace('{answer}', currentPattern.correctAnswer.toString())}
                   </div>
                 </>
               )}

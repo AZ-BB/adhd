@@ -10,6 +10,7 @@ interface AimingGameProps {
   learningDayId: number
   dayGameId: number
   onComplete: (isCorrect: boolean, score: number) => void
+  language?: 'en' | 'ar'
 }
 
 interface Circle {
@@ -26,12 +27,55 @@ export default function AimingGame({
   userId, 
   learningDayId, 
   dayGameId, 
-  onComplete 
+  onComplete,
+  language = 'en'
 }: AimingGameProps) {
   const config = game.config as GameConfig
   const duration = config.duration || 60
   const difficulty = config.difficulty || 'easy'
   const spawnRate = getSpawnRateByDifficulty(difficulty)
+
+  const t = {
+    en: {
+      greenClicked: 'Green Clicked',
+      redClicked: 'Red Clicked',
+      missedGreen: 'Missed Green',
+      timeLeft: 'Time Left',
+      clickGreen: 'Click on the',
+      green: 'GREEN',
+      circlesQuickly: 'circles quickly!',
+      avoidRed: 'Avoid clicking the',
+      red: 'RED',
+      circles: 'circles!',
+      startGame: 'Start Game',
+      greatAim: 'Great Aim!',
+      clickedCircles: 'You clicked {count} green circles!',
+      accuracy: 'Accuracy:',
+      timesUp: "Time's Up!",
+      keepPracticing: 'Keep practicing to improve your aim!',
+      greenRedMissed: 'Green: {green} | Red: {red} | Missed: {missed}'
+    },
+    ar: {
+      greenClicked: 'نقرات خضراء',
+      redClicked: 'نقرات حمراء',
+      missedGreen: 'فاتتك الخضراء',
+      timeLeft: 'الوقت المتبقي',
+      clickGreen: 'انقر على',
+      green: 'الخضراء',
+      circlesQuickly: 'الدوائر بسرعة!',
+      avoidRed: 'تجنب النقر على',
+      red: 'الحمراء',
+      circles: 'الدوائر!',
+      startGame: 'ابدأ اللعبة',
+      greatAim: 'تصويب رائع!',
+      clickedCircles: 'لقد نقرت على {count} دوائر خضراء!',
+      accuracy: 'الدقة:',
+      timesUp: 'انتهى الوقت!',
+      keepPracticing: 'استمر في التدريب لتحسين تصويبك!',
+      greenRedMissed: 'خضراء: {green} | حمراء: {red} | فائتة: {missed}'
+    }
+  }
+  const text = t[language]
   
   const [circles, setCircles] = useState<Circle[]>([])
   const [greenClicked, setGreenClicked] = useState(0)
