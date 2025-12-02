@@ -295,25 +295,25 @@ export default function AimingGame({
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-5xl">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-6">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-6">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
 
         {/* Stats */}
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-6">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Green Clicked</div>
+            <div className="text-sm text-gray-600">{text.greenClicked}</div>
             <div className="text-2xl font-bold text-green-600">✓ {greenClicked}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Red Clicked</div>
+            <div className="text-sm text-gray-600">{text.redClicked}</div>
             <div className="text-2xl font-bold text-red-500">✗ {redClicked}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Missed Green</div>
+            <div className="text-sm text-gray-600">{text.missedGreen}</div>
             <div className="text-2xl font-bold text-orange-500">{missedGreen}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time Left</div>
+            <div className="text-sm text-gray-600">{text.timeLeft}</div>
             <div className="text-2xl font-bold">
               {Math.floor((duration - timeElapsed) / 60)}:{((duration - timeElapsed) % 60).toString().padStart(2, '0')}
             </div>
@@ -324,8 +324,8 @@ export default function AimingGame({
         {showInstruction && (
           <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-6 text-center">
             <p className="text-blue-800 font-medium">
-              Click on the <span className="text-green-600 font-bold">GREEN</span> circles quickly!<br />
-              Avoid clicking the <span className="text-red-600 font-bold">RED</span> circles!
+              {text.clickGreen} <span className="text-green-600 font-bold">{text.green}</span> {text.circlesQuickly}<br />
+              {text.avoidRed} <span className="text-red-600 font-bold">{text.red}</span> {text.circles}
             </p>
           </div>
         )}
@@ -341,7 +341,7 @@ export default function AimingGame({
                 }}
                 className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-xl font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
-                Start Game
+                {text.startGame}
               </button>
             </div>
           )}
@@ -386,19 +386,19 @@ export default function AimingGame({
             {(greenClicked / (greenClicked + redClicked)) >= 0.7 ? (
               <>
                 <div className="text-4xl mb-2">🎯</div>
-                <h3 className="text-2xl font-bold mb-2">Great Aim!</h3>
-                <p>You clicked {greenClicked} green circles!</p>
+                <h3 className="text-2xl font-bold mb-2">{text.greatAim}</h3>
+                <p>{text.clickedCircles.replace('{count}', greenClicked.toString())}</p>
                 <p className="text-sm mt-2">
-                  Accuracy: {((greenClicked / (greenClicked + redClicked)) * 100).toFixed(0)}%
+                  {text.accuracy} {((greenClicked / (greenClicked + redClicked)) * 100).toFixed(0)}%
                 </p>
               </>
             ) : (
               <>
                 <div className="text-4xl mb-2">⏱️</div>
-                <h3 className="text-2xl font-bold mb-2">Time's Up!</h3>
-                <p>Keep practicing to improve your aim!</p>
+                <h3 className="text-2xl font-bold mb-2">{text.timesUp}</h3>
+                <p>{text.keepPracticing}</p>
                 <p className="text-sm mt-2">
-                  Green: {greenClicked} | Red: {redClicked} | Missed: {missedGreen}
+                  {text.greenRedMissed.replace('{green}', greenClicked.toString()).replace('{red}', redClicked.toString()).replace('{missed}', missedGreen.toString())}
                 </p>
               </>
             )}

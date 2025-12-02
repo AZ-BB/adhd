@@ -202,20 +202,20 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
       <div className="w-full mb-6">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
-        <p className="text-gray-600 text-center mb-4">{game.description}</p>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+        <p className="text-gray-600 text-center mb-4">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
         
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Sorted</div>
+            <div className="text-sm text-gray-600">{text.sorted}</div>
             <div className="text-2xl font-bold">{correctSorts} / {items.length}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">{mistakes}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -226,7 +226,7 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
       {/* Unsorted Items Area */}
       <div className="w-full mb-6">
         <h3 className="text-lg font-semibold text-gray-700 mb-3 text-center">
-          Drag items to the correct category
+          {text.dragItems}
         </h3>
         <div className="min-h-[120px] bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4">
           <div className="flex flex-wrap gap-3 justify-center">
@@ -263,7 +263,7 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
             ))}
             {unsortedItems.length === 0 && (
               <div className="text-gray-400 text-sm py-6">
-                {gameCompleted ? 'All items sorted!' : 'Drag items here'}
+                {gameCompleted ? text.allSorted : text.dragHere}
               </div>
             )}
           </div>
@@ -302,7 +302,7 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
                 )}
                 <div className="font-bold text-gray-800">{category.name}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {categoryItems.length} item{categoryItems.length !== 1 ? 's' : ''}
+                  {categoryItems.length} {categoryItems.length !== 1 ? text.items : text.item}
                 </div>
               </div>
               
@@ -350,17 +350,17 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
           {correctSorts === items.length ? (
             <div className="text-green-600">
               <div className="text-3xl mb-2">🎉</div>
-              <div className="text-xl font-bold">Perfect Sorting!</div>
+              <div className="text-xl font-bold">{text.perfectSorting}</div>
               <div className="text-gray-600">
-                You sorted all items correctly in {timeElapsed}s with {mistakes} mistake{mistakes !== 1 ? 's' : ''}!
+                {text.sortedCorrectly.replace('{time}', timeElapsed.toString()).replace('{mistakes}', mistakes.toString()).replace('{s}', mistakes !== 1 ? 's' : '')}
               </div>
             </div>
           ) : (
             <div className="text-orange-600">
               <div className="text-3xl mb-2">📊</div>
-              <div className="text-xl font-bold">Game Complete!</div>
+              <div className="text-xl font-bold">{text.gameComplete}</div>
               <div className="text-gray-600">
-                You sorted {correctSorts} out of {items.length} items correctly.
+                {text.sortedOut.replace('{correct}', correctSorts.toString()).replace('{total}', items.length.toString())}
               </div>
             </div>
           )}
@@ -369,7 +369,7 @@ export default function SortingGame({ game, userId, learningDayId, dayGameId, on
 
       {!gameStarted && unsortedItems.length > 0 && (
         <div className="text-center text-gray-500 mt-4">
-          Drag any item to start!
+          {text.dragToStart}
         </div>
       )}
     </div>

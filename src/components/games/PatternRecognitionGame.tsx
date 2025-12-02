@@ -54,6 +54,9 @@ export default function PatternRecognitionGame({
       getReady: 'Get ready to recreate the pattern...',
       recreate: '🧩 Recreate the pattern!',
       clear: 'Clear',
+      submitAnswer: 'Submit Answer',
+      fillAllCells: 'Please fill all cells before submitting!',
+      clickCellsInstruction: 'Click on cells above to cycle through items, or click items below:',
       perfectRight: 'Perfect! You got it right!',
       notQuite: 'Not quite! Try to focus more next time.',
       excellentMemory: 'Excellent Memory!',
@@ -79,6 +82,9 @@ export default function PatternRecognitionGame({
       getReady: 'استعد لإعادة إنشاء النمط...',
       recreate: '🧩 أعد إنشاء النمط!',
       clear: 'مسح',
+      submitAnswer: 'إرسال الإجابة',
+      fillAllCells: 'يرجى ملء جميع الخلايا قبل الإرسال!',
+      clickCellsInstruction: 'انقر على الخلايا أعلاه للتنقل بين العناصر، أو انقر على العناصر أدناه:',
       perfectRight: 'رائع! لقد حصلت عليه بشكل صحيح!',
       notQuite: 'ليس تمامًا! حاول التركيز أكثر في المرة القادمة.',
       excellentMemory: 'ذاكرة ممتازة!',
@@ -241,7 +247,7 @@ export default function PatternRecognitionGame({
     // Check if all cells are filled
     const allFilled = userPattern.every(cell => cell.value !== '' && cell.value !== '❓')
     if (!allFilled) {
-      alert('Please fill all cells before submitting!')
+      alert(text.fillAllCells)
       return
     }
 
@@ -327,13 +333,13 @@ export default function PatternRecognitionGame({
           {isSuccess ? '🎉' : '💪'}
         </div>
         <h3 className="text-3xl font-bold mb-2">
-          {isSuccess ? 'Excellent Memory!' : 'Keep Practicing!'}
+          {isSuccess ? text.excellentMemory : text.keepPracticing}
         </h3>
         <p className="text-gray-600 mb-4 text-xl">
-          You got {correctCount} out of {totalRounds} patterns correct!
+          {text.gotCorrect.replace('{correct}', correctCount.toString()).replace('{total}', totalRounds.toString())}
         </p>
         <p className="text-gray-500">
-          Accuracy: {accuracy.toFixed(0)}% | Time: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
+          {text.accuracy2} {accuracy.toFixed(0)}% | {text.time}: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
         </p>
       </div>
     )
@@ -343,27 +349,27 @@ export default function PatternRecognitionGame({
     return (
       <div className="flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-2xl">
-          <h2 className="text-3xl font-bold text-center mb-4">{game.name}</h2>
-          <p className="text-gray-600 text-center mb-6 text-lg">{game.description}</p>
+          <h2 className="text-3xl font-bold text-center mb-4">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
+          <p className="text-gray-600 text-center mb-6 text-lg">{language === 'ar' ? game.description_ar || game.description : game.description}</p>
 
           <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 mb-6">
-            <h3 className="text-xl font-bold text-blue-800 mb-3">📝 How to Play:</h3>
+            <h3 className="text-xl font-bold text-blue-800 mb-3">{text.howToPlay}</h3>
             <ol className="space-y-2 text-blue-900">
               <li className="flex items-start gap-2">
                 <span className="font-bold">1.</span>
-                <span>A pattern will appear for a few seconds - <strong>memorize it!</strong></span>
+                <span>{text.patternAppear} <strong>{text.memorize}</strong></span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">2.</span>
-                <span>The pattern will disappear and you'll get a countdown</span>
+                <span>{text.patternDisappear}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">3.</span>
-                <span>Recreate the pattern by clicking on the cells and selecting items</span>
+                <span>{text.recreatePattern}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold">4.</span>
-                <span>Submit your answer and see if you got it right!</span>
+                <span>{text.submitAnswer}</span>
               </li>
             </ol>
           </div>
@@ -371,11 +377,11 @@ export default function PatternRecognitionGame({
           <div className="bg-gray-100 rounded-lg p-4 mb-6">
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
-                <div className="text-sm text-gray-600">Rounds</div>
+                <div className="text-sm text-gray-600">{text.rounds}</div>
                 <div className="text-2xl font-bold text-purple-600">{totalRounds}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Grid Size</div>
+                <div className="text-sm text-gray-600">{text.gridSize}</div>
                 <div className="text-2xl font-bold text-purple-600">{gridSize.rows}×{gridSize.cols}</div>
               </div>
             </div>
@@ -385,7 +391,7 @@ export default function PatternRecognitionGame({
             onClick={() => setGameStarted(true)}
             className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
-            Start Game
+            {text.startGame}
           </button>
         </div>
       </div>
@@ -395,24 +401,24 @@ export default function PatternRecognitionGame({
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl">
-        <h2 className="text-2xl font-bold text-center mb-2">{game.name}</h2>
+        <h2 className="text-2xl font-bold text-center mb-2">{language === 'ar' ? game.name_ar || game.name : game.name}</h2>
 
         {/* Stats */}
         <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-6">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Round</div>
+            <div className="text-sm text-gray-600">{text.round}</div>
             <div className="text-2xl font-bold text-blue-600">{currentRound} / {totalRounds}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Correct</div>
+            <div className="text-sm text-gray-600">{text.correct}</div>
             <div className="text-2xl font-bold text-green-600">✓ {correctCount}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Mistakes</div>
+            <div className="text-sm text-gray-600">{text.mistakes}</div>
             <div className="text-2xl font-bold text-red-500">✗ {mistakes}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">Time</div>
+            <div className="text-sm text-gray-600">{text.time}</div>
             <div className="text-2xl font-bold">
               {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, '0')}
             </div>
@@ -423,7 +429,7 @@ export default function PatternRecognitionGame({
         {showPattern && (
           <div className="text-center mb-6">
             <div className="bg-blue-100 border-2 border-blue-400 rounded-lg p-4 mb-4">
-              <p className="text-blue-800 font-bold text-xl">👀 Memorize this pattern!</p>
+              <p className="text-blue-800 font-bold text-xl">{text.memorizePattern}</p>
             </div>
             
             <div 
@@ -459,7 +465,7 @@ export default function PatternRecognitionGame({
             <div className="text-8xl font-bold text-purple-600 animate-pulse mb-4">
               {countdown}
             </div>
-            <p className="text-xl text-gray-600">Get ready to recreate the pattern...</p>
+            <p className="text-xl text-gray-600">{text.getReady}</p>
           </div>
         )}
 
@@ -467,7 +473,7 @@ export default function PatternRecognitionGame({
         {showRecreate && (
           <div className="text-center">
             <div className="bg-green-100 border-2 border-green-400 rounded-lg p-4 mb-4">
-              <p className="text-green-800 font-bold text-xl">🧩 Recreate the pattern!</p>
+              <p className="text-green-800 font-bold text-xl">{text.recreate}</p>
             </div>
 
             {/* User Pattern Grid */}
@@ -510,7 +516,7 @@ export default function PatternRecognitionGame({
 
              {/* Item Selector */}
              <div className="mb-6">
-               <p className="text-sm text-gray-600 mb-3">Click on cells above to cycle through items, or click items below:</p>
+               <p className="text-sm text-gray-600 mb-3">{text.clickCellsInstruction}</p>
                <div className="flex flex-wrap justify-center gap-2">
                  {patternItems.map((item, index) => (
                    <button
@@ -546,13 +552,13 @@ export default function PatternRecognitionGame({
                   onClick={handleClearPattern}
                   className="px-6 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-all"
                 >
-                  Clear
+                  {text.clear}
                 </button>
                 <button
                   onClick={handleSubmit}
                   className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold hover:shadow-lg transition-all hover:scale-105"
                 >
-                  Submit Answer
+                  {text.submitAnswer}
                 </button>
               </div>
             )}
@@ -566,7 +572,7 @@ export default function PatternRecognitionGame({
               }`}>
                 <div className="text-3xl mb-2">{isCorrect ? '✅' : '❌'}</div>
                 <p className="font-bold text-xl">
-                  {isCorrect ? 'Perfect! You got it right!' : 'Not quite! Try to focus more next time.'}
+                  {isCorrect ? text.perfectRight : text.notQuite}
                 </p>
               </div>
             )}
