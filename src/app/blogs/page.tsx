@@ -91,7 +91,7 @@ export default async function BlogsPage() {
                     </div>
 
                     <h1 className="text-4xl lg:text-7xl text-center font-bold text-white mb-6 drop-shadow-lg leading-tight">
-                        Empowering Children with ADHD <br />
+                        Empowering Children <br />
                         <span className="text-blue-200">Through Learning and Play</span>
                     </h1>
 
