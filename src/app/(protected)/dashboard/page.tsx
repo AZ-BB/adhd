@@ -169,20 +169,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link
-              href="/quiz"
-              className="group bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all"
-            >
-              <div className="flex items-center gap-4 flex-row-reverse">
-                <div className="text-6xl group-hover:animate-bounce">📝</div>
-                <div className="text-right">
-                  <h3 className="text-2xl font-black mb-1">خذ اختبارًا</h3>
-                  <p className="text-indigo-100">اختبر معرفتك واستمتع!</p>
-                </div>
-              </div>
-            </Link>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link
               href="/learning-path"
               className="group bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all"

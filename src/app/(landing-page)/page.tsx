@@ -28,29 +28,32 @@ export default async function Home() {
     >
       {/* Navbar */}
       <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
-          <Link
-            href="/"
-            className="text-2xl font-extrabold"
-          >
-            <Image src="/logo/1.png" alt="Movokids" width={200} height={60} className="object-contain" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 flex items-center justify-between gap-3">
+          <Link href="/" className="text-2xl font-extrabold flex-shrink-0">
+            <Image
+              src="/logo/1.png"
+              alt="Movokids"
+              width={200}
+              height={60}
+              className="object-contain w-32 sm:w-40 md:w-48 h-auto"
+            />
           </Link>
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
               href="/en"
-              className="px-3 py-2 rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm"
+              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               English
             </Link>
             <Link
               href="/auth/login"
-              className="px-4 py-2 rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm"
+              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               تسجيل الدخول
             </Link>
             <Link
               href="/auth/signup"
-              className="px-4 py-2 rounded-xl bg-green-500 text-white hover:bg-green-600 shadow"
+              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-green-500 text-white hover:bg-green-600 shadow text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               ابدأ الآن
             </Link>
@@ -59,7 +62,11 @@ export default async function Home() {
       </header>
 
       {/* Hero Section */}
-      <section dir="rtl" className="relative z-10 bg-cover bg-no-repeat " style={{ backgroundImage: "url('/landing/ar/1_ar.png')" }}>
+      <section
+        dir="rtl"
+        className="relative z-10 bg-cover bg-no-repeat bg-right md:bg-center"
+        style={{ backgroundImage: "url('/landing/ar/1_ar.png')" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 md:pt-10 md:pb-16 lg:pt-14 lg:pb-20">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="order-2 md:order-1 text-right">
@@ -69,18 +76,13 @@ export default async function Home() {
                 منصه متكاملة تساعد طفلك علي اكتشاف قوّته الحقيقية
               </h1>
               <p className="mt-4 text-white/80 text-lg md:text-xl">
-                منصّتنا مخصّصة لدعم الأطفال من عمر 6 إلى 12 عامًا في تطوير
-                مهارات التركيز والتحكّم في الانفعالات، وتنمية القدرات التعليمية
-                من خلال تدريبات يومية ممتعة وأنشطة تفاعلية، بالإضافة إلى جلسات
-                أونلاين مع مختصّين
+                منصّتنا مخصّصة لدعم الأطفال من عمر 5 إلى 12 عامًا في تطوير
+                مهارات التركيز، وتعزيز التحكّم في الاندفاعات، وتنمية القدرات
+                العقلية عبر تدريبات يومية ممتعة وأنشطة تفاعلية مبتكرة.
               </p>
               <p className="mt-3 text-white/70 text-sm md:text-base">
-                الاختبارات الموجودة في منصّتنا، مبنيّة على أدوات تقييم وتشخيص
-                عالمية، لكنها لا تُعطي حكمًا نهائيًا لحالة الطفل، إذ إن التشخيص
-                المؤكّد يجب أن يتمّ على يد الطبيب المختص. هدفنا هو تقديم مؤشرات
-                أوليّة تساعد الأهل على فهم التحدّيات، ثم توفير تدريبات بإشراف
-                مختصّين لتقوية قدرات الأطفال خطوةً بخطوة، وتحويل الصعوبات إلى
-                إنجازات.
+                كما نوفر جلسات أونلاين فردية وجماعية مع متخصصين لمتابعة تقدّم
+                الطفل
               </p>
               <div className="mt-6 flex items-center gap-3">
                 <Link
@@ -104,9 +106,7 @@ export default async function Home() {
                 <span>🔒 آمن وموثوق</span>
               </div>
             </div>
-            <div className="order-1 md:order-2">
-
-            </div>
+            <div className="order-1 md:order-2"></div>
           </div>
         </div>
       </section>
@@ -123,9 +123,10 @@ export default async function Home() {
                     مهمتنا
                   </h2>
                   <p className="text-sky-900/80">
-                    أن نحوّل التحديات اليومية لأطفال صعوبة الانتباه وفرط الحركة
-                    إلى قصص نجاح، من خلال تدريبات عملية، تقييمات وجلسات تفاعلية
-                    مع متخصصين.
+                    نحوّل التحديات اليومية التي يواجهها الأطفال في التركيز
+                    والانتباه وإتمام المهام إلى قصة نجاح؛ وذلك عبر تدريبات
+                    عملية، وتقييمات دقيقة، وجلسات تفاعلية مع متخصصين لدعم
+                    تطوّرهم خطوة بخطوة.
                   </p>
                 </div>
                 <div className="sm:order-1">
@@ -150,8 +151,8 @@ export default async function Home() {
                   <p className="text-sky-900/80">
                     أن ننشئ عالمًا يتمكّن فيه كل طفل من النمو، والتعلم، والتألق.
                     نؤمن أن كل طفل يستحق فرصة للوصول إلى دعم متخصص، وأنشطة
-                    تعليمية ممتعة، ومساحة آمنة تساعده على التطور مهما كانت
-                    التحديات.
+                    ممتعة، ومساحة آمنة تساعده على التطور و الوصول الي افضل اداء
+                    من خلال دعم المتخصصين .
                   </p>
                 </div>
                 <div className="sm:order-1">
@@ -175,15 +176,15 @@ export default async function Home() {
           <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 md:p-8 shadow-sm">
             <div className="text-center mb-8">
               <p className="text-sky-900/90 text-lg md:text-xl font-semibold">
-                تم إعداد برامجنا بالتعاون مع أخصائيين في علم النفس والتربية
-                الخاصة.
+                تم إعداد برامجنا بالتعاون مع أخصائيين نفسيين وأخصائيين في
+                التربية الخاصة
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="bg-gradient-to-br from-sky-50 to-white rounded-2xl border border-sky-100 p-5 text-center shadow-sm">
                 <div className="text-4xl mb-3">🌍</div>
                 <h3 className="font-bold text-sky-900 text-lg mb-2">
-                  أدوات تقييم عالمية
+                  أدوات تقييم حديثة
                 </h3>
                 <p className="text-sky-900/70 text-sm">
                   نستخدم أدوات تقييم معترف بها عالميًا
@@ -201,7 +202,7 @@ export default async function Home() {
               <div className="bg-gradient-to-br from-sky-50 to-white rounded-2xl border border-sky-100 p-5 text-center shadow-sm">
                 <div className="text-4xl mb-3">👨‍⚕️</div>
                 <h3 className="font-bold text-sky-900 text-lg mb-2">
-                  جلسات مع مختصّين
+                  جلسات مع متخصصين
                 </h3>
                 <p className="text-sky-900/70 text-sm">
                   دعم مباشر من خبراء متخصصين
@@ -221,7 +222,11 @@ export default async function Home() {
         </div>
       </section>
       {/* Benefits */}
-      <section dir="rtl" className="relative z-10 bg-cover" style={{ backgroundImage: "url('/landing/ar/3_ar.jpg')" }}>
+      <section
+        dir="rtl"
+        className="relative z-10 bg-cover"
+        style={{ backgroundImage: "url('/landing/ar/3_ar.jpg')" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className=" p-6">
             <div className="grid md:grid-cols-2 gap-6 items-center">
@@ -239,43 +244,37 @@ export default async function Home() {
                   </div>
                   <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
                     <div className="text-3xl">🧘</div>
-                    <h3 className="mt-3 font-bold text-sky-900">سلوك أفضل</h3>
+                    <h3 className="mt-3 font-bold text-sky-900">سلوك</h3>
                     <p className="text-sky-900/70 text-sm mt-1">
-                      ألعاب وتمارين تعلم الصبر وضبط النفس.
+                      العاب و تمارين و جلسات لتعليم ضبط النفس و التحكم في
+                      الانفعالات
                     </p>
                   </div>
                   <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                    <div className="text-3xl">✍️</div>
-                    <h3 className="mt-3 font-bold text-sky-900">
-                      مهارات أكاديمية
-                    </h3>
+                    <div className="text-3xl">🧘</div>
+                    <h3 className="mt-3 font-bold text-sky-900">دعم الاسرة</h3>
                     <p className="text-sky-900/70 text-sm mt-1">
-                      تدريبات على الأرقام، الحروف، والذاكرة.
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-right">
-                    <div className="text-3xl">🌟</div>
-                    <h3 className="mt-3 font-bold text-sky-900">ثقة بالنفس</h3>
-                    <p className="text-sky-900/70 text-sm mt-1">
-                      جوائز تحفيزية لكل إنجاز.
+                     من خلال متابعه دائمه للاسره بالاضافة الي جلسات ارشاد اسري و شرح كيفية التعامل مع المراحل العمريه
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="order-1 md:order-2">
-
-              </div>
+              <div className="order-1 md:order-2"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Why Us */}
-      <section id="why" dir="rtl" className="relative z-10 bg-cover bg-center" style={{ backgroundImage: "url('/landing/ar/2_ar.jpg')" }}>
+      <section
+        id="why"
+        dir="rtl"
+        className="relative z-10 bg-cover bg-center"
+        style={{ backgroundImage: "url('/landing/ar/2_ar.jpg')" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div>
-            </div>
+            <div></div>
             <div className="space-y-6">
               <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm flex flex-col items-start">
                 <h2 className="text-2xl font-extrabold text-sky-900 mb-4">
@@ -288,7 +287,7 @@ export default async function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
-                    <span>أنشطة أعدها مختصون في علم النفس للأطفال</span>
+                    <span>أنشطة أعدها متخصصون في علم النفس للأطفال</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
@@ -296,7 +295,7 @@ export default async function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
-                    <span>تناسب جميع الاعمار</span>
+                    <span>للاطفال و المراهقين</span>
                   </li>
                 </ul>
                 <div className="mt-6 flex">
@@ -313,10 +312,9 @@ export default async function Home() {
                   رحلة طفلك معنا تبدأ من هنا
                 </h3>
                 <ol className="mt-3 space-y-2 text-sky-900/80">
-                  <li>1) اختبار تمهيدي بسيط لتحديد نقاط القوة والتحديات.</li>
+                  <li>1) استبيان تمهيدي بسيط لتحديد نقاط القوة والضعف.</li>
                   <li>2) خطة تدريب يومية قصيرة وممتعة.</li>
-                  <li>3) متابعة التقدم وتقارير واضحة للأهل.</li>
-                  <li>4) جلسات أونلاين مع مختصين عند الحاجة.</li>
+                  <li>3) جلسات أونلاين مع مختصين عند الحاجة.</li>
                 </ol>
                 <div className="mt-4 flex items-center gap-2 text-sky-800/70 text-sm">
                   <span>⏱️ 10–15 دقيقة يوميًا</span>
@@ -328,7 +326,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
 
       {/* Parents' Reviews */}
       <section dir="rtl" className="relative z-10 py-12">
@@ -354,9 +351,8 @@ export default async function Home() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "منصة رائعة ساعدت ابني كثيرًا في التركيز والانتباه. الأنشطة
-                ممتعة وسهلة الاستخدام، وأصبح طفلي يتطلع لممارسة التمارين
-                اليومية."
+                "لاحظت إن ابني بقى أهدى في البيت، خاصة وقت الواجب. التحسن مو
+                كبير جدًا لكنه ملحوظ، وهذا المهم بالنسبة لي. شكرًا Movokids."
               </p>
               <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
@@ -386,8 +382,9 @@ export default async function Home() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "التطبيق سهل الاستخدام والجلسات مع المختصين كانت مفيدة جدًا.
-                لاحظت تحسنًا كبيرًا في سلوك ابنتي بعد أسبوعين فقط."
+                "التطبيق بسيط وما يحتاج شرح كثير. جرّبت لابنتي جلستين مع
+                الأخصائية وحسّيت إن فيه تغيير بسيط في تهدئة ردود فعلها. إن شاء
+                الله نكمل."
               </p>
               <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
@@ -417,8 +414,10 @@ export default async function Home() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "شكرًا لـ Movokids على هذه المنصة المميزة. طفلي أصبح أكثر هدوءًا
-                وقدرته على التحكم بالانفعالات تحسنت بشكل ملحوظ."
+                "بصراحة كنت قلقانة جدًا في الأول… ما كنت أعرف إذا التدريبات
+                هتنفع مع ابني ولا تكون مجرد تطبيق عادي. لكن بعد أسبوع من
+                الاستخدام لاحظت إنه بدأ يهدى وقت المذاكرة شوية. حسّيت إن في فرق
+                وقررت أستمر وفعلاً اشتركت. تجربة تستحق."
               </p>
               <div className="flex flex-row-reverse justify-end items-center gap-3">
                 <div className="text-right">
@@ -526,21 +525,32 @@ export default async function Home() {
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
                 <span>ما هي منصة MovoKids؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
-                MovoKids هي منصة تعليمية رقمية للأطفال من عمر 6 إلى 12 عام متخصصة في تحسين الانتباه، التركيز، والمهارات السلوكية من خلال تمارين تفاعلية وأنشطة يومية مصممة من متخصصين.
+                MovoKids هي منصة تعليمية رقمية للأطفال من عمر 6 إلى 12 عام
+                متخصصة في تحسين الانتباه، التركيز، والمهارات السلوكية من خلال
+                تمارين تفاعلية وأنشطة يومية مصممة من متخصصين.
               </p>
             </details>
 
             {/* FAQ 2 */}
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
-                <span>هل منصة MovoKids مناسبة للأطفال المصابين باضطراب فرط الحركة وتشتت الانتباه (ADHD)؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span>
+                  هل منصة MovoKids مناسبة للأطفال المصابين باضطراب فرط الحركة
+                  وتشتت الانتباه (ADHD)؟
+                </span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
-                نعم، المنصة يمكن أن تساعد في دعم الأطفال المصابين بصعوبات التركيز من خلال تقديم أنشطة قصيرة وتفاعلية، وتمارين حسية تساعد على تحسين الانتباه بشكل تدريجي دون ضغط.
+                نعم، المنصة يمكن أن تساعد في دعم الأطفال المصابين بصعوبات
+                التركيز من خلال تقديم أنشطة قصيرة وتفاعلية، وتمارين حسية تساعد
+                على تحسين الانتباه بشكل تدريجي دون ضغط.
               </p>
             </details>
 
@@ -548,7 +558,9 @@ export default async function Home() {
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
                 <span>ما نوع الأنشطة المقدمة داخل منصة MovoKids؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
                 <p className="mb-2">تحتوي المنصة على أكثر من 300 تمرين تشمل:</p>
@@ -566,8 +578,13 @@ export default async function Home() {
             {/* FAQ 4 */}
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
-                <span>هل المنصة مناسبة للأطفال الذين ليس لديهم ADHD ولكن لديهم ضعف تركيز فقط؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span>
+                  هل المنصة مناسبة للأطفال الذين ليس لديهم ADHD ولكن لديهم ضعف
+                  تركيز فقط؟
+                </span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
                 <p className="mb-2">نعم. MovoKids مفيدة للأطفال الذين لديهم:</p>
@@ -585,10 +602,13 @@ export default async function Home() {
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
                 <span>هل الأنشطة يومية أم أسبوعية؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
-                يوجد برنامج تدريبات يومية من 10–15 دقيقة، بالإضافة إلى جلسات أسبوعية تتابع تقدم الطفل.
+                يوجد برنامج تدريبات يومية من 10–15 دقيقة، بالإضافة إلى جلسات
+                أسبوعية تتابع تقدم الطفل.
               </p>
             </details>
 
@@ -596,10 +616,14 @@ export default async function Home() {
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
                 <span>هل المحتوى آمن للأطفال؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
-                نعم، جميع التمارين خالية من الإعلانات، وتستخدم ألوانًا آمنة بصريًا، وتم تصميمها بالتعاون مع مختصين في تعديل السلوك وتنمية المهارات.
+                نعم، جميع التمارين خالية من الإعلانات، وتستخدم ألوانًا آمنة
+                بصريًا، وتم تصميمها بالتعاون مع مختصين في تعديل السلوك وتنمية
+                المهارات.
               </p>
             </details>
 
@@ -607,7 +631,9 @@ export default async function Home() {
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
                 <span>ما الذي يميز MovoKids عن التطبيقات الأخرى؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <div className="mt-4 text-sky-900/80 text-right leading-relaxed">
                 <ul className="space-y-2 mr-6">
@@ -623,13 +649,23 @@ export default async function Home() {
             {/* FAQ 8 */}
             <details className="bg-white/90 rounded-2xl border border-sky-100 p-6 shadow-sm group">
               <summary className="font-bold text-sky-900 text-lg cursor-pointer list-none flex items-center justify-between">
-                <span>هل MovoKids بديل عن العلاج السلوكي أو الدوائي مع الطبيب؟</span>
-                <span className="text-green-600 transition-transform group-open:rotate-180">▼</span>
+                <span>
+                  هل MovoKids بديل عن العلاج السلوكي أو الدوائي مع الطبيب؟
+                </span>
+                <span className="text-green-600 transition-transform group-open:rotate-180">
+                  ▼
+                </span>
               </summary>
               <p className="mt-4 text-sky-900/80 text-right leading-relaxed">
-                لا، منصة MovoKids ليست بديلاً عن العلاج السلوكي أو الدوائي الذي يحدده الطبيب المختص. المنصة تقدم تدريبات وأنشطة تفاعلية فقط لتحسين التركيز والانتباه عند الأطفال، ولا نُقدّم أي أدوية ولا ننصح باستخدام أي دواء.
-                <br /><br />
-                الدور الأساسي لـ MovoKids هو الدعم والتطوير من خلال تمارين يومية وجلسات تدريبية اختيارية، بينما يبقى التشخيص ووضع الخطة العلاجية — سواء سلوكية أو دوائية — مسؤولية الطبيب المعالج فقط.
+                لا، منصة MovoKids ليست بديلاً عن العلاج السلوكي أو الدوائي الذي
+                يحدده الطبيب المختص. المنصة تقدم تدريبات وأنشطة تفاعلية فقط
+                لتحسين التركيز والانتباه عند الأطفال، ولا نُقدّم أي أدوية ولا
+                ننصح باستخدام أي دواء.
+                <br />
+                <br />
+                الدور الأساسي لـ MovoKids هو الدعم والتطوير من خلال تمارين يومية
+                وجلسات تدريبية اختيارية، بينما يبقى التشخيص ووضع الخطة العلاجية
+                — سواء سلوكية أو دوائية — مسؤولية الطبيب المعالج فقط.
               </p>
             </details>
           </div>
@@ -683,7 +719,7 @@ export default async function Home() {
               </h3>
               <div className="space-y-3">
                 <a
-                  href="https://wa.me/966500000000"
+                  href="https://wa.me/971585278633"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sky-700 hover:text-green-600 transition-colors "
@@ -696,8 +732,8 @@ export default async function Home() {
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
                   <div className="flex flex-row-reverse gap-1">
-                    <span className="">966+</span> <span>50</span>{" "}
-                    <span>000</span> <span>0000</span>
+                    <span className="">+971</span> <span>58</span>{" "}
+                    <span>527</span> <span>8633</span>
                   </div>
                 </a>
                 <a

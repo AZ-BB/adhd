@@ -70,8 +70,6 @@ export default async function RootLayout({
 
   const navItems = !isEnglish ? [
     { href: "/dashboard", icon: "🏠", label: "الرئيسية" },
-    { href: "/quiz", icon: "📝", label: "الاختبار" },
-    { href: "/progress", icon: "📊", label: "التقدم" },
     { href: "/sessions", icon: "🎯", label: "الجلسات" },
     { href: "/learning-path", icon: "🎮", label: "مسار التعلم" },
     { href: "/physical-activities", icon: "🏃", label: "النشاط البدني" },
@@ -79,8 +77,6 @@ export default async function RootLayout({
     { href: "/settings", icon: "⚙️", label: "الإعدادات" },
   ] : [
     { href: "/dashboard/en", icon: "🏠", label: "Home" },
-    { href: "/quiz/en", icon: "📝", label: "Quiz" },
-    { href: "/progress/en", icon: "📊", label: "Progress" },
     { href: "/sessions/en", icon: "🎯", label: "Sessions" },
     { href: "/learning-path/en", icon: "🎮", label: "Learning Path" },
     { href: "/physical-activities/en", icon: "🏃", label: "Physical Activity" },

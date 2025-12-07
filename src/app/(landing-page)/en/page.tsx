@@ -29,29 +29,35 @@ export default async function HomeEn() {
 
       {/* Navbar */}
       <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-start justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 flex items-center justify-between gap-3">
           <Link
             href="/en"
-            className="text-2xl font-extrabold"
+            className="text-2xl font-extrabold flex-shrink-0"
           >
-            <Image src="/logo/1.png" alt="Movokids" width={200} height={60} className="object-contain" />
+            <Image 
+              src="/logo/1.png" 
+              alt="Movokids" 
+              width={200} 
+              height={60} 
+              className="object-contain w-32 sm:w-40 md:w-48 h-auto" 
+            />
           </Link>
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
               href="/"
-              className="px-3 py-2 rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm"
+              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               عربي
             </Link>
             <Link
               href="/auth/login"
-              className="px-4 py-2 rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm"
+              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               Sign in
             </Link>
             <Link
               href="/auth/signup"
-              className="px-4 py-2 rounded-xl bg-green-500 text-white hover:bg-green-600 shadow"
+              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-green-500 text-white hover:bg-green-600 shadow text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               Get started
             </Link>
@@ -74,12 +80,8 @@ export default async function HomeEn() {
                 interactive activities, and online sessions with specialists.
               </p>
               <p className="mt-3 text-white/70 text-sm md:text-base">
-                Our assessments are based on internationally recognized
-                screening tools, but they are not a final diagnosis. A confirmed
-                diagnosis must be made by a qualified physician. Our goal is to
-                provide early indicators for families and then offer
-                step‑by‑step training with specialists to turn challenges into
-                achievements.
+                We also provide individual and group online sessions with
+                specialists to track your child's progress.
               </p>
               <div className="mt-6 flex items-center justify-start gap-3">
                 <Link
@@ -147,8 +149,8 @@ export default async function HomeEn() {
                   <p className="text-sky-900/80">
                     A world where every child can grow, learn, and shine. We
                     believe every child deserves access to specialized support,
-                    enjoyable educational activities, and a safe space to
-                    thrive—no matter the challenge.
+                    enjoyable activities, and a safe space to help them develop
+                    and reach their best performance through specialist support.
                   </p>
                 </div>
                 <div className="order-1">
@@ -238,27 +240,21 @@ export default async function HomeEn() {
                   </div>
                   <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-left">
                     <div className="text-3xl">🧘</div>
-                    <h3 className="mt-3 font-bold text-sky-900">
-                      Better behavior
-                    </h3>
+                    <h3 className="mt-3 font-bold text-sky-900">Behavior</h3>
                     <p className="text-sky-900/70 text-sm mt-1">
-                      Games and exercises that build patience and self‑control.
+                      Games, exercises, and sessions to teach self-control and
+                      emotional regulation.
                     </p>
                   </div>
                   <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-left">
-                    <div className="text-3xl">✍️</div>
+                    <div className="text-3xl">🧘</div>
                     <h3 className="mt-3 font-bold text-sky-900">
-                      Academic skills
+                      Family Support
                     </h3>
                     <p className="text-sky-900/70 text-sm mt-1">
-                      Practice with numbers, letters, and memory.
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm text-left">
-                    <div className="text-3xl">🌟</div>
-                    <h3 className="mt-3 font-bold text-sky-900">Confidence</h3>
-                    <p className="text-sky-900/70 text-sm mt-1">
-                      Reward systems that celebrate every achievement.
+                      Through continuous family monitoring, in addition to
+                      family guidance sessions and explanations on how to deal
+                      with developmental stages.
                     </p>
                   </div>
                 </div>
@@ -282,7 +278,7 @@ export default async function HomeEn() {
                 <ul className="space-y-3 text-sky-900/85 text-left">
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
-                    <span>Bilingual content (Arabic + English)</span>
+                    <span>Fun and easy to use platform</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
@@ -290,11 +286,11 @@ export default async function HomeEn() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
-                    <span>Fun and easy to use</span>
+                    <span>Bilingual content (Arabic + English)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 text-xl">✔️</span>
-                    <span>Affordable subscription plans</span>
+                    <span>For children and adolescents</span>
                   </li>
                 </ul>
                 <div className="mt-6 flex justify-start">
@@ -307,18 +303,19 @@ export default async function HomeEn() {
                 </div>
               </div>
               <div className="rounded-3xl border border-green-100 bg-gradient-to-br from-green-50 to-sky-50 p-6 text-left">
-                <h3 className="text-xl font-bold text-sky-900">How it works</h3>
+                <h3 className="text-xl font-bold text-sky-900">
+                  Your child's journey with us starts here
+                </h3>
                 <ol className="mt-3 space-y-2 text-sky-900/80">
                   <li>
-                    1) A short starter assessment to identify strengths and
-                    challenges.
+                    1) A simple preliminary assessment to identify strengths and
+                    weaknesses.
                   </li>
                   <li>
-                    2) A daily, bite‑sized training plan that’s fun and easy.
+                    2) A short and fun daily training plan.
                   </li>
-                  <li>3) Progress tracking and clear reports for parents.</li>
                   <li>
-                    4) Optional online sessions with specialists when needed.
+                    3) Online sessions with specialists when needed.
                   </li>
                 </ol>
                 <div className="mt-4 flex items-center justify-start gap-2 text-sky-800/70 text-sm">
@@ -333,14 +330,14 @@ export default async function HomeEn() {
       </section>
 
       {/* Parents' Reviews */}
-      <section className="relative z-10 py-12">
+      <section dir="rtl" className="relative z-10 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 text-center mb-8">
             Parents' Reviews
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {/* Review 1 */}
-            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-left">
+            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -356,23 +353,22 @@ export default async function HomeEn() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "Wonderful platform that helped my son so much with focus and
-                attention. The activities are fun and easy to use, and my child
-                now looks forward to daily exercises."
+                "لاحظت إن ابني بقى أهدى في البيت، خاصة وقت الواجب. التحسن مو
+                كبير جدًا لكنه ملحوظ، وهذا المهم بالنسبة لي. شكرًا Movokids."
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-green-400 flex items-center justify-center text-white font-bold text-lg">
-                  A
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
+                <div className="text-right">
+                  <p className="font-bold text-sky-900">أم أحمد</p>
+                  <p className="text-sm text-sky-700">الرياض، السعودية</p>
                 </div>
-                <div className="text-left">
-                  <p className="font-bold text-sky-900">Ahmed's Mother</p>
-                  <p className="text-sm text-sky-700">Riyadh, Saudi Arabia</p>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-green-400 flex items-center justify-center text-white font-bold text-lg">
+                  أ
                 </div>
               </div>
             </div>
 
             {/* Review 2 */}
-            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-left">
+            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -388,23 +384,23 @@ export default async function HomeEn() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "The app is easy to use and the sessions with specialists were
-                very helpful. I noticed a significant improvement in my
-                daughter's behavior after just two weeks."
+                "التطبيق بسيط وما يحتاج شرح كثير. جرّبت لابنتي جلستين مع
+                الأخصائية وحسّيت إن فيه تغيير بسيط في تهدئة ردود فعلها. إن شاء
+                الله نكمل."
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-sky-400 flex items-center justify-center text-white font-bold text-lg">
-                  K
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
+                <div className="text-right">
+                  <p className="font-bold text-sky-900">أبو خالد</p>
+                  <p className="text-sm text-sky-700">جدة، السعودية</p>
                 </div>
-                <div className="text-left">
-                  <p className="font-bold text-sky-900">Khalid's Father</p>
-                  <p className="text-sm text-sky-700">Jeddah, Saudi Arabia</p>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-sky-400 flex items-center justify-center text-white font-bold text-lg">
+                  خ
                 </div>
               </div>
             </div>
 
             {/* Review 3 */}
-            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-left">
+            <div className="bg-white/90 rounded-3xl border border-sky-100 p-6 shadow-sm text-right">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -420,17 +416,18 @@ export default async function HomeEn() {
                 </div>
               </div>
               <p className="text-sky-900/80 mb-4">
-                "Thanks to Movokids for this unique platform. My child became
-                calmer and his ability to control emotions has improved
-                significantly."
+                "بصراحة كنت قلقانة جدًا في الأول… ما كنت أعرف إذا التدريبات
+                هتنفع مع ابني ولا تكون مجرد تطبيق عادي. لكن بعد أسبوع من
+                الاستخدام لاحظت إنه بدأ يهدى وقت المذاكرة شوية. حسّيت إن في فرق
+                وقررت أستمر وفعلاً اشتركت. تجربة تستحق."
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-green-400 flex items-center justify-center text-white font-bold text-lg">
-                  S
+              <div className="flex flex-row-reverse justify-end items-center gap-3">
+                <div className="text-right">
+                  <p className="font-bold text-sky-900">أم سارة</p>
+                  <p className="text-sm text-sky-700">دبي، الإمارات</p>
                 </div>
-                <div className="text-left">
-                  <p className="font-bold text-sky-900">Sarah's Mother</p>
-                  <p className="text-sm text-sky-700">Dubai, UAE</p>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-green-400 flex items-center justify-center text-white font-bold text-lg">
+                  س
                 </div>
               </div>
             </div>
@@ -684,7 +681,7 @@ export default async function HomeEn() {
               </h3>
               <div className="space-y-3">
                 <a
-                  href="https://wa.me/966500000000"
+                  href="https://wa.me/971585278633"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sky-700 hover:text-green-600 transition-colors"
@@ -696,7 +693,7 @@ export default async function HomeEn() {
                   >
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
-                  <span>+966 50 000 0000</span>
+                  <span>+971 58 527 8633</span>
                 </a>
                 <a
                   href="mailto:info@movokids.com"
