@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createSupabaseServerClient } from "@/lib/server"
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton"
 
 async function login(formData: FormData) {
   "use server"
@@ -177,6 +178,21 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               </svg>
             </button>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white/70 text-gray-500">أو</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <GoogleSignInButton mode="signin" />
+            </div>
+          </div>
 
           <div className="mt-6 text-center">
             <a

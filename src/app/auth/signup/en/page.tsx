@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/server"
 import QuizCarryoverClient from "../QuizCarryoverClient"
 import { signup as signupAction } from "@/actions/users"
 import BackgroundSlideshow from "@/components/BackgroundSlideshow"
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton"
 
 async function signup(formData: FormData) {
   "use server"
@@ -293,6 +294,23 @@ export default async function SignupPageEn({
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white/70 text-gray-500">Or</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <GoogleSignInButton mode="signup" redirectTo="/dashboard/en" loadingText="Loading...">
+                Sign up with Google
+              </GoogleSignInButton>
+            </div>
+          </div>
 
           <div className="mt-6 text-center text-xs text-indigo-900/70">
             If you completed the assessment, your score will be linked after you log in.
