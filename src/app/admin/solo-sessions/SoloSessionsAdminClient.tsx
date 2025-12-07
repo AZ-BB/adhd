@@ -18,7 +18,7 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches }: Pr
   const [requests, setRequests] = useState(initialRequests)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending')
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
-  const [responseData, setResponseData] = useState<{ id: number | null; status: 'approved' | 'rejected'; meeting_link: string; admin_reason: string; scheduled_time: string }>({
+  const [responseData, setResponseData] = useState<{ id: number | null; status: 'approved' | 'rejected' | 'payment_pending'; meeting_link: string; admin_reason: string; scheduled_time: string }>({
     id: null,
     status: 'approved',
     meeting_link: '',
@@ -41,7 +41,7 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches }: Pr
     }
   }
 
-  const handleOpenAction = (req: SoloSessionRequest, status: 'approved' | 'rejected') => {
+  const handleOpenAction = (req: SoloSessionRequest, status: 'approved' | 'rejected' | 'payment_pending') => {
     setResponseData({
       id: req.id,
       status,

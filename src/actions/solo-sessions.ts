@@ -98,7 +98,7 @@ export async function getMySoloSessionRequests(): Promise<SoloSessionRequest[]> 
 }
 
 // Admin: list all requests with user info
-export async function getAdminSoloSessionRequests(status?: 'pending' | 'approved' | 'rejected') {
+export async function getAdminSoloSessionRequests(status?: 'pending' | 'payment_pending' | 'approved' | 'rejected' | 'paid') {
   await requireAdmin()
   const supabase = await createSupabaseServerClient()
 
