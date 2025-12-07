@@ -32,6 +32,12 @@ export interface SoloSessionRequest {
     auth_id: string
     email?: string
   }
+  responder?: {
+    auth_id: string
+    parent_first_name?: string
+    parent_last_name?: string
+    email?: string
+  }
 }
 
 export interface SoloSessionRequestInput {
