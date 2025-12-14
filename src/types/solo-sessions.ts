@@ -6,7 +6,7 @@ export interface SoloSessionRequest {
   updated_at: string
   user_id: number
   coach_id: number | null
-  preferred_time: string
+  preferred_time: string | null
   scheduled_time?: string | null
   duration_minutes: number
   notes?: string
@@ -42,7 +42,7 @@ export interface SoloSessionRequest {
 
 export interface SoloSessionRequestInput {
   coach_id?: number | null
-  preferred_time: string
+  preferred_time?: string | null
   duration_minutes?: number
   notes?: string
 }

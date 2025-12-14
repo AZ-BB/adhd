@@ -112,7 +112,7 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches }: Pr
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Child</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preferred</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coach</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -130,8 +130,20 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches }: Pr
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    {new Date(req.preferred_time).toLocaleString()}
+                    {req.scheduled_time ? (
+                      <div>
+                        <div className="font-semibold">Scheduled: {new Date(req.scheduled_time).toLocaleString()}</div>
+                        {req.preferred_time && (
+                          <div className="text-xs text-gray-500">Requested: {new Date(req.preferred_time).toLocaleString()}</div>
+                        )}
+                      </div>
+                    ) : req.preferred_time ? (
+                      <div>Requested: {new Date(req.preferred_time).toLocaleString()}</div>
+                    ) : (
+                      <div className="text-gray-400 italic">No time specified</div>
+                    )}
                     {req.notes && <div className="text-xs text-gray-500 mt-1">{req.notes}</div>}
+                    <div className="text-xs text-gray-500 mt-1">Duration: 30-45 minutes</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {req.coach ? req.coach.name : 'Any coach'}

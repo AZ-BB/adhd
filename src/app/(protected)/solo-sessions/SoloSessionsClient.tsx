@@ -18,25 +18,16 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     coach_id: '' as number | '' ,
-    preferred_time: '',
-    duration_minutes: 60,
     notes: ''
   })
   const [payLoadingId, setPayLoadingId] = useState<number | null>(null)
-
-  const minDateTime = (() => {
-    const d = new Date()
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
-    return d.toISOString().slice(0, 16)
-  })()
 
   const t = {
     title: isRtl ? 'جلسات فردية (1 إلى 1)' : '1:1 Solo Sessions',
     subtitle: isRtl ? 'اطلب جلسة خاصة مع مدرب وانتظر الموافقة' : 'Request a private session with a coach and wait for approval',
     coach: isRtl ? 'المدرب' : 'Coach',
     optional: isRtl ? '(اختياري)' : '(Optional)',
-    preferredTime: isRtl ? 'الوقت المفضل' : 'Preferred Time',
-    duration: isRtl ? 'المدة (دقيقة)' : 'Duration (minutes)',
+    durationInfo: isRtl ? 'مدة الجلسة: 30-45 دقيقة' : 'Session Duration: 30-45 minutes',
     notes: isRtl ? 'ملاحظات' : 'Notes',
     submit: isRtl ? 'إرسال الطلب' : 'Submit Request',
     status: isRtl ? 'الحالة' : 'Status',
@@ -48,6 +39,7 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
     paymentPending: isRtl ? 'بانتظار الدفع' : 'Payment pending',
     rejected: isRtl ? 'مرفوضة' : 'Rejected',
     payNow: isRtl ? 'ادفع الآن (تجريبي)' : 'Pay now (mock)',
+    scheduled: isRtl ? 'الوقت المعتمد' : 'Scheduled Time',
   }
 
   const statusColor = (status: string) => {
@@ -58,20 +50,14 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
   }
 
   const handleSubmit = async () => {
-    if (!form.preferred_time) {
-      alert(isRtl ? 'يرجى اختيار وقت مفضل' : 'Please choose a preferred time')
-      return
-    }
     setLoading(true)
     try {
       await createSoloSessionRequest({
         coach_id: form.coach_id === '' ? null : Number(form.coach_id),
-        preferred_time: new Date(form.preferred_time).toISOString(),
-        duration_minutes: form.duration_minutes,
         notes: form.notes || undefined,
       })
       alert(isRtl ? 'تم إرسال الطلب، بانتظار الموافقة' : 'Request submitted, awaiting approval')
-      setForm({ coach_id: '', preferred_time: '', duration_minutes: 60, notes: '' })
+      setForm({ coach_id: '', notes: '' })
       router.refresh()
     } catch (err: any) {
       alert(err.message || 'Error')
@@ -111,6 +97,12 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
 
       {/* Request Form */}
       <div className="bg-white rounded-2xl shadow p-6 mb-10 border border-gray-100">
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm font-semibold text-blue-800">{t.durationInfo}</p>
+          <p className="text-xs text-blue-600 mt-1">
+            {isRtl ? 'سيتم تحديد وقت الجلسة من قبل الإدارة' : 'The session time will be scheduled by the admin'}
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -129,34 +121,9 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
               ))}
             </select>
           </div>
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t.preferredTime} *
-            </label>
-            <input
-              type="datetime-local"
-              className="w-full border rounded-lg p-3"
-              value={form.preferred_time}
-              min={minDateTime}
-              onChange={(e) => setForm({ ...form, preferred_time: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t.duration}
-            </label>
-            <input
-              type="number"
-              className="w-full border rounded-lg p-3"
-              value={form.duration_minutes}
-              onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })}
-              min={15}
-              max={180}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t.notes}
+              {t.notes} {t.optional}
             </label>
             <textarea
               className="w-full border rounded-lg p-3"
@@ -199,14 +166,18 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
               return (
                 <div key={req.id} className="p-4 border rounded-xl flex flex-col md:flex-row md:items-center gap-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">
-                      {isRtl ? 'الوقت المفضل:' : 'Preferred:'} {new Date(req.preferred_time).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}
-                    </p>
-                    {req.scheduled_time && (
-                      <p className="text-sm text-gray-600">
-                        {isRtl ? 'الوقت المعتمد:' : 'Scheduled:'} {new Date(req.scheduled_time).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}
+                    {req.scheduled_time ? (
+                      <p className="font-semibold text-gray-900">
+                        {t.scheduled}: {new Date(req.scheduled_time).toLocaleString(isRtl ? 'ar-EG' : 'en-US')}
+                      </p>
+                    ) : (
+                      <p className="font-semibold text-gray-900">
+                        {isRtl ? 'بانتظار تحديد الوقت من الإدارة' : 'Awaiting time scheduling by admin'}
                       </p>
                     )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t.durationInfo}
+                    </p>
                     {req.coach && (
                       <p className="text-sm text-gray-600">
                         {t.coach}: {isRtl ? (req.coach.name_ar || req.coach.name) : req.coach.name}

@@ -27,45 +27,16 @@ async function getCurrentUserProfile() {
 export async function createSoloSessionRequest(input: SoloSessionRequestInput) {
   const { supabase, userProfile } = await getCurrentUserProfile()
 
-  // Validate preferred time: must be in the future
-  const preferred = new Date(input.preferred_time)
-  if (Number.isNaN(preferred.getTime())) {
-    throw new Error("Invalid preferred time")
-  }
-  if (preferred.getTime() < Date.now()) {
-    throw new Error("Preferred time must be in the future")
-  }
+  // Duration is fixed at 30-45 minutes (we'll use 37.5 as default, admin can adjust)
+  const duration = 37.5
 
-  const duration = input.duration_minutes ?? 60
-
-  // Prevent overlap with already approved / payment_pending / paid solo sessions for this user
-  const { data: existingApproved, error: overlapError } = await supabase
-    .from('solo_session_requests')
-    .select('preferred_time, scheduled_time, duration_minutes')
-    .eq('user_id', userProfile.id)
-    .in('status', ['approved', 'payment_pending', 'paid'])
-
-  if (overlapError) throw new Error(overlapError.message)
-
-  const newStart = preferred.getTime()
-  const newEnd = newStart + duration * 60 * 1000
-
-  const hasOverlap = (existingApproved || []).some((req) => {
-    const startStr = (req as any).scheduled_time || (req as any).preferred_time
-    const dur = (req as any).duration_minutes ?? 60
-    const start = new Date(startStr).getTime()
-    const end = start + dur * 60 * 1000
-    return newStart < end && start < newEnd
-  })
-
-  if (hasOverlap) {
-    throw new Error("You already have an approved 1:1 session in that time window")
-  }
+  // preferred_time is now optional - children can't request a specific time
+  // Admin will set scheduled_time when approving
 
   const payload = {
     user_id: userProfile.id,
     coach_id: input.coach_id ?? null,
-    preferred_time: input.preferred_time,
+    preferred_time: input.preferred_time ?? null,
     duration_minutes: duration,
     notes: input.notes ?? null,
     status: 'pending' as const,
@@ -76,8 +47,8 @@ export async function createSoloSessionRequest(input: SoloSessionRequestInput) {
     .insert(payload)
 
   if (error) throw new Error(error.message)
-  revalidatePath('/solo-sessions')
-  revalidatePath('/solo-sessions/en')
+  revalidatePath('/sessions')
+  revalidatePath('/sessions/en')
 }
 
 // User: list own requests
