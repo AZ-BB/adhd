@@ -4,12 +4,22 @@ export default async function AdminAnalyticsPage() {
   const users = await getAllUsers()
   const quizAnalytics = await getQuizAnalytics()
 
+  // Normalize user data to ensure all numeric fields are numbers (not null/undefined)
+  const normalizedUsers = users.map((user) => ({
+    ...user,
+    completed_days: Number(user.completed_days) || 0,
+    total_games_completed: Number(user.total_games_completed) || 0,
+    overall_avg_score: Number(user.overall_avg_score) || 0,
+    total_time_spent: Number(user.total_time_spent) || 0,
+    initial_quiz_score: Number(user.initial_quiz_score) || 0,
+  }))
+
   // Calculate various analytics
-  const totalUsers = users.length
-  const usersWithProgress = users.filter((u) => u.completed_days > 0).length
-  const totalDaysCompleted = users.reduce((sum, u) => sum + u.completed_days, 0)
-  const totalGamesPlayed = users.reduce((sum, u) => sum + u.total_games_completed, 0)
-  const totalTimeSpent = users.reduce((sum, u) => sum + u.total_time_spent, 0)
+  const totalUsers = normalizedUsers.length
+  const usersWithProgress = normalizedUsers.filter((u) => u.completed_days > 0).length
+  const totalDaysCompleted = normalizedUsers.reduce((sum, u) => sum + u.completed_days, 0)
+  const totalGamesPlayed = normalizedUsers.reduce((sum, u) => sum + u.total_games_completed, 0)
+  const totalTimeSpent = normalizedUsers.reduce((sum, u) => sum + u.total_time_spent, 0)
 
   // Calculate engagement rate
   const engagementRate = totalUsers > 0 ? Math.round((usersWithProgress / totalUsers) * 100) : 0
@@ -20,7 +30,7 @@ export default async function AdminAnalyticsPage() {
   const avgTimeSpent = totalUsers > 0 ? Math.round(totalTimeSpent / totalUsers / 60) : 0 // in minutes
 
   // Gender distribution
-  const genderDistribution = users.reduce(
+  const genderDistribution = normalizedUsers.reduce(
     (acc, user) => {
       if (user.child_gender === "male") acc.male++
       else if (user.child_gender === "female") acc.female++
@@ -30,7 +40,7 @@ export default async function AdminAnalyticsPage() {
   )
 
   // Age distribution
-  const ageDistribution = users.reduce(
+  const ageDistribution = normalizedUsers.reduce(
     (acc, user) => {
       const birth = new Date(user.child_birthday)
       const now = new Date()
@@ -50,12 +60,12 @@ export default async function AdminAnalyticsPage() {
   )
 
   // Top performers
-  const topPerformers = [...users]
+  const topPerformers = [...normalizedUsers]
     .sort((a, b) => b.completed_days - a.completed_days)
     .slice(0, 5)
 
   // Recent registrations
-  const recentRegistrations = [...users]
+  const recentRegistrations = [...normalizedUsers]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
 
