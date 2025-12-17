@@ -701,22 +701,6 @@ export default async function Home() {
                     الشروط والأحكام
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    تواصل معنا
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    من نحن
-                  </Link>
-                </li>
               </ul>
             </div>
 

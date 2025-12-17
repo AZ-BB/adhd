@@ -663,22 +663,6 @@ export default async function HomeEn() {
                     Terms and Conditions
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    About Us
-                  </Link>
-                </li>
               </ul>
             </div>
 

@@ -52,9 +52,20 @@ export default function TermsAndConditionsPageEn() {
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
                 1. Acceptance of Terms
               </h2>
-              <p>
+              <p className="mb-3">
                 By using the MovoKids platform, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Privacy Policy.
               </p>
+              <p className="mb-3">
+                By using the MovoKids website, you agree to the following terms:
+              </p>
+              <ul className="list-disc ml-6 space-y-2">
+                <li>The content provided is educational and interactive, and does not constitute medical diagnosis or treatment.</li>
+                <li>The website is to be used under the supervision of parents or guardians.</li>
+                <li>Sharing your account with other parties is prohibited.</li>
+                <li>All intellectual property rights to the content are reserved by MovoKids.</li>
+                <li>MovoKids reserves the right to modify content, prices, or policies at any time.</li>
+                <li>Violation or abusive use may result in account suspension without notice.</li>
+              </ul>
             </section>
 
             <section>
@@ -119,21 +130,41 @@ export default function TermsAndConditionsPageEn() {
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                6. Payments and Refunds
+                6. Service Duration Policy
               </h2>
-              <p className="mb-3">
-                All payments are processed through secure payment gateways. Regarding refunds:
-              </p>
               <ul className="list-disc ml-6 space-y-2">
-                <li>Refund policy applies according to local laws</li>
-                <li>Please contact us at info@movokids.com for any refund inquiries</li>
-                <li>Administrative fees may apply to refund requests</li>
+                <li>The account is activated immediately upon successful payment completion.</li>
+                <li>Subscription duration is monthly or annual according to the selected plan.</li>
+                <li>Access remains available only throughout the subscription period.</li>
+                <li>In case of subscription expiration, access will be automatically suspended until renewal.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                7. Account Cancellation
+                7. Refund Policy
+              </h2>
+              <p className="mb-3">
+                Since MovoKids provides digital content and online educational services:
+              </p>
+              <ul className="list-disc ml-6 space-y-2">
+                <li>Subscriptions cannot be refunded or replaced after account activation</li>
+                <li>In case of a technical issue preventing service use, the situation will be reviewed and the user will be supported</li>
+                <li>You can cancel your subscription before the next renewal date without any additional fees</li>
+              </ul>
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4 rounded">
+                <p className="font-semibold text-yellow-900">
+                  📌 No replacement is available as the service is digital and non-transferable.
+                </p>
+              </div>
+              <p className="mt-4">
+                All payments are processed through secure payment gateways. For any refund inquiries, please contact us at <a href="mailto:info@movokids.com" className="text-sky-700 hover:text-sky-900 underline">info@movokids.com</a>
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
+                8. Account Cancellation
               </h2>
               <p>
                 You may cancel your account at any time through account settings or by contacting us. Your data will be deleted in accordance with our Privacy Policy.
@@ -142,7 +173,7 @@ export default function TermsAndConditionsPageEn() {
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                8. Modifications to Terms
+                9. Modifications to Terms
               </h2>
               <p>
                 We reserve the right to modify these Terms and Conditions at any time. You will be notified of any material changes via email or through the platform.
@@ -151,7 +182,7 @@ export default function TermsAndConditionsPageEn() {
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                9. Contact Us
+                10. Contact Us
               </h2>
               <p className="mb-3">
                 We're happy to hear from you at any time 🌟 The MovoKids team is here to support you and answer all your questions.
@@ -166,10 +197,28 @@ export default function TermsAndConditionsPageEn() {
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                10. Governing Law
+                11. Governing Law
               </h2>
               <p>
                 These Terms and Conditions are subject to applicable local laws. Any dispute arising from these terms will be resolved in accordance with local laws.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
+                12. About Us
+              </h2>
+              <p className="mb-3">
+                MovoKids is an interactive digital educational platform designed for children, aimed at developing skills in:
+              </p>
+              <ul className="list-disc ml-6 space-y-2 mb-3">
+                <li>Focus and attention</li>
+                <li>Memory</li>
+                <li>Logical thinking</li>
+                <li>Problem solving</li>
+              </ul>
+              <p>
+                We provide carefully designed educational activities and games, based on modern educational methods centered on play and interaction, to help children develop their cognitive abilities in a safe and stimulating environment.
               </p>
             </section>
           </div>
