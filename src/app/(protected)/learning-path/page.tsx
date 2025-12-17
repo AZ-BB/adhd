@@ -35,6 +35,33 @@ export default async function LearningPathPageAr() {
   // Get user statistics
   const stats = await getUserLearningPathStats(user.id)
   
+  // Calculate which month the user is currently in (30 days per month)
+  const getDayMonth = (dayNumber: number): number => {
+    return Math.ceil(dayNumber / 30)
+  }
+  
+  const getCurrentUserMonth = (): number => {
+    if (!user.learning_path_started_at) {
+      return 1 // First month if not started
+    }
+    const startDate = new Date(user.learning_path_started_at)
+    const today = new Date()
+    startDate.setHours(0, 0, 0, 0)
+    today.setHours(0, 0, 0, 0)
+    
+    const daysElapsed = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+    const currentDay = daysElapsed + 1 // Day 1 is available on day 0
+    return getDayMonth(currentDay)
+  }
+  
+  const currentMonth = getCurrentUserMonth()
+  
+  // Filter days to only show current month and past months (hide future months)
+  const visibleDays = learningDays.filter((day) => {
+    const dayMonth = getDayMonth(day.day_number)
+    return dayMonth <= currentMonth
+  })
+  
   // Create a map of day_id -> progress
   const progressMap = new Map(
     userProgress.map(p => [p.learning_day_id, p])
@@ -42,7 +69,7 @@ export default async function LearningPathPageAr() {
   
   // Determine which days are accessible and why
   const daysWithAccess = await Promise.all(
-    learningDays.map(async (day) => {
+    visibleDays.map(async (day) => {
       const availability = await getDayAvailability(user.id, day.day_number)
       return {
         ...day,

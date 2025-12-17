@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { createSupabaseServerClient } from "@/lib/server";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,6 +37,19 @@ export default async function RootLayout({
         <title>MovoKids</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-C7HW7YBGWQ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-C7HW7YBGWQ');
+          `}
+        </Script>
         <div>
           {children}
         </div>

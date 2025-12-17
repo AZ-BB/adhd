@@ -4,3 +4,5 @@
 ALTER TABLE solo_session_requests 
   ALTER COLUMN preferred_time DROP NOT NULL;
 
+
+
