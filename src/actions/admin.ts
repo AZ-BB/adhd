@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin"
 export interface UserStats {
   id: number
   auth_id: string
+  email?: string
   child_first_name: string
   child_last_name: string
   child_birthday: string
@@ -47,7 +48,21 @@ export async function getAllUsers(): Promise<UserStats[]> {
     return []
   }
 
-  return data as UserStats[]
+  // Fetch emails from auth.users using admin API
+  const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers()
+  
+  if (authError) {
+    console.error("Error fetching auth users:", authError)
+  }
+
+  // Map auth_id to email
+  const emailMap = new Map(authUsers?.map(u => [u.id, u.email]) || [])
+
+  // Add email to each user
+  return (data as UserStats[]).map(user => ({
+    ...user,
+    email: emailMap.get(user.auth_id) || undefined
+  }))
 }
 
 /**
@@ -69,18 +84,18 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .select("*", { count: "exact", head: true })
     .in("role", ["admin", "super_admin"])
 
-  // Get active users (users who logged in in the last 7 days)
+  // Get active users (users who have activity in the last 7 days)
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
   
   const { count: activeUsers } = await supabase
-    .from("user_learning_path_days")
+    .from("user_day_progress")
     .select("user_id", { count: "exact", head: true })
     .gte("updated_at", sevenDaysAgo.toISOString())
 
   // Get total learning days completed
   const { count: totalLearningDaysCompleted } = await supabase
-    .from("user_learning_path_days")
+    .from("user_day_progress")
     .select("*", { count: "exact", head: true })
     .eq("is_completed", true)
 
@@ -127,7 +142,7 @@ export async function getUserDetails(userId: number) {
 
   // Get user's learning path progress
   const { data: progress } = await supabase
-    .from("user_learning_path_days")
+    .from("user_day_progress")
     .select(`
       *,
       learning_day:learning_days(*)
@@ -135,9 +150,38 @@ export async function getUserDetails(userId: number) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
 
+  // Get game attempts to calculate stats
+  const { data: gameAttempts } = await supabase
+    .from("user_game_attempts")
+    .select("*")
+    .eq("user_id", userId)
+
+  // Calculate stats per day
+  const progressWithStats = (progress || []).map((p) => {
+    const dayAttempts = gameAttempts?.filter(a => a.learning_day_id === p.learning_day_id) || []
+    const correctAttempts = dayAttempts.filter(a => a.is_correct)
+    const totalTime = dayAttempts.reduce((sum, a) => sum + (a.time_taken_seconds || 0), 0)
+    const avgScore = dayAttempts.length > 0
+      ? dayAttempts.reduce((sum, a) => sum + (a.score || 0), 0) / dayAttempts.length
+      : 0
+
+    return {
+      ...p,
+      games_completed: correctAttempts.length,
+      time_spent: totalTime,
+      average_score: avgScore
+    }
+  })
+
+  // Get user email from auth
+  const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.auth_id)
+  
   return {
-    user,
-    progress,
+    user: {
+      ...user,
+      email: authUser?.email || undefined
+    },
+    progress: progressWithStats,
   }
 }
 

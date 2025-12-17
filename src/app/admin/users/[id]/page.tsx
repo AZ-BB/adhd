@@ -135,6 +135,10 @@ export default async function AdminUserDetailPage({
             <div className="text-white">{user.parent_phone || "—"}</div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+            <div className="text-white">{user.email || "—"}</div>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Nationality</label>
             <div className="text-white">{user.parent_nationality || "—"}</div>
           </div>
@@ -167,7 +171,7 @@ export default async function AdminUserDetailPage({
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-white">
-                          {learningDay?.title_en || "Learning Day"}
+                          {learningDay?.title || learningDay?.title_ar || "Learning Day"}
                         </div>
                         <div className="text-xs text-gray-400">
                           {p.games_completed || 0} games • {formatTime(p.time_spent || 0)} •
