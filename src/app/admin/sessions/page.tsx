@@ -3,10 +3,11 @@ import SessionsAdminClient from './SessionsAdminClient'
 import { requireAdmin } from '@/lib/admin'
 
 export default async function AdminSessionsPage() {
-  await requireAdmin()
+  const adminUser = await requireAdmin()
+  const isSuperAdmin = adminUser.is_super_admin
   const coaches = await getCoaches()
   const sessions = await getAdminSessions()
 
-  return <SessionsAdminClient initialCoaches={coaches} initialSessions={sessions} />
+  return <SessionsAdminClient initialCoaches={coaches} initialSessions={sessions} isSuperAdmin={isSuperAdmin} />
 }
 

@@ -12,9 +12,10 @@ import { useRouter } from 'next/navigation'
 interface SessionsAdminClientProps {
   initialCoaches: Coach[]
   initialSessions: SessionWithCoach[]
+  isSuperAdmin: boolean
 }
 
-export default function SessionsAdminClient({ initialCoaches, initialSessions }: SessionsAdminClientProps) {
+export default function SessionsAdminClient({ initialCoaches, initialSessions, isSuperAdmin }: SessionsAdminClientProps) {
   const [activeTab, setActiveTab] = useState<'sessions' | 'coaches'>('sessions')
   
   return (
@@ -499,8 +500,10 @@ function SessionManager({ initialSessions, coaches }: { initialSessions: Session
                     </div>
                     <div>
                       <p className="font-bold">{enrollment.user.child_first_name} {enrollment.user.child_last_name}</p>
-                      <p className="text-sm text-gray-500">Phone: {enrollment.user.parent_phone}</p>
-                      {enrollment.user.email && enrollment.user.email !== 'N/A' && (
+                      {isSuperAdmin && enrollment.user.parent_phone && (
+                        <p className="text-sm text-gray-500">Phone: {enrollment.user.parent_phone}</p>
+                      )}
+                      {isSuperAdmin && enrollment.user.email && enrollment.user.email !== 'N/A' && (
                         <p className="text-sm text-gray-500">Email: {enrollment.user.email}</p>
                       )}
                       {(enrollment.user.parent_first_name || enrollment.user.parent_last_name) && (

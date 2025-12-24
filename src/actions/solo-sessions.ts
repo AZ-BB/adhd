@@ -70,8 +70,9 @@ export async function getMySoloSessionRequests(): Promise<SoloSessionRequest[]> 
 
 // Admin: list all requests with user info
 export async function getAdminSoloSessionRequests(status?: 'pending' | 'payment_pending' | 'approved' | 'rejected' | 'paid') {
-  await requireAdmin()
+  const adminUser = await requireAdmin()
   const supabase = await createSupabaseServerClient()
+  const isSuperAdmin = adminUser.is_super_admin
 
   let query = supabase
     .from('solo_session_requests')
@@ -101,18 +102,30 @@ export async function getAdminSoloSessionRequests(status?: 'pending' | 'payment_
   const { data, error } = await query
   if (error) throw new Error(error.message)
 
-  // Attach emails via admin listUsers
-  const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers()
-  if (authError) {
-    console.error("Auth list users error", authError)
-    return data as SoloSessionRequest[]
+  // Only attach emails if super admin
+  let emailMap = new Map<string, string>()
+  if (isSuperAdmin) {
+    const { createSupabaseAdminServerClient } = await import('@/lib/server')
+    const adminSupabase = await createSupabaseAdminServerClient()
+    const { data: { users: authUsers }, error: authError } = await adminSupabase.auth.admin.listUsers()
+    if (authError) {
+      console.error("Auth list users error", authError)
+    } else {
+      emailMap = new Map(authUsers.map(u => [u.id, u.email || '']))
+    }
   }
 
-  const emailMap = new Map(authUsers.map(u => [u.id, u.email]))
   return (data as SoloSessionRequest[]).map(req => ({
     ...req,
-    user: req.user ? { ...req.user, email: emailMap.get(req.user.auth_id || '') || undefined } : req.user,
-    responder: req.responder ? { ...req.responder, email: emailMap.get(req.responder.auth_id || '') || undefined } : undefined
+    user: req.user ? { 
+      ...req.user, 
+      email: isSuperAdmin ? (emailMap.get(req.user.auth_id || '') || undefined) : undefined,
+      parent_phone: isSuperAdmin ? req.user.parent_phone : undefined, // Hide phone for regular admins
+    } : req.user,
+    responder: req.responder ? { 
+      ...req.responder, 
+      email: isSuperAdmin ? (emailMap.get(req.responder.auth_id || '') || undefined) : undefined 
+    } : undefined
   }))
 }
 

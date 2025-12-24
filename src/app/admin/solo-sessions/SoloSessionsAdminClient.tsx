@@ -11,9 +11,10 @@ type StatusFilter = 'all' | 'pending' | 'payment_pending' | 'approved' | 'reject
 interface Props {
   initialRequests: SoloSessionRequest[]
   coaches: Coach[]
+  isSuperAdmin: boolean
 }
 
-export default function SoloSessionsAdminClient({ initialRequests, coaches }: Props) {
+export default function SoloSessionsAdminClient({ initialRequests, coaches, isSuperAdmin }: Props) {
   const router = useRouter()
   const [requests, setRequests] = useState(initialRequests)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending')
@@ -124,8 +125,10 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches }: Pr
                   <td className="px-6 py-4">
                     <div className="font-semibold text-gray-900">{req.user?.child_first_name} {req.user?.child_last_name}</div>
                     <div className="text-sm text-gray-500">{req.user?.parent_first_name} {req.user?.parent_last_name}</div>
-                    <div className="text-sm text-gray-500">{req.user?.parent_phone}</div>
-                    {req.user && (req.user as any).email && (
+                    {isSuperAdmin && req.user?.parent_phone && (
+                      <div className="text-sm text-gray-500">{req.user.parent_phone}</div>
+                    )}
+                    {isSuperAdmin && req.user && (req.user as any).email && (
                       <div className="text-sm text-gray-500">{(req.user as any).email}</div>
                     )}
                   </td>

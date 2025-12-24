@@ -269,57 +269,11 @@ export async function cancelEnrollment(sessionId: number) {
 }
 
 export async function getSessionEnrollments(sessionId: number) {
-    await requireAdmin()
+    const adminUser = await requireAdmin()
     const supabase = await createSupabaseServerClient()
+    const isSuperAdmin = adminUser.is_super_admin
 
-    const { data, error } = await supabase
-        .from('session_enrollments')
-        .select(`
-            created_at,
-            user:users(
-                child_first_name,
-                child_last_name,
-                child_profile_picture,
-                parent_phone,
-                parent_first_name,
-                parent_last_name
-            )
-        `)
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: true })
-
-    if (error) throw new Error(error.message)
-
-    // Fetch emails separately since they are in auth.users, not public.users
-    // However, we can't join auth.users directly.
-    // We need to fetch the user IDs and then fetch emails if we had admin access to auth.users,
-    // but typical RLS prevents that.
-    // Instead, we can rely on the fact that we might have stored email in public.users or just return what we have.
-    // Wait, the requirement is to show email.
-    // Let's check if we can get email. The current users table structure:
-    /*
-     1|CREATE TABLE users (
-     2|    id SERIAL PRIMARY KEY,
-     ...
-    15|    auth_id UUID REFERENCES auth.users(id) NOT NULL
-    16|);
-    */
-    // We don't store email in public.users.
-    // As an admin, we can use the supabase admin client to fetch user emails by auth_id.
-    
-    const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers()
-    
-    if (authError) {
-        console.error("Error fetching auth users:", authError)
-        // Return without emails if we can't fetch them
-        return data
-    }
-
-    // Map auth_id to email
-    const emailMap = new Map(authUsers.map(u => [u.id, u.email]))
-
-    // We need auth_id from the user record to map
-    // Let's update the query to get auth_id
+    // We need auth_id from the user record to map emails (only for super admins)
     const { data: usersData, error: usersError } = await supabase
         .from('session_enrollments')
         .select(`
@@ -339,12 +293,27 @@ export async function getSessionEnrollments(sessionId: number) {
 
     if (usersError) throw new Error(usersError.message)
 
-    // Combine data
+    // Only fetch emails if super admin
+    let emailMap = new Map<string, string>()
+    if (isSuperAdmin) {
+        const { createSupabaseAdminServerClient } = await import('@/lib/server')
+        const adminSupabase = await createSupabaseAdminServerClient()
+        const { data: { users: authUsers }, error: authError } = await adminSupabase.auth.admin.listUsers()
+        
+        if (authError) {
+            console.error("Error fetching auth users:", authError)
+        } else {
+            emailMap = new Map(authUsers.map(u => [u.id, u.email || '']))
+        }
+    }
+
+    // Combine data, conditionally including email and phone
     return usersData.map((enrollment: any) => ({
         ...enrollment,
         user: {
             ...enrollment.user,
-            email: emailMap.get(enrollment.user.auth_id) || 'N/A'
+            email: isSuperAdmin ? (emailMap.get(enrollment.user.auth_id) || 'N/A') : undefined,
+            parent_phone: isSuperAdmin ? enrollment.user.parent_phone : undefined, // Hide phone for regular admins
         }
     }))
 }

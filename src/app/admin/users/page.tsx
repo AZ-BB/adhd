@@ -1,7 +1,10 @@
 import { getAllUsers } from "@/actions/admin"
+import { requireAdmin } from "@/lib/admin"
 import Link from "next/link"
 
 export default async function AdminUsersPage() {
+  const adminUser = await requireAdmin()
+  const isSuperAdmin = adminUser.is_super_admin
   const users = await getAllUsers()
 
   // Normalize user data to ensure all numeric fields are numbers (not null/undefined)
@@ -106,12 +109,11 @@ export default async function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
                   Parent
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Initial Score
-                </th>
+                {isSuperAdmin && (
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
+                    Email
+                  </th>
+                )}
                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
                   Progress
                 </th>
@@ -146,26 +148,17 @@ export default async function AdminUsersPage() {
                     <div className="text-sm text-gray-300">
                       {user.parent_first_name} {user.parent_last_name}
                     </div>
-                    <div className="text-xs text-gray-500">{user.parent_phone || "—"}</div>
+                    {isSuperAdmin && (
+                      <div className="text-xs text-gray-500">{user.parent_phone || "—"}</div>
+                    )}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">
-                      {user.email || "—"}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-bold text-white">
-                        {user.initial_quiz_score}
+                  {isSuperAdmin && (
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-300">
+                        {user.email || "—"}
                       </div>
-                      <div className="w-16 bg-gray-700 rounded-full h-1.5">
-                        <div
-                          className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full"
-                          style={{ width: `${user.initial_quiz_score}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
+                    </td>
+                  )}
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-white">
                       {user.completed_days} days
@@ -185,9 +178,10 @@ export default async function AdminUsersPage() {
                   <td className="px-4 py-4 whitespace-nowrap">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+                      className="inline-flex items-center justify-center w-8 h-8 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 rounded transition-colors"
+                      title="View Details"
                     >
-                      View Details →
+                      <span className="text-lg">👁️</span>
                     </Link>
                   </td>
                 </tr>

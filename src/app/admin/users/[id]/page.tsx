@@ -1,4 +1,5 @@
 import { getUserDetails } from "@/actions/admin"
+import { requireAdmin } from "@/lib/admin"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -7,6 +8,8 @@ export default async function AdminUserDetailPage({
 }: {
   params: { id: string }
 }) {
+  const adminUser = await requireAdmin()
+  const isSuperAdmin = adminUser.is_super_admin
   const userId = parseInt(params.id)
   if (isNaN(userId)) {
     notFound()
@@ -130,14 +133,18 @@ export default async function AdminUserDetailPage({
               {user.parent_first_name} {user.parent_last_name}
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
-            <div className="text-white">{user.parent_phone || "—"}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-            <div className="text-white">{user.email || "—"}</div>
-          </div>
+          {isSuperAdmin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
+              <div className="text-white">{user.parent_phone || "—"}</div>
+            </div>
+          )}
+          {isSuperAdmin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+              <div className="text-white">{user.email || "—"}</div>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Nationality</label>
             <div className="text-white">{user.parent_nationality || "—"}</div>
