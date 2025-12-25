@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/admin"
-import { getAllAdmins } from "@/actions/admin"
+import { AdminListItem, getAllAdmins } from "@/actions/admin"
 import AdminsClient from "./AdminsClient"
 
 export default async function AdminSettingsPage() {
@@ -20,7 +20,7 @@ export default async function AdminSettingsPage() {
   }
 
   // Fetch all admins
-  let admins = []
+  let admins: AdminListItem[] = []
   try {
     admins = await getAllAdmins()
   } catch (error: any) {
