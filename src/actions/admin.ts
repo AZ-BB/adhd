@@ -58,15 +58,15 @@ export async function getAllUsers(): Promise<UserStats[]> {
     if (authError) {
       console.error("Error fetching auth users:", authError)
     } else {
-      emailMap = new Map(authUsers?.map(u => [u.id, u.email]) || [])
+      emailMap = new Map(authUsers?.map(u => [u.id, u.email || ""]) || [])
     }
   }
 
   // Add email to each user (only for super admins)
-  return (data as UserStats[]).map(user => ({
+  return (data as unknown as UserStats[]).map(user => ({
     ...user,
-    email: isSuperAdmin ? (emailMap.get(user.auth_id) || undefined) : undefined,
-    parent_phone: isSuperAdmin ? user.parent_phone : undefined, // Hide phone for regular admins
+    email: isSuperAdmin ? (emailMap.get(user.auth_id) || "") : "",
+    parent_phone: isSuperAdmin ? user.parent_phone : "", // Hide phone for regular admins
   }))
 }
 
