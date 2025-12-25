@@ -53,7 +53,7 @@ export default function SessionsAdminClient({ initialCoaches, initialSessions, i
         </div>
 
         {activeTab === 'sessions' ? (
-          <SessionManager initialSessions={initialSessions} coaches={initialCoaches} />
+          <SessionManager initialSessions={initialSessions} coaches={initialCoaches} isSuperAdmin={isSuperAdmin} />
         ) : (
           <CoachManager initialCoaches={initialCoaches} />
         )}
@@ -270,7 +270,7 @@ function CoachManager({ initialCoaches }: { initialCoaches: Coach[] }) {
 
 // --- Session Manager Component ---
 
-function SessionManager({ initialSessions, coaches }: { initialSessions: SessionWithCoach[], coaches: Coach[] }) {
+function SessionManager({ initialSessions, coaches, isSuperAdmin }: { initialSessions: SessionWithCoach[], coaches: Coach[], isSuperAdmin: boolean }) {
   const router = useRouter()
   const [sessions, setSessions] = useState(initialSessions)
   const [isEditing, setIsEditing] = useState(false)
