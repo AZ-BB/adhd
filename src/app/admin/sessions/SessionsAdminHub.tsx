@@ -10,9 +10,10 @@ interface Props {
   initialCoaches: Coach[]
   initialSessions: SessionWithCoach[]
   initialSoloRequests: SoloSessionRequest[]
+  isSuperAdmin: boolean
 }
 
-export default function SessionsAdminHub({ initialCoaches, initialSessions, initialSoloRequests }: Props) {
+export default function SessionsAdminHub({ initialCoaches, initialSessions, initialSoloRequests, isSuperAdmin }: Props) {
   const [tab, setTab] = useState<'group' | 'solo'>('group')
 
   return (
@@ -33,9 +34,9 @@ export default function SessionsAdminHub({ initialCoaches, initialSessions, init
       </div>
 
       {tab === 'group' ? (
-        <SessionsAdminClient initialCoaches={initialCoaches} initialSessions={initialSessions} />
+        <SessionsAdminClient initialCoaches={initialCoaches} initialSessions={initialSessions} isSuperAdmin={isSuperAdmin} />
       ) : (
-        <SoloSessionsAdminClient initialRequests={initialSoloRequests} coaches={initialCoaches} />
+        <SoloSessionsAdminClient initialRequests={initialSoloRequests} coaches={initialCoaches} isSuperAdmin={isSuperAdmin} />
       )}
     </div>
   )
