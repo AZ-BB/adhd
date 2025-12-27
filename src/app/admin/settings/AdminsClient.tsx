@@ -66,7 +66,7 @@ export default function AdminsClient({ initialAdmins, currentAdminId }: AdminsCl
         formData.isSuperAdmin
       )
       
-      setAdmins([newAdmin as AdminListItem, ...admins])
+      setAdmins([newAdmin as AdminListItempr, ...admins])
       setSuccess('Admin created successfully!')
       setIsCreating(false)
       setFormData({

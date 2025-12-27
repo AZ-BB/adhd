@@ -9,13 +9,14 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Detect user location based on timezone
-    const detectLocation = () => {
+    // Detect user location based on IP
+    const detectLocation = async () => {
       try {
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const response = await fetch('https://ipapi.co/json/')
+        const data = await response.json()
         
-        // Check if timezone contains Egypt
-        if (timezone.toLowerCase().includes("cairo") || timezone.toLowerCase().includes("egypt")) {
+        // Check if country is Egypt (EG)
+        if (data.country_code === 'EG') {
           setIsEgypt(true)
         } else {
           setIsEgypt(false)
