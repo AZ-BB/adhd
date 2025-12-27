@@ -644,9 +644,66 @@ export default async function HomeEn() {
             {/* Links Section */}
             <div className="text-left">
               <h3 className="text-lg font-bold text-sky-900 mb-4">
-                Important Links
+                About Us
               </h3>
               <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/en/about"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Who We Are
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/en/pricing"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/en/contact"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Policies Section */}
+            <div className="text-left">
+              <h3 className="text-lg font-bold text-sky-900 mb-4">
+                Policies
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/en/return-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Return Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/en/exchange-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Exchange Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/en/delivery-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    Delivery Policy
+                  </Link>
+                </li>
                 <li>
                   <Link
                     href="/en/privacy"
@@ -672,6 +729,7 @@ export default async function HomeEn() {
                 Contact Us
               </h3>
               <div className="space-y-3">
+                {/* Commented out WhatsApp number
                 <a
                   href="https://wa.me/971585278633"
                   target="_blank"
@@ -687,6 +745,7 @@ export default async function HomeEn() {
                   </svg>
                   <span>+971 58 527 8633</span>
                 </a>
+                */}
                 <a
                   href="tel:01115331900"
                   className="flex items-center gap-2 text-sky-700 hover:text-sky-900 transition-colors"
@@ -756,30 +815,6 @@ export default async function HomeEn() {
                   </svg>
                   <div>
                     <div className="font-semibold">Cairo, Egypt</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2 text-sky-700">
-                  <svg
-                    className="w-5 h-5 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <div>
-                    <div className="font-semibold">Delaware, United States of America</div>
                   </div>
                 </div>
               </div>

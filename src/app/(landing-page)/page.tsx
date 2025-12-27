@@ -682,9 +682,66 @@ export default async function Home() {
             {/* Links Section */}
             <div>
               <h3 className="text-lg font-bold text-sky-900 mb-4">
-                روابط مهمة
+                عنا
               </h3>
               <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    من نحن
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/pricing"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    الأسعار
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    تواصل معنا
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Policies Section */}
+            <div>
+              <h3 className="text-lg font-bold text-sky-900 mb-4">
+                السياسات
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="/return-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    سياسة الاسترجاع
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/exchange-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    سياسة الاستبدال
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/delivery-policy"
+                    className="text-sky-700 hover:text-sky-900 transition-colors"
+                  >
+                    سياسة التوصيل
+                  </Link>
+                </li>
                 <li>
                   <Link
                     href="/privacy"
@@ -710,6 +767,7 @@ export default async function Home() {
                 تواصل معنا
               </h3>
               <div className="space-y-3">
+                {/* Commented out WhatsApp number
                 <a
                   href="https://wa.me/971585278633"
                   target="_blank"
@@ -728,6 +786,7 @@ export default async function Home() {
                     <span>527</span> <span>8633</span>
                   </div>
                 </a>
+                */}
                 <a
                   href="tel:01115331900"
                   className="flex items-center gap-2 text-sky-700 hover:text-sky-900 transition-colors"
@@ -797,30 +856,6 @@ export default async function Home() {
                   </svg>
                   <div>
                     <div className="font-semibold">القاهرة، مصر</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2 text-sky-700">
-                  <svg
-                    className="w-5 h-5 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <div>
-                    <div className="font-semibold">ديلاوير، الولايات المتحدة الأمريكية</div>
                   </div>
                 </div>
               </div>
