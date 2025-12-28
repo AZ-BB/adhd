@@ -1,16 +1,16 @@
 import Link from "next/link"
 import Image from "next/image"
 
-export default function PrivacyPolicyPageEn() {
+export default function ExchangePolicyPage() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
-      dir="ltr"
+      dir="rtl"
     >
       {/* Navbar */}
       <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 flex items-center justify-between gap-3">
-          <Link href="/en" className="text-2xl font-extrabold flex-shrink-0">
+          <Link href="/" className="text-2xl font-extrabold flex-shrink-0">
             <Image
               src="/logo/1.png"
               alt="Movokids"
@@ -21,16 +21,16 @@ export default function PrivacyPolicyPageEn() {
           </Link>
           <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
-              href="/privacy"
+              href="/en/exchange-policy"
               className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
-              العربية
+              English
             </Link>
             <Link
-              href="/en"
+              href="/"
               className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
-              Home
+              الرئيسية
             </Link>
           </nav>
         </div>
@@ -39,68 +39,36 @@ export default function PrivacyPolicyPageEn() {
       {/* Content */}
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white/90 rounded-3xl border border-sky-100 p-8 md:p-12 shadow-sm">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-sky-900 mb-8">
-            Privacy Policy
+          <h1 className="text-3xl md:text-4xl font-extrabold text-sky-900 mb-8 text-right">
+            سياسة الاستبدال
           </h1>
 
-          <div className="prose prose-sky max-w-none space-y-6 text-sky-900/80 leading-relaxed">
-            <p className="text-lg font-semibold">
-              Your child's privacy is our top priority.
-            </p>
-
+          <div className="prose prose-sky max-w-none text-right space-y-6 text-sky-900/80 leading-relaxed">
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                We are committed to:
-              </h2>
-              <ul className="list-disc ml-6 space-y-3">
+              <ul className="list-disc mr-6 space-y-3">
                 <li className="text-base">
-                  Protecting children's and users' data
+                  لا يمكن تغيير خطة الاشتراك الا بعد مرور الشهر
                 </li>
                 <li className="text-base">
-                  Not sharing data with any other party without consent
-                </li>
-                <li className="text-base">
-                  Using data only to improve the educational experience
-                </li>
-                <li className="text-base">
-                  Securing information through modern protection systems
+                  يمكن ترقية أو خفض الباقة بعد مرور شهر الاشتراك
                 </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                Information we may collect:
-              </h2>
-              <ul className="list-disc ml-6 space-y-3">
-                <li className="text-base">
-                  Child's name / age
-                </li>
-                <li className="text-base">
-                  Parent's email and phone number
-                </li>
-                <li className="text-base">
-                  Child's activity within the platform for performance analysis
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <div className="bg-sky-50 border-l-4 border-sky-400 p-6 mt-6 rounded-lg">
-                <p className="text-base leading-relaxed">
-                  You can request deletion of your child's data at any time by contacting us.
-                </p>
-              </div>
+              <p className="mt-6 text-base">
+                يتم ذلك عبر التواصل مع فريق الدعم، مع مراعاة الشروط التنظيمية لكل دولة.
+              </p>
             </section>
           </div>
 
           <div className="mt-12 pt-8 border-t border-sky-100">
             <Link
-              href="/en"
+              href="/"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-500 text-white font-semibold hover:bg-sky-600 shadow transition-colors"
             >
               <span>←</span>
-              <span>Back to Home</span>
+              <span>العودة إلى الصفحة الرئيسية</span>
             </Link>
           </div>
         </div>

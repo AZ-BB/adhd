@@ -23,11 +23,7 @@ async function signup(formData: FormData) {
   const parent_phone = String(formData.get("parent_phone") || "").trim()
   const parent_nationality = String(formData.get("parent_nationality") || "").trim()
 
-  if (!email || !password) {
-    redirect("/auth/signup/en?error=Missing%20email%20or%20password")
-  }
-
-  await signupAction({
+  const result = await signupAction({
     email,
     password,
     child_first_name,
@@ -44,30 +40,67 @@ async function signup(formData: FormData) {
     impulsivity_score,
   })
 
-  // Persist submitted profile in a cookie to attach post-login
-  try {
-    const cookieStore = await cookies()
-    const pendingProfile = {
-      child_first_name,
-      child_last_name,
-      child_birthday,
-      child_gender,
-      parent_first_name,
-      parent_last_name,
-      parent_phone,
-      parent_nationality,
-      initial_quiz_score,
-      inattention_score,
-      hyperactivity_score,
-      impulsivity_score,
-    }
-    cookieStore.set("pending_profile", JSON.stringify(pendingProfile), {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    })
-  } catch {}
+  if (result.success) {
+    // Clear any saved form data on success
+    try {
+      const cookieStore = await cookies()
+      cookieStore.delete("signup_form_data")
+    } catch {}
+    
+    // Persist submitted profile in a cookie to attach post-login
+    try {
+      const cookieStore = await cookies()
+      const pendingProfile = {
+        child_first_name,
+        child_last_name,
+        child_birthday,
+        child_gender,
+        parent_first_name,
+        parent_last_name,
+        parent_phone,
+        parent_nationality,
+        initial_quiz_score,
+        inattention_score,
+        hyperactivity_score,
+        impulsivity_score,
+      }
+      cookieStore.set("pending_profile", JSON.stringify(pendingProfile), {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      })
+    } catch {}
 
-  redirect("/auth/login/en?message=Check%20your%20email%20to%20confirm%20your%20account")
+    redirect("/auth/login/en")
+  } else {
+    // Save form data to cookies to preserve it on redirect
+    try {
+      const cookieStore = await cookies()
+      const formDataToSave = {
+        email,
+        child_first_name,
+        child_last_name,
+        child_birthday,
+        child_gender,
+        parent_first_name,
+        parent_last_name,
+        parent_phone,
+        parent_nationality,
+        initial_quiz_score,
+        inattention_score,
+        hyperactivity_score,
+        impulsivity_score,
+      }
+      cookieStore.set("signup_form_data", JSON.stringify(formDataToSave), {
+        path: "/",
+        maxAge: 60 * 5, // 5 minutes
+      })
+    } catch {}
+    
+    const errorMessages = result.errors
+      ?.map((err) => `${err.field}:${err.messageEn}`)
+      .join("|||")
+    redirect(`/auth/signup/en?errors=${encodeURIComponent(errorMessages || "")}`)
+  }
 }
 
 export default async function SignupPageEn({
@@ -91,6 +124,28 @@ export default async function SignupPageEn({
   } catch {}
   const message = typeof params?.message === "string" ? params.message : ""
   const error = typeof params?.error === "string" ? params.error : ""
+
+  // Parse field-specific errors
+  const errorsParam = typeof params?.errors === "string" ? params.errors : ""
+  const errorsMap: Record<string, string> = {}
+  if (errorsParam) {
+    errorsParam.split("|||").forEach((errorPair) => {
+      const [field, message] = errorPair.split(":")
+      if (field && message) {
+        errorsMap[field] = message
+      }
+    })
+  }
+
+  // Get saved form data from cookies
+  let savedFormData: Record<string, string | number> = {}
+  try {
+    const cookieStore = await cookies()
+    const savedData = cookieStore.get("signup_form_data")?.value
+    if (savedData) {
+      savedFormData = JSON.parse(savedData)
+    }
+  } catch {}
 
   return (
     <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -134,6 +189,11 @@ export default async function SignupPageEn({
               {error}
             </div>
           )}
+          {errorsMap.general && (
+            <div className="mt-4 text-sm text-center p-3 rounded-xl bg-red-50 text-red-700 border border-red-200">
+              {errorsMap.general}
+            </div>
+          )}
 
           <form className="mt-8 space-y-8" action={signup}>
             <QuizCarryoverClient />
@@ -150,8 +210,18 @@ export default async function SignupPageEn({
                     type="text"
                     required
                     placeholder="e.g., Alex"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.child_first_name as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.child_first_name
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.child_first_name && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.child_first_name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="child_last_name" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -163,8 +233,18 @@ export default async function SignupPageEn({
                     type="text"
                     required
                     placeholder="e.g., Parker"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.child_last_name as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.child_last_name
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.child_last_name && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.child_last_name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="child_birthday" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -175,8 +255,18 @@ export default async function SignupPageEn({
                     name="child_birthday"
                     type="date"
                     required
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.child_birthday as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.child_birthday
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.child_birthday && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.child_birthday}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="child_gender" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -186,12 +276,22 @@ export default async function SignupPageEn({
                     id="child_gender"
                     name="child_gender"
                     required
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.child_gender as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.child_gender
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   >
                     <option value="">Select gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
+                  {errorsMap.child_gender && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.child_gender}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -208,8 +308,18 @@ export default async function SignupPageEn({
                     name="parent_first_name"
                     type="text"
                     placeholder="First name"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.parent_first_name as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.parent_first_name
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.parent_first_name && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.parent_first_name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="parent_last_name" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -220,8 +330,18 @@ export default async function SignupPageEn({
                     name="parent_last_name"
                     type="text"
                     placeholder="Last name"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.parent_last_name as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.parent_last_name
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.parent_last_name && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.parent_last_name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="parent_phone" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -232,8 +352,18 @@ export default async function SignupPageEn({
                     name="parent_phone"
                     type="tel"
                     placeholder="Phone"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.parent_phone as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.parent_phone
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.parent_phone && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.parent_phone}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="parent_nationality" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -244,8 +374,18 @@ export default async function SignupPageEn({
                     name="parent_nationality"
                     type="text"
                     placeholder="Nationality"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.parent_nationality as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.parent_nationality
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.parent_nationality && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.parent_nationality}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -263,10 +403,20 @@ export default async function SignupPageEn({
                     type="email"
                     required
                     placeholder="you@example.com"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    defaultValue={savedFormData.email as string || ""}
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.email
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                     aria-describedby="email-help"
                   />
                   <p id="email-help" className="mt-1 text-xs text-indigo-900/60">We'll never share your email.</p>
+                  {errorsMap.email && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.email}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-indigo-900 mb-1">
@@ -278,8 +428,17 @@ export default async function SignupPageEn({
                     type="password"
                     required
                     placeholder="At least 6 characters"
-                    className="block w-full px-4 py-3 border-2 border-indigo-100 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-300 sm:text-sm"
+                    className={`block w-full px-4 py-3 border-2 rounded-2xl bg-white/80 placeholder-indigo-300 focus:outline-none focus:ring-4 sm:text-sm ${
+                      errorsMap.password
+                        ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                        : "border-indigo-100 focus:ring-pink-200 focus:border-pink-300"
+                    }`}
                   />
+                  {errorsMap.password && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {errorsMap.password}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

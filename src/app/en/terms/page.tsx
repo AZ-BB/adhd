@@ -45,181 +45,35 @@ export default function TermsAndConditionsPageEn() {
 
           <div className="prose prose-sky max-w-none space-y-6 text-sky-900/80 leading-relaxed">
             <p className="text-lg">
-              Welcome to MovoKids. By using our website and services, you agree to be bound by these Terms and Conditions. Please read them carefully.
+              By using the Movokids platform, you agree to the following:
             </p>
 
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                1. Acceptance of Terms
-              </h2>
-              <p className="mb-3">
-                By using the MovoKids platform, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Privacy Policy.
-              </p>
-              <p className="mb-3">
-                By using the MovoKids website, you agree to the following terms:
-              </p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>The content provided is educational and interactive, and does not constitute medical diagnosis or treatment.</li>
-                <li>The website is to be used under the supervision of parents or guardians.</li>
-                <li>Sharing your account with other parties is prohibited.</li>
-                <li>All intellectual property rights to the content are reserved by MovoKids.</li>
-                <li>MovoKids reserves the right to modify content, prices, or policies at any time.</li>
-                <li>Violation or abusive use may result in account suspension without notice.</li>
+              <ul className="list-disc ml-6 space-y-3">
+                <li className="text-base">
+                  The platform is educational and training-based, not a substitute for medical consultations
+                </li>
+                <li className="text-base">
+                  Subscription is personal and non-shareable
+                </li>
+                <li className="text-base">
+                  Misuse of the platform or copying its content is prohibited
+                </li>
+                <li className="text-base">
+                  Prices and policies may be modified when needed with user notification
+                </li>
+                <li className="text-base">
+                  Any violation exposes the account to suspension
+                </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                2. Use of Service
-              </h2>
-              <p className="mb-3">The MovoKids platform must be used for educational and training purposes only. You agree to:</p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>Not use the platform for any illegal or unauthorized purpose</li>
-                <li>Not attempt to gain unauthorized access to the platform's systems</li>
-                <li>Not share your account with other people</li>
-                <li>Be responsible for all activities that occur under your account</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                3. Accounts and Subscriptions
-              </h2>
-              <p className="mb-3">When creating an account:</p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>Information provided must be accurate and complete</li>
-                <li>You are responsible for maintaining the confidentiality of your account information</li>
-                <li>You must notify us immediately of any unauthorized use of your account</li>
-                <li>Subscriptions are automatically renewable unless cancelled</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                4. Content and Intellectual Property
-              </h2>
-              <p className="mb-3">
-                All content on the MovoKids platform, including texts, images, games, and programs, is protected by copyright and intellectual property rights. You may not:
-              </p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>Copy, distribute, or modify any content from the platform</li>
-                <li>Use content for commercial purposes without written permission</li>
-                <li>Remove any copyright notices</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                5. Medical Disclaimer
-              </h2>
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 mt-4 rounded">
-                <p className="font-semibold text-red-900 mb-2">Important Notice:</p>
-                <p className="text-red-800 mb-3">
-                  MovoKids is an educational and training platform only. We do not provide:
-                </p>
-                <ul className="list-disc ml-6 space-y-2 text-red-800">
-                  <li>Medical diagnosis for any condition</li>
-                  <li>Medical or pharmaceutical treatment</li>
-                  <li>Medical consultation as a substitute for a specialist doctor</li>
-                </ul>
-                <p className="text-red-800 mt-3">
-                  You must consult a specialist doctor for proper diagnosis and treatment. MovoKids is a support and development tool only.
+              <div className="bg-sky-50 border-l-4 border-sky-400 p-6 mt-6 rounded-lg">
+                <p className="text-base leading-relaxed font-semibold">
+                  We are committed to providing the best possible experience for you and your children.
                 </p>
               </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                6. Service Duration Policy
-              </h2>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>The account is activated immediately upon successful payment completion.</li>
-                <li>Subscription duration is monthly or annual according to the selected plan.</li>
-                <li>Access remains available only throughout the subscription period.</li>
-                <li>In case of subscription expiration, access will be automatically suspended until renewal.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                7. Refund Policy
-              </h2>
-              <p className="mb-3">
-                Since MovoKids provides digital content and online educational services:
-              </p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>Subscriptions cannot be refunded or replaced after account activation</li>
-                <li>In case of a technical issue preventing service use, the situation will be reviewed and the user will be supported</li>
-                <li>You can cancel your subscription before the next renewal date without any additional fees</li>
-              </ul>
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4 rounded">
-                <p className="font-semibold text-yellow-900">
-                  📌 No replacement is available as the service is digital and non-transferable.
-                </p>
-              </div>
-              <p className="mt-4">
-                All payments are processed through secure payment gateways. For any refund inquiries, please contact us at <a href="mailto:info@movokids.com" className="text-sky-700 hover:text-sky-900 underline">info@movokids.com</a>
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                8. Account Cancellation
-              </h2>
-              <p>
-                You may cancel your account at any time through account settings or by contacting us. Your data will be deleted in accordance with our Privacy Policy.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                9. Modifications to Terms
-              </h2>
-              <p>
-                We reserve the right to modify these Terms and Conditions at any time. You will be notified of any material changes via email or through the platform.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                10. Contact Us
-              </h2>
-              <p className="mb-3">
-                We're happy to hear from you at any time 🌟 The MovoKids team is here to support you and answer all your questions.
-              </p>
-              <p className="mb-2">Contact methods:</p>
-              <ul className="list-disc ml-6 space-y-2">
-                <li>📧 Email: <a href="mailto:info@movokids.com" className="text-sky-700 hover:text-sky-900 underline">info@movokids.com</a></li>
-                <li>🌐 Through the contact form on the website</li>
-                <li>⏰ Response within 24–48 business hours</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                11. Governing Law
-              </h2>
-              <p>
-                These Terms and Conditions are subject to applicable local laws. Any dispute arising from these terms will be resolved in accordance with local laws.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                12. About Us
-              </h2>
-              <p className="mb-3">
-                MovoKids is an interactive digital educational platform designed for children, aimed at developing skills in:
-              </p>
-              <ul className="list-disc ml-6 space-y-2 mb-3">
-                <li>Focus and attention</li>
-                <li>Memory</li>
-                <li>Logical thinking</li>
-                <li>Problem solving</li>
-              </ul>
-              <p>
-                We provide carefully designed educational activities and games, based on modern educational methods centered on play and interaction, to help children develop their cognitive abilities in a safe and stimulating environment.
-              </p>
             </section>
           </div>
 

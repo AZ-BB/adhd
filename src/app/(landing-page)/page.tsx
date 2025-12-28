@@ -76,9 +76,9 @@ export default async function Home() {
                 منصه متكاملة تساعد طفلك علي اكتشاف قوّته الحقيقية
               </h1>
               <p className="mt-4 text-white/80 text-lg md:text-xl">
-                منصّتنا مخصّصة لدعم الأطفال و المراهقين من عمر 6 إلى 12 عامًا في تطوير
-                مهارات التركيز، وتعزيز التحكّم في الاندفاعات، وتنمية القدرات
-                العقلية عبر تدريبات يومية ممتعة وأنشطة تفاعلية مبتكرة.
+                منصّتنا مخصّصة لدعم الأطفال و المراهقين من عمر 6 إلى 12 عامًا في
+                تطوير مهارات التركيز، وتعزيز التحكّم في الاندفاعات، وتنمية
+                القدرات العقلية عبر تدريبات يومية ممتعة وأنشطة تفاعلية مبتكرة.
               </p>
               <p className="mt-3 text-white/70 text-sm md:text-base">
                 كما نوفر جلسات أونلاين فردية وجماعية مع متخصصين لمتابعة تقدّم
@@ -254,7 +254,8 @@ export default async function Home() {
                     <div className="text-3xl">🧘</div>
                     <h3 className="mt-3 font-bold text-sky-900">دعم الاسرة</h3>
                     <p className="text-sky-900/70 text-sm mt-1">
-                     من خلال متابعه دائمه للاسره بالاضافة الي جلسات ارشاد اسري و شرح كيفية التعامل مع المراحل العمريه
+                      من خلال متابعه دائمه للاسره بالاضافة الي جلسات ارشاد اسري
+                      و شرح كيفية التعامل مع المراحل العمريه
                     </p>
                   </div>
                 </div>
@@ -681,9 +682,7 @@ export default async function Home() {
           <div className="grid md:grid-cols-4 gap-8 text-right">
             {/* Links Section */}
             <div>
-              <h3 className="text-lg font-bold text-sky-900 mb-4">
-                عنا
-              </h3>
+              <h3 className="text-lg font-bold text-sky-900 mb-4">عنا</h3>
               <ul className="space-y-2">
                 <li>
                   <Link
@@ -701,22 +700,12 @@ export default async function Home() {
                     الأسعار
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    تواصل معنا
-                  </Link>
-                </li>
               </ul>
             </div>
 
             {/* Policies Section */}
             <div>
-              <h3 className="text-lg font-bold text-sky-900 mb-4">
-                السياسات
-              </h3>
+              <h3 className="text-lg font-bold text-sky-900 mb-4">السياسات</h3>
               <ul className="space-y-2">
                 <li>
                   <Link
@@ -830,9 +819,7 @@ export default async function Home() {
 
             {/* Locations Section */}
             <div>
-              <h3 className="text-lg font-bold text-sky-900 mb-4">
-                مواقعنا
-              </h3>
+              <h3 className="text-lg font-bold text-sky-900 mb-4">مواقعنا</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-2 text-sky-700">
                   <svg

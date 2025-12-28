@@ -71,11 +71,11 @@ export default async function HomeEn() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="text-left">
               <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
-                Movokids is a complete platform to help kids ages 5–12 discover
+                Movokids is a complete platform to help kids ages 6–12 discover
                 their true strengths
               </h1>
               <p className="mt-4 text-white/80 text-lg md:text-xl">
-                We support children ages 5–12 in building focus, emotional
+                We support children ages 6–12 in building focus, emotional
                 self‑control, and learning abilities with daily fun exercises,
                 interactive activities, and online sessions with specialists.
               </p>
@@ -661,14 +661,6 @@ export default async function HomeEn() {
                     className="text-sky-700 hover:text-sky-900 transition-colors"
                   >
                     Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/en/contact"
-                    className="text-sky-700 hover:text-sky-900 transition-colors"
-                  >
-                    Contact Us
                   </Link>
                 </li>
               </ul>

@@ -206,7 +206,7 @@ export default function PricingPage() {
                 </ul>
 
                 <Link
-                  href="/auth/register"
+                  href="/auth/login"
                   className={`block w-full py-3 px-6 rounded-xl font-semibold text-center transition-all ${
                     pkg.popular
                       ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg"

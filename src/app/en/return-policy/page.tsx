@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 
-export default function PrivacyPolicyPageEn() {
+export default function RefundPolicyPageEn() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPageEn() {
           </Link>
           <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
-              href="/privacy"
+              href="/return-policy"
               className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               العربية
@@ -40,57 +40,43 @@ export default function PrivacyPolicyPageEn() {
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white/90 rounded-3xl border border-sky-100 p-8 md:p-12 shadow-sm">
           <h1 className="text-3xl md:text-4xl font-extrabold text-sky-900 mb-8">
-            Privacy Policy
+            Refund Policy
           </h1>
 
           <div className="prose prose-sky max-w-none space-y-6 text-sky-900/80 leading-relaxed">
-            <p className="text-lg font-semibold">
-              Your child's privacy is our top priority.
+            <p className="text-lg">
+              Since MovoKids provides digital content and online educational services:
             </p>
 
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                We are committed to:
-              </h2>
               <ul className="list-disc ml-6 space-y-3">
                 <li className="text-base">
-                  Protecting children's and users' data
+                  Subscriptions cannot be refunded or replaced after account activation
                 </li>
                 <li className="text-base">
-                  Not sharing data with any other party without consent
+                  In case of a technical issue preventing service use, the situation will be reviewed and the user will be supported
                 </li>
                 <li className="text-base">
-                  Using data only to improve the educational experience
-                </li>
-                <li className="text-base">
-                  Securing information through modern protection systems
+                  You can cancel your subscription before the next renewal date without any additional fees
                 </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                Information we may collect:
-              </h2>
-              <ul className="list-disc ml-6 space-y-3">
-                <li className="text-base">
-                  Child's name / age
-                </li>
-                <li className="text-base">
-                  Parent's email and phone number
-                </li>
-                <li className="text-base">
-                  Child's activity within the platform for performance analysis
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <div className="bg-sky-50 border-l-4 border-sky-400 p-6 mt-6 rounded-lg">
-                <p className="text-base leading-relaxed">
-                  You can request deletion of your child's data at any time by contacting us.
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4 rounded">
+                <p className="font-semibold text-yellow-900">
+                  📌 No replacement is available as the service is digital and non-transferable.
                 </p>
               </div>
+            </section>
+
+            <section>
+              <p className="mt-6 text-base">
+                All payments are processed through secure payment gateways. For any refund inquiries, please contact us at{" "}
+                <a href="mailto:info@movokids.com" className="text-sky-700 hover:text-sky-900 underline font-medium">
+                  info@movokids.com
+                </a>
+              </p>
             </section>
           </div>
 

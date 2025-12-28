@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 
-export default function PrivacyPolicyPageEn() {
+export default function AboutPageEn() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-green-50 to-sky-100"
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPageEn() {
           </Link>
           <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
-              href="/privacy"
+              href="/about"
               className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
             >
               العربية
@@ -40,47 +40,38 @@ export default function PrivacyPolicyPageEn() {
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white/90 rounded-3xl border border-sky-100 p-8 md:p-12 shadow-sm">
           <h1 className="text-3xl md:text-4xl font-extrabold text-sky-900 mb-8">
-            Privacy Policy
+            About Us
           </h1>
 
           <div className="prose prose-sky max-w-none space-y-6 text-sky-900/80 leading-relaxed">
-            <p className="text-lg font-semibold">
-              Your child's privacy is our top priority.
-            </p>
-
             <section>
-              <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                We are committed to:
-              </h2>
-              <ul className="list-disc ml-6 space-y-3">
-                <li className="text-base">
-                  Protecting children's and users' data
-                </li>
-                <li className="text-base">
-                  Not sharing data with any other party without consent
-                </li>
-                <li className="text-base">
-                  Using data only to improve the educational experience
-                </li>
-                <li className="text-base">
-                  Securing information through modern protection systems
-                </li>
-              </ul>
+              <p className="text-lg mb-6">
+                Movokids is a specialized educational and training platform for children, aimed at developing their focus, attention, cognitive and behavioral skills in a fun and safe way.
+              </p>
+              <p className="text-base mb-6">
+                We offer a collection of daily interactive activities, short training games, and carefully designed exercises to help children improve their mental abilities, organize their behavior, and support their academic achievement.
+              </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold text-sky-900 mt-8 mb-4">
-                Information we may collect:
+                Our Goals:
               </h2>
               <ul className="list-disc ml-6 space-y-3">
                 <li className="text-base">
-                  Child's name / age
+                  Help children increase focus and attention
                 </li>
                 <li className="text-base">
-                  Parent's email and phone number
+                  Reduce distraction and impulsivity
                 </li>
                 <li className="text-base">
-                  Child's activity within the platform for performance analysis
+                  Support parents with clear training plans
+                </li>
+                <li className="text-base">
+                  Provide a fun and safe educational environment
+                </li>
+                <li className="text-base">
+                  Build a daily habit of learning and training
                 </li>
               </ul>
             </section>
@@ -88,7 +79,7 @@ export default function PrivacyPolicyPageEn() {
             <section>
               <div className="bg-sky-50 border-l-4 border-sky-400 p-6 mt-6 rounded-lg">
                 <p className="text-base leading-relaxed">
-                  You can request deletion of your child's data at any time by contacting us.
+                  The Movokids team includes educational and technical specialists working together to provide a modern and effective educational experience that meets your child's needs.
                 </p>
               </div>
             </section>
