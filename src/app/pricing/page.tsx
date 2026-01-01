@@ -7,7 +7,6 @@ import Image from "next/image"
 export default function PricingPage() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedSessions, setSelectedSessions] = useState(1)
 
   useEffect(() => {
     // Detect user location based on IP
@@ -68,20 +67,6 @@ export default function PricingPage() {
       currency: isEgypt ? "جنيه مصري" : "درهم إماراتي",
       period: isEgypt ? "لفترة محدودة" : "شهرياً",
       popular: true
-    },
-    {
-      id: 3,
-      name: "الباقة الفردية",
-      description: "الألعاب + جلسات فردية",
-      icon: "👤",
-      features: [
-        "جميع الألعاب التعليمية",
-        "جلسات فردية حسب الاختيار",
-        "تتبع التقدم",
-        "دعم فني متواصل"
-      ],
-      hasDropdown: true,
-      popular: false
     }
   ]
 
@@ -138,7 +123,7 @@ export default function PricingPage() {
             <p className="mt-4 text-sky-700">جاري تحميل الأسعار...</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="flex flex-wrap justify-center gap-8 mb-12 max-w-4xl mx-auto">
             {packages.map((pkg) => (
               <div
                 key={pkg.id}
@@ -146,7 +131,7 @@ export default function PricingPage() {
                   pkg.popular
                     ? "border-sky-500 shadow-xl scale-105"
                     : "border-sky-200 shadow-md"
-                } p-8 transition-transform hover:scale-105`}
+                } p-8 transition-transform hover:scale-105 w-full md:w-[calc(50%-1rem)] max-w-md`}
               >
                 {pkg.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -160,54 +145,19 @@ export default function PricingPage() {
                   <div className="text-5xl mb-4">{pkg.icon}</div>
                   <h3 className="text-2xl font-bold text-sky-900 mb-2">{pkg.name}</h3>
                   <p className="text-sky-700/70 text-sm mb-4">{pkg.description}</p>
-                  
-                  {pkg.hasDropdown && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-sky-700 mb-2">
-                        عدد الجلسات الفردية
-                      </label>
-                      <select
-                        value={selectedSessions}
-                        onChange={(e) => setSelectedSessions(Number(e.target.value))}
-                        className="w-full px-4 py-2 rounded-xl border-2 border-sky-200 bg-white text-sky-900 font-semibold focus:outline-none focus:border-sky-500 transition-colors"
-                      >
-                        <option value={1}>1 جلسة فردية</option>
-                        <option value={2}>2 جلسات فردية</option>
-                        <option value={3}>3 جلسات فردية</option>
-                        <option value={4}>4 جلسات فردية</option>
-                      </select>
-                    </div>
-                  )}
-
                   <div className="mb-2">
-                    {(pkg.originalPrice || pkg.hasDropdown) && (
+                    {pkg.originalPrice && (
                       <div className="mb-1">
                         <span className="text-xl text-sky-400 line-through">
-                          {pkg.hasDropdown
-                            ? (isEgypt
-                              ? (selectedSessions === 1 ? "800" : selectedSessions === 2 ? "1200" : selectedSessions === 3 ? "1600" : "1998")
-                              : (selectedSessions === 1 ? "198" : selectedSessions === 2 ? "298" : selectedSessions === 3 ? "398" : "498"))
-                            : pkg.originalPrice}
+                          {pkg.originalPrice}
                         </span>
-                        <span className="text-sm text-sky-400 mr-1">
-                          {pkg.hasDropdown
-                            ? (isEgypt ? "جنيه مصري" : "درهم إماراتي")
-                            : pkg.currency}
-                        </span>
+                        <span className="text-sm text-sky-400 mr-1">{pkg.currency}</span>
                       </div>
                     )}
                     <span className="text-5xl font-extrabold text-sky-600">
-                      {pkg.hasDropdown 
-                        ? (isEgypt 
-                          ? (selectedSessions === 1 ? "400" : selectedSessions === 2 ? "600" : selectedSessions === 3 ? "800" : "999")
-                          : (selectedSessions === 1 ? "99" : selectedSessions === 2 ? "149" : selectedSessions === 3 ? "199" : "249"))
-                        : pkg.price}
+                      {pkg.price}
                     </span>
-                    <span className="text-xl text-sky-700 mr-2">
-                      {pkg.hasDropdown 
-                        ? (isEgypt ? "جنيه مصري" : "درهم إماراتي")
-                        : pkg.currency}
-                    </span>
+                    <span className="text-xl text-sky-700 mr-2">{pkg.currency}</span>
                   </div>
                   {pkg.period && (
                     <p className="text-sky-600/70 text-sm">{pkg.period}</p>
@@ -230,11 +180,7 @@ export default function PricingPage() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span>
-                        {pkg.hasDropdown && feature === "جلسات فردية حسب الاختيار"
-                          ? `${selectedSessions} ${selectedSessions === 1 ? "جلسة فردية" : "جلسات فردية"}`
-                          : feature}
-                      </span>
+                      <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -253,6 +199,28 @@ export default function PricingPage() {
             ))}
           </div>
         )}
+
+        {/* Individual Session Info */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl border-2 border-sky-200 shadow-md p-6 text-center">
+            <div className="text-4xl mb-4">👤</div>
+            <h3 className="text-xl font-bold text-sky-900 mb-2">الجلسات الفردية</h3>
+            <p className="text-sky-700 mb-4">
+              يمكنك إضافة جلسات فردية حسب الحاجة
+            </p>
+            <div className="flex items-center justify-center gap-4 text-lg">
+              <span className="text-sky-600 font-semibold">
+                سعر الجلسة الفردية:
+              </span>
+              <span className="text-2xl font-extrabold text-sky-600">
+                {isEgypt ? "200" : "50"}
+              </span>
+              <span className="text-sky-700">
+                {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Back Button */}
         <div className="text-center">
