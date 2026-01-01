@@ -44,7 +44,7 @@ export default function PricingPage() {
         "إمكانية الوصول غير محدودة",
         "دعم فني متواصل"
       ],
-      originalPrice: isEgypt ? "598" : "120",
+      originalPrice: isEgypt ? "600" : "120",
       price: isEgypt ? "299" : "60",
       currency: isEgypt ? "جنيه مصري" : "درهم إماراتي",
       period: "شهرياً",
@@ -208,16 +208,26 @@ export default function PricingPage() {
             <p className="text-sky-700 mb-4">
               يمكنك إضافة جلسات فردية حسب الحاجة
             </p>
-            <div className="flex items-center justify-center gap-4 text-lg">
-              <span className="text-sky-600 font-semibold">
-                سعر الجلسة الفردية:
-              </span>
-              <span className="text-2xl font-extrabold text-sky-600">
-                {isEgypt ? "200" : "50"}
-              </span>
-              <span className="text-sky-700">
-                {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
-              </span>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="mb-1">
+                <span className="text-xl text-sky-400 line-through">
+                  {isEgypt ? "400" : "100"}
+                </span>
+                <span className="text-sm text-sky-400 mr-1">
+                  {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-4 text-lg">
+                <span className="text-sky-600 font-semibold">
+                  سعر الجلسة الفردية:
+                </span>
+                <span className="text-2xl font-extrabold text-sky-600">
+                  {isEgypt ? "200" : "50"}
+                </span>
+                <span className="text-sky-700">
+                  {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
