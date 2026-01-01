@@ -7,6 +7,7 @@ import Image from "next/image"
 export default function PricingPageEn() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedSessions, setSelectedSessions] = useState(1)
 
   useEffect(() => {
     // Detect user location based on IP
@@ -44,7 +45,7 @@ export default function PricingPageEn() {
         "Unlimited access",
         "Continuous technical support"
       ],
-      originalPrice: isEgypt ? "374" : "75",
+      originalPrice: isEgypt ? "598" : "120",
       price: isEgypt ? "299" : "60",
       currency: isEgypt ? "EGP" : "AED",
       period: "Monthly",
@@ -62,7 +63,7 @@ export default function PricingPageEn() {
         "Progress tracking",
         "Continuous technical support"
       ],
-      originalPrice: isEgypt ? "813" : "275",
+      originalPrice: isEgypt ? "1300" : "440",
       price: isEgypt ? "650" : "220",
       currency: isEgypt ? "EGP" : "AED",
       period: isEgypt ? "Limited time offer" : "Monthly",
@@ -71,21 +72,16 @@ export default function PricingPageEn() {
     {
       id: 3,
       name: "Individual Package",
-      description: "Games + individual sessions on demand",
+      description: "Games + individual sessions",
       icon: "👤",
       features: [
-        "Games at original price",
-        "Add individual session for 50 AED or 200 EGP",
-        "Flexible session scheduling",
+        "All educational games",
+        "Individual sessions as selected",
         "Progress tracking",
         "Continuous technical support"
       ],
-      originalPrice: isEgypt ? "250" : "63",
-      price: isEgypt ? "200" : "50",
-      currency: isEgypt ? "EGP" : "AED",
-      period: "Per additional individual session",
-      popular: false,
-      note: true
+      hasDropdown: true,
+      popular: false
     }
   ]
 
@@ -161,23 +157,57 @@ export default function PricingPageEn() {
                   <div className="text-5xl mb-4">{pkg.icon}</div>
                   <h3 className="text-2xl font-bold text-sky-900 mb-2">{pkg.name}</h3>
                   <p className="text-sky-700/70 text-sm mb-4">{pkg.description}</p>
+                  
+                  {pkg.hasDropdown && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-sky-700 mb-2">
+                        Number of Individual Sessions
+                      </label>
+                      <select
+                        value={selectedSessions}
+                        onChange={(e) => setSelectedSessions(Number(e.target.value))}
+                        className="w-full px-4 py-2 rounded-xl border-2 border-sky-200 bg-white text-sky-900 font-semibold focus:outline-none focus:border-sky-500 transition-colors"
+                      >
+                        <option value={1}>1 individual session</option>
+                        <option value={2}>2 individual sessions</option>
+                        <option value={3}>3 individual sessions</option>
+                        <option value={4}>4 individual sessions</option>
+                      </select>
+                    </div>
+                  )}
+
                   <div className="mb-2">
-                    {pkg.originalPrice && (
+                    {(pkg.originalPrice || pkg.hasDropdown) && (
                       <div className="mb-1">
                         <span className="text-xl text-sky-400 line-through">
-                          {pkg.originalPrice}
+                          {pkg.hasDropdown
+                            ? (isEgypt
+                              ? (selectedSessions === 1 ? "800" : selectedSessions === 2 ? "1200" : selectedSessions === 3 ? "1600" : "1998")
+                              : (selectedSessions === 1 ? "198" : selectedSessions === 2 ? "298" : selectedSessions === 3 ? "398" : "498"))
+                            : pkg.originalPrice}
                         </span>
-                        <span className="text-sm text-sky-400 ml-1">{pkg.currency}</span>
+                        <span className="text-sm text-sky-400 ml-1">
+                          {pkg.hasDropdown
+                            ? (isEgypt ? "EGP" : "AED")
+                            : pkg.currency}
+                        </span>
                       </div>
                     )}
                     <span className="text-5xl font-extrabold text-sky-600">
-                      {pkg.price}
+                      {pkg.hasDropdown 
+                        ? (isEgypt 
+                          ? (selectedSessions === 1 ? "400" : selectedSessions === 2 ? "600" : selectedSessions === 3 ? "800" : "999")
+                          : (selectedSessions === 1 ? "99" : selectedSessions === 2 ? "149" : selectedSessions === 3 ? "199" : "249"))
+                        : pkg.price}
                     </span>
-                    <span className="text-xl text-sky-700 ml-2">{pkg.currency}</span>
+                    <span className="text-xl text-sky-700 ml-2">
+                      {pkg.hasDropdown 
+                        ? (isEgypt ? "EGP" : "AED")
+                        : pkg.currency}
+                    </span>
                   </div>
-                  <p className="text-sky-600/70 text-sm">{pkg.period}</p>
-                  {pkg.note && (
-                    <p className="text-xs text-sky-500 mt-2">*Price for additional individual session</p>
+                  {pkg.period && (
+                    <p className="text-sky-600/70 text-sm">{pkg.period}</p>
                   )}
                 </div>
 
@@ -197,7 +227,11 @@ export default function PricingPageEn() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span>{feature}</span>
+                      <span>
+                        {pkg.hasDropdown && feature === "Individual sessions as selected"
+                          ? `${selectedSessions} ${selectedSessions === 1 ? "individual session" : "individual sessions"}`
+                          : feature}
+                      </span>
                     </li>
                   ))}
                 </ul>

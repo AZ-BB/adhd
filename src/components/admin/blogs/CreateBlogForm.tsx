@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { Input } from '@/components/ui/input'
-import { uploadBlogImageFromFormData } from '@/actions/blogs'
 import { toKebabCase } from '@/utils/utils'
 import Image from 'next/image'
 
@@ -40,9 +39,15 @@ export default function CreateBlogForm({ onCreate }: CreateBlogFormProps) {
     formData.append('file', file)
 
     try {
-      const result = await uploadBlogImageFromFormData(formData)
-      if ('error' in result) {
-        setError(result.error)
+      const response = await fetch('/api/blogs/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || 'error' in result) {
+        setError(result.error || 'Failed to upload image')
       } else {
         setThumbnailUrl(result.url)
         setError(null)

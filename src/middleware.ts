@@ -56,7 +56,7 @@ export function middleware(req: NextRequest) {
 
   // Redirect to quiz if incomplete (started but not completed) and not already on quiz/auth pages
   // Allow authenticated user pages without quiz requirement
-  const authenticatedPages = ['/dashboard', '/profile', '/progress', '/sessions', '/games', '/settings']
+  const authenticatedPages = ['/dashboard', '/profile', '/progress', '/sessions', '/games', '/settings', 'learning-path', 'physical-activities']
   const isAuthenticatedPage = authenticatedPages.some(page => pathname.startsWith(page))
   
   if (
