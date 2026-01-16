@@ -17,27 +17,64 @@ function PaymentCheckoutContent() {
   const subscriptionType = searchParams.get("subscriptionType")
   const amount = searchParams.get("amount")
   const currency = searchParams.get("currency")
+  const paymentIdParam = searchParams.get("paymentId")
+  const soloSessionRequestId = searchParams.get("soloSessionRequestId")
 
   useEffect(() => {
     const createPayment = async () => {
-      if (!packageId || !subscriptionType || !amount || !currency) {
-        setError("Missing required payment parameters")
-        setLoading(false)
-        return
+      // If paymentIdParam is provided, payment was already created, just get the iframe URL
+      if (paymentIdParam) {
+        try {
+          // Fetch payment details to get iframe URL
+          const response = await fetch(`/api/payments/${paymentIdParam}/iframe`, {
+            method: "GET",
+          })
+          const data = await response.json()
+          if (response.ok && data.iframeUrl) {
+            setIframeUrl(data.iframeUrl)
+            setPaymentId(parseInt(paymentIdParam))
+            setLoading(false)
+            return
+          }
+        } catch (err) {
+          console.error("Error fetching payment iframe:", err)
+        }
+      }
+
+      // For individual sessions, soloSessionRequestId is required instead of packageId
+      if (subscriptionType === 'individual_session') {
+        if (!soloSessionRequestId || !subscriptionType || !amount || !currency) {
+          setError("Missing required payment parameters")
+          setLoading(false)
+          return
+        }
+      } else {
+        if (!packageId || !subscriptionType || !amount || !currency) {
+          setError("Missing required payment parameters")
+          setLoading(false)
+          return
+        }
       }
 
       try {
+        const paymentBody: any = {
+          subscriptionType,
+          amount: parseFloat(amount),
+          currency,
+        }
+
+        if (subscriptionType === 'individual_session') {
+          paymentBody.soloSessionRequestId = parseInt(soloSessionRequestId!)
+        } else {
+          paymentBody.packageId = parseInt(packageId!)
+        }
+
         const response = await fetch("/api/payments/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            packageId: parseInt(packageId),
-            subscriptionType,
-            amount: parseFloat(amount),
-            currency,
-          }),
+          body: JSON.stringify(paymentBody),
         })
 
         const data = await response.json()
@@ -57,7 +94,7 @@ function PaymentCheckoutContent() {
     }
 
     createPayment()
-  }, [packageId, subscriptionType, amount, currency])
+  }, [packageId, subscriptionType, amount, currency, paymentIdParam, soloSessionRequestId])
 
   if (loading) {
     return (

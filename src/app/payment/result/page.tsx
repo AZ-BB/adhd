@@ -52,7 +52,9 @@ function PaymentResultContent() {
               Payment Successful!
             </h1>
             <p className="text-sky-700 mb-6">
-              Your payment has been processed successfully. Your subscription is now active.
+              {searchParams.get("subscriptionType") === "individual_session"
+                ? "Your payment has been processed successfully. Your individual session request is now paid."
+                : "Your payment has been processed successfully. Your subscription is now active."}
             </p>
             {orderId && (
               <p className="text-sm text-sky-600 mb-4">
@@ -66,10 +68,10 @@ function PaymentResultContent() {
             )}
             <div className="flex flex-col gap-3">
               <Link
-                href="/dashboard"
+                href={searchParams.get("subscriptionType") === "individual_session" ? "/sessions/en" : "/dashboard"}
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold hover:from-sky-600 hover:to-sky-700 shadow-lg transition-all"
               >
-                Go to Dashboard
+                {searchParams.get("subscriptionType") === "individual_session" ? "View Sessions" : "Go to Dashboard"}
               </Link>
               <Link
                 href="/en/pricing"

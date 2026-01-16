@@ -27,8 +27,27 @@ async function getCurrentUserProfile() {
 export async function createSoloSessionRequest(input: SoloSessionRequestInput) {
   const { supabase, userProfile } = await getCurrentUserProfile()
 
-  // Duration is fixed at 30-45 minutes (we'll use 37.5 as default, admin can adjust)
-  const duration = 37.5
+  // Check if user already has an active request (pending or payment_pending)
+  const { data: existingRequests, error: checkError } = await supabase
+    .from('solo_session_requests')
+    .select('id, status')
+    .eq('user_id', userProfile.id)
+    .in('status', ['pending', 'payment_pending'])
+
+  if (checkError) throw new Error(checkError.message)
+
+  if (existingRequests && existingRequests.length > 0) {
+    const activeStatus = existingRequests[0].status
+    throw new Error(
+      activeStatus === 'pending'
+        ? 'You already have a pending session request. Please wait for it to be processed before creating a new one.'
+        : 'You already have a session request awaiting payment. Please complete the payment for your existing request before creating a new one.'
+    )
+  }
+
+  // Duration is fixed at 30-45 minutes (we'll use 37.5 as default, rounded to 38 minutes)
+  // Database requires integer, so we round to nearest integer
+  const duration = 38
 
   // preferred_time is now optional - children can't request a specific time
   // Admin will set scheduled_time when approving
@@ -47,8 +66,11 @@ export async function createSoloSessionRequest(input: SoloSessionRequestInput) {
     .insert(payload)
 
   if (error) throw new Error(error.message)
+  // Revalidate all session-related paths
   revalidatePath('/sessions')
   revalidatePath('/sessions/en')
+  revalidatePath('/solo-sessions')
+  revalidatePath('/solo-sessions/en')
 }
 
 // User: list own requests
@@ -155,13 +177,23 @@ export async function respondSoloSessionRequest(
     throw new Error("Only the child payment can mark this as paid")
   }
 
+  // CRITICAL: If request is already paid, preserve the paid status
+  // Admin should not be able to change status from 'paid' to anything else
+  // Also handle 'edit' status which means preserve current status (for paid sessions)
+  let finalStatus = response.status
+  if (currentReq.status === 'paid' || response.status === 'edit') {
+    // Keep it as 'paid' - admin can only update other fields (scheduled_time, meeting_link, etc.)
+    finalStatus = 'paid'
+    console.log('Request is already paid or edit mode, preserving paid status')
+  }
+
   // Meeting link required for payment flow or editing approved
-  if ((response.status === 'approved' || response.status === 'payment_pending') && !response.meeting_link) {
+  if ((finalStatus === 'approved' || finalStatus === 'payment_pending') && !response.meeting_link) {
     throw new Error("Meeting link is required")
   }
 
   const updatePayload = {
-    status: response.status,
+    status: finalStatus,
     meeting_link: response.meeting_link ?? null,
     admin_reason: response.admin_reason ?? null,
     scheduled_time: response.scheduled_time ?? null,
@@ -184,8 +216,8 @@ export async function respondSoloSessionRequest(
   revalidatePath('/solo-sessions/en')
 }
 
-// User: mark as paid (mock payment)
-export async function paySoloSessionRequest(requestId: number) {
+// User: initiate payment for solo session request
+export async function initiateSoloSessionPayment(requestId: number, isEgypt?: boolean) {
   const { supabase, userProfile } = await getCurrentUserProfile()
 
   // Verify request belongs to user and is payment_pending
@@ -199,19 +231,59 @@ export async function paySoloSessionRequest(requestId: number) {
   if (error || !req) throw new Error("Request not found")
   if (req.status !== 'payment_pending') throw new Error("This request is not awaiting payment")
 
-  const { error: updateError } = await supabase
-    .from('solo_session_requests')
-    .update({
-      status: 'paid',
-      responded_at: new Date().toISOString(),
-    })
-    .eq('id', requestId)
+  // Use the location passed from client, or detect on server as fallback
+  let userIsEgypt = isEgypt
+  if (userIsEgypt === undefined) {
+    // Fallback: detect location on server if not provided
+    try {
+      const locationResponse = await fetch('https://ipapi.co/json/')
+      const locationData = await locationResponse.json()
+      
+      // Check if country is Egypt (EG)
+      if (locationData.country_code === 'EG') {
+        userIsEgypt = true
+      } else {
+        userIsEgypt = false
+      }
+    } catch (error) {
+      // Default to international if detection fails
+      console.error('Error detecting location:', error)
+      userIsEgypt = false
+    }
+  }
+  
+  // Paymob only supports EGP, so we always use EGP
+  // Egypt: 200 EGP, International: 50 AED = 643 EGP (50 * 12.86)
+  const amount = userIsEgypt ? "200" : "643" // Use EGP equivalent for international (50 AED * 12.86)
+  const currency = "EGP" // Paymob only supports EGP
 
-  if (updateError) throw new Error(updateError.message)
+  // Create payment directly (no HTTP request needed)
+  const { createPayment } = await import('@/lib/payments')
+  
+  // Get base URL for callback
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  
+  const data = await createPayment({
+    subscriptionType: 'individual_session',
+    amount: parseFloat(amount),
+    currency: currency,
+    soloSessionRequestId: requestId, // Link payment to solo session request
+    baseUrl,
+  })
+  
+  // Return redirect URL for client to handle
+  // Use the original currency for display (EGP for Egypt, AED for international)
+  const displayCurrency = userIsEgypt ? 'EGP' : 'AED'
+  const displayAmount = userIsEgypt ? '200' : '50'
+  const redirectUrl = `/payment/checkout?paymentId=${data.paymentId}&soloSessionRequestId=${requestId}&subscriptionType=individual_session&amount=${displayAmount}&currency=${displayCurrency}`
 
-  revalidatePath('/solo-sessions')
-  revalidatePath('/solo-sessions/en')
-  revalidatePath('/admin/solo-sessions')
+  return { 
+    success: true, 
+    paymentId: data.paymentId, 
+    iframeUrl: data.iframeUrl,
+    redirectUrl 
+  }
 }
 
 

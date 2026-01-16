@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { redirect } from 'next/navigation'
 import { createSupabaseAdminServerClient } from '@/lib/server'
+import { revalidatePath } from 'next/cache'
 
 export const runtime = 'nodejs'
 
@@ -305,12 +306,38 @@ export async function GET(request: NextRequest) {
             } else {
               console.log('Payment status updated to success:', payment.id)
               
-              // Create or update subscription
+              // Create or update subscription (or handle individual session payment)
               const subscriptionResult = await handleSuccessfulPayment(supabase, {
                 ...payment,
                 status: 'success', // Use updated status
               })
               console.log('Subscription creation result:', subscriptionResult)
+
+              // If this is an individual session payment, mark the solo session request as paid
+              if (payment.subscription_type === 'individual_session' && payment.metadata?.solo_session_request_id) {
+                const soloSessionRequestId = payment.metadata.solo_session_request_id
+                console.log('Marking solo session request as paid:', soloSessionRequestId)
+                
+                const { error: soloUpdateError } = await supabase
+                  .from('solo_session_requests')
+                  .update({
+                    status: 'paid',
+                    responded_at: new Date().toISOString(),
+                  })
+                  .eq('id', soloSessionRequestId)
+                  .eq('user_id', payment.user_id)
+
+                if (soloUpdateError) {
+                  console.error('Error updating solo session request status:', soloUpdateError)
+                } else {
+                  console.log('Solo session request marked as paid successfully')
+                  // Revalidate solo sessions pages
+                  revalidatePath('/solo-sessions')
+                  revalidatePath('/solo-sessions/en')
+                  revalidatePath('/sessions')
+                  revalidatePath('/sessions/en')
+                }
+              }
             }
           } else if (payment.status === 'success') {
             // Payment already processed, just ensure subscription exists
@@ -324,6 +351,46 @@ export async function GET(request: NextRequest) {
               // Subscription might not exist, create it
               console.log('Payment already successful but no subscription found, creating...')
               await handleSuccessfulPayment(supabase, payment)
+            }
+            
+            // If this is an individual session payment, ensure solo session request is marked as paid
+            if (payment.subscription_type === 'individual_session' && payment.metadata?.solo_session_request_id) {
+              const soloSessionRequestId = payment.metadata.solo_session_request_id
+              console.log('Checking solo session request status (payment already successful):', soloSessionRequestId)
+              
+              const { data: soloReq, error: soloReqError } = await supabase
+                .from('solo_session_requests')
+                .select('status')
+                .eq('id', soloSessionRequestId)
+                .eq('user_id', payment.user_id)
+                .maybeSingle()
+              
+              if (soloReqError) {
+                console.error('Error checking solo session request:', soloReqError)
+              } else if (soloReq && soloReq.status !== 'paid') {
+                console.log('Marking solo session request as paid (payment already successful):', soloSessionRequestId)
+                const { error: updateError } = await supabase
+                  .from('solo_session_requests')
+                  .update({
+                    status: 'paid',
+                    responded_at: new Date().toISOString(),
+                  })
+                  .eq('id', soloSessionRequestId)
+                  .eq('user_id', payment.user_id)
+                
+                if (updateError) {
+                  console.error('Error updating solo session request status:', updateError)
+                } else {
+                  console.log('Solo session request marked as paid successfully')
+                  // Revalidate solo sessions pages
+                  revalidatePath('/solo-sessions')
+                  revalidatePath('/solo-sessions/en')
+                  revalidatePath('/sessions')
+                  revalidatePath('/sessions/en')
+                }
+              } else if (soloReq && soloReq.status === 'paid') {
+                console.log('Solo session request already marked as paid')
+              }
             }
           }
         }
@@ -341,6 +408,24 @@ export async function GET(request: NextRequest) {
     const params = new URLSearchParams()
     if (success === 'true') {
       params.set('status', 'success')
+      
+      // Add subscription type for result page to show appropriate message
+      if (orderId) {
+        try {
+          const supabaseForRedirect = await createSupabaseAdminServerClient()
+          const { data: payment } = await supabaseForRedirect
+            .from('payments')
+            .select('subscription_type')
+            .eq('paymob_order_id', orderId)
+            .maybeSingle()
+          
+          if (payment?.subscription_type) {
+            params.set('subscriptionType', payment.subscription_type)
+          }
+        } catch (error) {
+          console.error('Error fetching payment type for redirect:', error)
+        }
+      }
     } else {
       params.set('status', 'failed')
     }

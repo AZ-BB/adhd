@@ -48,7 +48,7 @@ export interface SoloSessionRequestInput {
 }
 
 export interface SoloSessionResponseInput {
-  status: SoloSessionStatus
+  status: SoloSessionStatus | 'edit' // 'edit' is a special case for paid sessions to preserve status
   meeting_link?: string | null
   admin_reason?: string | null
   scheduled_time?: string | null
