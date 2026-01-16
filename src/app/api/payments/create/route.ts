@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Generate merchant order ID
     const merchantOrderId = `ORDER-${payment.id}-${Date.now()}`
 
-    // Prepare billing data
+    // Prepare billing data (Paymob requires all fields)
     const billingData = {
       first_name: userProfile.parent_first_name || userProfile.child_first_name || 'User',
       last_name: userProfile.parent_last_name || userProfile.child_last_name || 'Name',
@@ -88,6 +88,10 @@ export async function POST(request: NextRequest) {
       phone_number: userProfile.parent_phone || '0000000000',
       country: 'EG', // Default to Egypt, can be made dynamic
       city: 'Cairo',
+      street: 'N/A', // Required by Paymob
+      building: 'N/A', // Required by Paymob
+      floor: 'N/A', // Required by Paymob
+      apartment: 'N/A', // Required by Paymob
     }
 
     // Create payment intent with Paymob
