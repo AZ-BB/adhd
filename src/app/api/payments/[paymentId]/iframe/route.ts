@@ -10,10 +10,11 @@ export const runtime = 'nodejs'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { paymentId: string } }
+  { params }: { params: Promise<{ paymentId: string }> }
 ) {
   try {
-    const paymentId = parseInt(params.paymentId)
+    const { paymentId: paymentIdParam } = await params
+    const paymentId = parseInt(paymentIdParam)
 
     if (!paymentId || isNaN(paymentId)) {
       return NextResponse.json(
