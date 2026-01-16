@@ -39,6 +39,11 @@ export function middleware(req: NextRequest) {
     return res
   }
 
+  // Allow payment routes (authentication handled at page level)
+  if (pathname.startsWith('/payment') || pathname.startsWith('/api/payments')) {
+    return res
+  }
+
   // Determine if quiz is incomplete (started but not completed)
   const isQuizIncomplete = hasStartedQuiz && !hasCompletedQuiz
 

@@ -3,12 +3,31 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export default function PricingPageEn() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const data = await response.json()
+        setIsAuthenticated(data.authenticated || false)
+      } catch (error) {
+        setIsAuthenticated(false)
+      }
+    }
+
+    checkAuth()
+
     // Detect user location based on IP
     const detectLocation = async () => {
       try {
@@ -31,6 +50,18 @@ export default function PricingPageEn() {
 
     detectLocation()
   }, [])
+
+  const handlePurchase = (pkg: typeof packages[0]) => {
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      router.push(`/auth/login?redirect=/payment/checkout?packageId=${pkg.id}&subscriptionType=${pkg.id === 1 ? 'games' : 'group_sessions'}&amount=${pkg.price}&currency=${pkg.currency}`)
+      return
+    }
+
+    // Redirect to payment checkout
+    const subscriptionType = pkg.id === 1 ? 'games' : 'group_sessions'
+    router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${pkg.currency}`)
+  }
 
   const packages = [
     {
@@ -182,16 +213,16 @@ export default function PricingPageEn() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/auth/login"
+                <button
+                  onClick={() => handlePurchase(pkg)}
                   className={`block w-full py-3 px-6 rounded-xl font-semibold text-center transition-all ${
                     pkg.popular
                       ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg"
                       : "bg-sky-100 text-sky-700 hover:bg-sky-200"
                   }`}
                 >
-                  Get Started
-                </Link>
+                  {isAuthenticated ? "Purchase Now" : "Get Started"}
+                </button>
               </div>
             ))}
           </div>
@@ -203,9 +234,9 @@ export default function PricingPageEn() {
             <div className="text-4xl mb-4">👤</div>
             <h3 className="text-xl font-bold text-sky-900 mb-2">Individual Sessions</h3>
             <p className="text-sky-700 mb-4">
-              You can add individual sessions as needed
+              Purchase individual sessions as needed (one-time purchase)
             </p>
-            <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex flex-col items-center justify-center gap-2 mb-6">
               <div className="mb-1">
                 <span className="text-xl text-sky-400 line-through">
                   {isEgypt ? "400" : "100"}
@@ -226,6 +257,20 @@ export default function PricingPageEn() {
                 </span>
               </div>
             </div>
+            <button
+              onClick={() => {
+                if (!isAuthenticated) {
+                  const currencyCode = isEgypt ? 'EGP' : 'AED'
+                  router.push(`/auth/login?redirect=/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
+                  return
+                }
+                const currencyCode = isEgypt ? 'EGP' : 'AED'
+                router.push(`/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
+              }}
+              className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg transition-all"
+            >
+              {isAuthenticated ? "Purchase Individual Session" : "Get Started"}
+            </button>
           </div>
         </div>
 

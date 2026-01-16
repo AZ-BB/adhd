@@ -3,12 +3,31 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export default function PricingPage() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const data = await response.json()
+        setIsAuthenticated(data.authenticated || false)
+      } catch (error) {
+        setIsAuthenticated(false)
+      }
+    }
+
+    checkAuth()
+
     // Detect user location based on IP
     const detectLocation = async () => {
       try {
@@ -31,6 +50,20 @@ export default function PricingPage() {
 
     detectLocation()
   }, [])
+
+  const handlePurchase = (pkg: typeof packages[0]) => {
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      const currencyCode = isEgypt ? 'EGP' : 'AED'
+      router.push(`/auth/login?redirect=/payment/checkout?packageId=${pkg.id}&subscriptionType=${pkg.id === 1 ? 'games' : 'group_sessions'}&amount=${pkg.price}&currency=${currencyCode}`)
+      return
+    }
+
+    // Redirect to payment checkout
+    const subscriptionType = pkg.id === 1 ? 'games' : 'group_sessions'
+    const currencyCode = isEgypt ? 'EGP' : 'AED'
+    router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${currencyCode}`)
+  }
 
   const packages = [
     {
@@ -185,16 +218,16 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/auth/login"
+                <button
+                  onClick={() => handlePurchase(pkg)}
                   className={`block w-full py-3 px-6 rounded-xl font-semibold text-center transition-all ${
                     pkg.popular
                       ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg"
                       : "bg-sky-100 text-sky-700 hover:bg-sky-200"
                   }`}
                 >
-                  ابدأ الآن
-                </Link>
+                  {isAuthenticated ? "اشتر الآن" : "ابدأ الآن"}
+                </button>
               </div>
             ))}
           </div>
@@ -206,9 +239,9 @@ export default function PricingPage() {
             <div className="text-4xl mb-4">👤</div>
             <h3 className="text-xl font-bold text-sky-900 mb-2">الجلسات الفردية</h3>
             <p className="text-sky-700 mb-4">
-              يمكنك إضافة جلسات فردية حسب الحاجة
+              شراء جلسات فردية حسب الحاجة (شراء لمرة واحدة)
             </p>
-            <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex flex-col items-center justify-center gap-2 mb-6">
               <div className="mb-1">
                 <span className="text-xl text-sky-400 line-through">
                   {isEgypt ? "400" : "100"}
@@ -229,6 +262,20 @@ export default function PricingPage() {
                 </span>
               </div>
             </div>
+            <button
+              onClick={() => {
+                if (!isAuthenticated) {
+                  const currencyCode = isEgypt ? 'EGP' : 'AED'
+                  router.push(`/auth/login?redirect=/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
+                  return
+                }
+                const currencyCode = isEgypt ? 'EGP' : 'AED'
+                router.push(`/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
+              }}
+              className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg transition-all"
+            >
+              {isAuthenticated ? "شراء جلسة فردية" : "ابدأ الآن"}
+            </button>
           </div>
         </div>
 
