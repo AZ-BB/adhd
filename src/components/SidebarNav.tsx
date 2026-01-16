@@ -7,6 +7,8 @@ interface NavItem {
   href: string
   icon: string
   label: string
+  locked?: boolean
+  lockMessage?: string
 }
 
 interface SidebarNavProps {
@@ -32,13 +34,24 @@ export default function SidebarNav({ navItems, isRtl }: SidebarNavProps) {
       <ul className="space-y-2">
         {navItems.map((item) => (
           <li key={item.href}>
-            <Link
-              href={item.href}
-              className={getNavLinkClass(item.href)}
-            >
-              <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-              <span className="font-medium">{item.label}</span>
-            </Link>
+            {item.locked ? (
+              <div
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-400 cursor-not-allowed opacity-60 relative"
+                title={item.lockMessage}
+              >
+                <span className="text-2xl">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+                <span className="ml-auto text-xs">🔒</span>
+              </div>
+            ) : (
+              <Link
+                href={item.href}
+                className={getNavLinkClass(item.href)}
+              >
+                <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            )}
           </li>
         ))}
       </ul>

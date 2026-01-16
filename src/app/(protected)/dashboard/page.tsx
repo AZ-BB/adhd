@@ -6,6 +6,7 @@ import {
   getUserAllDayProgress,
 } from "@/actions/learning-path"
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities"
+import { getUserSubscriptionDetails } from "@/lib/subscription"
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient()
@@ -62,6 +63,20 @@ export default async function DashboardPage() {
 
   const age = calculateAge(profile?.child_birthday)
 
+  // Get subscription details
+  const subscriptionDetails = await getUserSubscriptionDetails()
+
+  // Format expiration date
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'غير متاح'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ar-EG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
   return (
     <div className="max-w-7xl mx-auto" dir="rtl">
       {/* Language Switcher */}
@@ -98,6 +113,22 @@ export default async function DashboardPage() {
               <p className="text-xl md:text-2xl font-semibold opacity-90">
                 مرحبًا بك في لوحة التحكم الرائعة الخاصة بك!
               </p>
+            </div>
+          </div>
+
+          {/* Subscription Info Card */}
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 shadow-xl text-white">
+            <div className="flex items-center justify-between flex-row-reverse">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">الخطة الحالية</h2>
+                <p className="text-xl mb-1">{subscriptionDetails.planName}</p>
+                {subscriptionDetails.expirationDate && (
+                  <p className="text-sm opacity-90">
+                    تنتهي في: {formatDate(subscriptionDetails.expirationDate)}
+                  </p>
+                )}
+              </div>
+              <div className="text-5xl">📦</div>
             </div>
           </div>
 

@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/server";
 import { getUserLearningPathStats } from "@/actions/learning-path";
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities";
-import { requireActiveSubscription } from "@/lib/subscription";
+import { requireActiveSubscription, getUserSubscriptionPlan, hasSubscriptionType } from "@/lib/subscription";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SidebarNav from "@/components/SidebarNav";
 import "../globals.css";
@@ -76,7 +76,12 @@ export default async function RootLayout({
   const pathname = headersList.get("x-pathname") || "/";
   const isEnglish = pathname.includes('/en');
 
-  const navItems = !isEnglish ? [
+  // Get user's subscription plan
+  const subscriptionPlan = await getUserSubscriptionPlan();
+  const hasGroupSessions = await hasSubscriptionType('group_sessions');
+
+  // Build navigation items - sessions is always accessible (individual sessions are available to all)
+  const baseNavItems = !isEnglish ? [
     { href: "/dashboard", icon: "🏠", label: "الرئيسية" },
     { href: "/sessions", icon: "🎯", label: "الجلسات" },
     { href: "/learning-path", icon: "🎮", label: "مسار التعلم" },
@@ -91,6 +96,8 @@ export default async function RootLayout({
     { href: "/profile/en", icon: "👤", label: "Profile" },
     { href: "/settings/en", icon: "⚙️", label: "Settings" },
   ];
+
+  const navItems = baseNavItems;
 
   async function logout() {
     "use server";
@@ -204,6 +211,20 @@ export default async function RootLayout({
           </div>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
+            {/* Subscription Plan Badge */}
+            {subscriptionPlan.plan && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-200">
+                <span className="text-xs font-semibold text-indigo-700">
+                  {subscriptionPlan.plan === 'games' 
+                    ? (!isEnglish ? '🎮 باقة الألعاب' : '🎮 Games Package')
+                    : subscriptionPlan.plan === 'group_sessions'
+                    ? (!isEnglish ? '👥 باقة الجلسات' : '👥 Group Sessions')
+                    : (!isEnglish ? '✨ باقة كاملة' : '✨ Full Package')
+                  }
+                </span>
+              </div>
+            )}
+            
             {/* Language Switcher */}
             <LanguageSwitcher />
             

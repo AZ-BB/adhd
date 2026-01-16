@@ -35,28 +35,116 @@ async function handleSuccessfulPayment(supabase: any, payment: any) {
     // Monthly subscription - add 1 month
     endDate.setMonth(endDate.getMonth() + 1)
 
-    // Check if active subscription exists
-    const { data: existingSubscription, error: checkError } = await supabase
+    const now = new Date().toISOString()
+    
+    // STEP 1: Expire any subscriptions that have passed their end_date
+    await supabase
+      .from('subscriptions')
+      .update({ status: 'expired', updated_at: now })
+      .eq('user_id', payment.user_id)
+      .eq('status', 'active')
+      .lt('end_date', now)
+
+    // STEP 2: CRITICAL - Expire ALL other active subscriptions (all types)
+    // This ensures only ONE subscription is active at a time per user
+    // IMPORTANT: Expire ALL other active subscriptions regardless of type or end_date
+    console.log('Expiring ALL other active subscriptions (ensuring only one active subscription per user)')
+    const { data: allOtherActiveSubs, error: otherSubsCheckError } = await supabase
+      .from('subscriptions')
+      .select('id, subscription_type, end_date, status')
+      .eq('user_id', payment.user_id)
+      .eq('status', 'active')
+
+    if (otherSubsCheckError) {
+      console.error('Error checking for other active subscriptions:', otherSubsCheckError)
+    }
+
+    if (allOtherActiveSubs && allOtherActiveSubs.length > 0) {
+      console.log(`Found ${allOtherActiveSubs.length} other active subscription(s), expiring ALL of them`)
+      console.log('Subscriptions to expire:', allOtherActiveSubs.map((s: any) => ({ id: s.id, type: s.subscription_type, end_date: s.end_date })))
+      
+      // Expire ALL other active subscriptions (all types, regardless of end_date)
+      // Use .in() with the IDs to be more explicit
+      const idsToExpire = allOtherActiveSubs.map((s: any) => s.id)
+      const { data: expiredSubs, error: expireError } = await supabase
+        .from('subscriptions')
+        .update({ status: 'expired', updated_at: now })
+        .in('id', idsToExpire)
+        .select('id, subscription_type')
+
+      if (expireError) {
+        console.error('Error expiring other subscriptions:', expireError)
+        // Try alternative method if .in() fails
+        console.log('Trying alternative expiration method...')
+        for (const sub of allOtherActiveSubs) {
+          const { error: singleExpireError } = await supabase
+            .from('subscriptions')
+            .update({ status: 'expired', updated_at: now })
+            .eq('id', sub.id)
+          
+          if (singleExpireError) {
+            console.error(`Failed to expire subscription ${sub.id}:`, singleExpireError)
+            throw singleExpireError
+          }
+        }
+        console.log(`Successfully expired ${allOtherActiveSubs.length} subscription(s) using alternative method`)
+      } else {
+        console.log(`Successfully expired ${expiredSubs?.length || 0} other subscription(s) - new subscription will be: ${payment.subscription_type}`)
+        if (expiredSubs) {
+          console.log('Expired subscriptions:', expiredSubs.map((s: any) => ({ id: s.id, type: s.subscription_type })))
+        }
+      }
+    } else {
+      console.log('No other active subscriptions found to expire')
+    }
+
+    // STEP 3: Check for existing subscription of the SAME type/package (to extend or create)
+    const { data: existingSubscriptions, error: checkError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', payment.user_id)
       .eq('subscription_type', payment.subscription_type)
       .eq('package_id', payment.package_id)
-      .eq('status', 'active')
-      .maybeSingle()
+      .order('created_at', { ascending: false })
 
     if (checkError) {
-      console.error('Error checking existing subscription:', checkError)
+      console.error('Error checking existing subscriptions:', checkError)
       throw checkError
+    }
+
+    // Find active subscription with valid end_date
+    const existingSubscription = existingSubscriptions?.find(
+      (sub: any) => sub.status === 'active' && new Date(sub.end_date) >= new Date(now)
+    )
+
+    // Expire any duplicate active subscriptions of the same type (shouldn't happen, but just in case)
+    const duplicateActiveSubs = existingSubscriptions?.filter(
+      (sub: any) => sub.status === 'active' && sub.id !== existingSubscription?.id
+    )
+
+    if (duplicateActiveSubs && duplicateActiveSubs.length > 0) {
+      console.log(`Found ${duplicateActiveSubs.length} duplicate active subscriptions of same type, expiring them`)
+      for (const dup of duplicateActiveSubs) {
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'expired', updated_at: now })
+          .eq('id', dup.id)
+      }
     }
 
     if (existingSubscription) {
       // Extend existing subscription
       console.log('Extending existing subscription:', existingSubscription.id)
+      
+      // Calculate new end date: extend from current end_date, not from now
+      const currentEndDate = new Date(existingSubscription.end_date)
+      const newEndDate = new Date(currentEndDate)
+      newEndDate.setMonth(newEndDate.getMonth() + 1)
+      
       const { data: updated, error: updateError } = await supabase
         .from('subscriptions')
         .update({
-          end_date: endDate.toISOString(),
+          end_date: newEndDate.toISOString(),
           payment_id: payment.id,
           updated_at: new Date().toISOString(),
         })
@@ -73,6 +161,32 @@ async function handleSuccessfulPayment(supabase: any, payment: any) {
     } else {
       // Create new subscription
       console.log('Creating new subscription')
+      
+      // FINAL SAFETY CHECK: Double-check that no other active subscriptions exist (all types)
+      const { data: finalCheck, error: finalCheckError } = await supabase
+        .from('subscriptions')
+        .select('id, subscription_type, status')
+        .eq('user_id', payment.user_id)
+        .eq('status', 'active')
+
+      if (finalCheck && finalCheck.length > 0) {
+        console.warn(`WARNING: Found ${finalCheck.length} other active subscription(s) before creating new one. Expiring ALL of them now.`)
+        console.warn('Remaining active subscriptions:', finalCheck.map((s: any) => ({ id: s.id, type: s.subscription_type })))
+        
+        const { error: finalExpireError } = await supabase
+          .from('subscriptions')
+          .update({ status: 'expired', updated_at: now })
+          .eq('user_id', payment.user_id)
+          .eq('status', 'active')
+
+        if (finalExpireError) {
+          console.error('CRITICAL: Failed to expire other subscriptions in final check:', finalExpireError)
+          throw finalExpireError // Don't create new subscription if we can't expire old ones
+        } else {
+          console.log('Successfully expired ALL remaining subscriptions in final check')
+        }
+      }
+      
       const { data: newSubscription, error: insertError } = await supabase
         .from('subscriptions')
         .insert({
@@ -90,6 +204,49 @@ async function handleSuccessfulPayment(supabase: any, payment: any) {
         .single()
 
       if (insertError) {
+        // If unique constraint violation, try to find and update existing subscription
+        if (insertError.code === '23505' || insertError.message?.includes('duplicate')) {
+          console.log('Duplicate detected, finding and updating existing subscription')
+          
+          // Find the existing subscription that caused the conflict
+          const { data: existing, error: findError } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', payment.user_id)
+            .eq('subscription_type', payment.subscription_type)
+            .eq('package_id', payment.package_id)
+            .eq('status', 'active')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (findError || !existing) {
+            console.error('Error finding existing subscription after duplicate:', findError)
+            throw insertError // Re-throw original error
+          }
+
+          // Update the existing subscription
+          const { data: updated, error: updateError } = await supabase
+            .from('subscriptions')
+            .update({
+              end_date: endDate.toISOString(),
+              payment_id: payment.id,
+              status: 'active',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existing.id)
+            .select()
+            .single()
+
+          if (updateError) {
+            console.error('Error updating subscription after duplicate:', updateError)
+            throw updateError
+          }
+
+          console.log('Subscription updated after duplicate detection:', updated)
+          return { success: true, message: 'Subscription updated', subscription: updated }
+        }
+        
         console.error('Error creating subscription:', insertError)
         throw insertError
       }

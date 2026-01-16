@@ -9,6 +9,8 @@ export default function PricingPageEn() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [subscriptions, setSubscriptions] = useState<{ games: boolean; group_sessions: boolean; hasExpiredSubscription?: boolean; expiredSubscription?: any }>({ games: false, group_sessions: false })
+  const [subscriptionsLoading, setSubscriptionsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -21,8 +23,27 @@ export default function PricingPageEn() {
         })
         const data = await response.json()
         setIsAuthenticated(data.authenticated || false)
+        
+        // If authenticated, check subscription status
+        if (data.authenticated) {
+          try {
+            const subResponse = await fetch('/api/subscriptions/check', {
+              method: 'GET',
+              credentials: 'include',
+            })
+            const subData = await subResponse.json()
+            setSubscriptions(subData)
+          } catch (error) {
+            console.error('Error checking subscriptions:', error)
+          } finally {
+            setSubscriptionsLoading(false)
+          }
+        } else {
+          setSubscriptionsLoading(false)
+        }
       } catch (error) {
         setIsAuthenticated(false)
+        setSubscriptionsLoading(false)
       }
     }
 
@@ -52,14 +73,21 @@ export default function PricingPageEn() {
   }, [])
 
   const handlePurchase = (pkg: typeof packages[0]) => {
+    // Check if already purchased
+    const subscriptionType = pkg.id === 1 ? 'games' : 'group_sessions'
+    const isPurchased = pkg.id === 1 ? subscriptions.games : subscriptions.group_sessions
+    
+    if (isPurchased) {
+      return // Don't allow purchasing again
+    }
+
     if (!isAuthenticated) {
       // Redirect to login with return URL
-      router.push(`/auth/login?redirect=/payment/checkout?packageId=${pkg.id}&subscriptionType=${pkg.id === 1 ? 'games' : 'group_sessions'}&amount=${pkg.price}&currency=${pkg.currency}`)
+      router.push(`/auth/login?redirect=/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${pkg.currency}`)
       return
     }
 
     // Redirect to payment checkout
-    const subscriptionType = pkg.id === 1 ? 'games' : 'group_sessions'
     router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${pkg.currency}`)
   }
 
@@ -144,6 +172,32 @@ export default function PricingPageEn() {
           </p>
         </div>
 
+        {/* Expired Subscription Alert - Only show if no active subscription */}
+        {isAuthenticated && subscriptions.hasExpiredSubscription && !subscriptions.games && !subscriptions.group_sessions && !subscriptionsLoading && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-6 shadow-xl text-white border-2 border-orange-300">
+              <div className="flex items-center gap-4">
+                <div className="text-5xl">⚠️</div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold mb-2">Your Subscription Has Expired</h3>
+                  <p className="text-lg opacity-95">
+                    Your latest subscription has expired. Please renew your subscription to continue accessing all features.
+                  </p>
+                  {subscriptions.expiredSubscription && (
+                    <p className="text-sm mt-2 opacity-90">
+                      Expired on: {new Date(subscriptions.expiredSubscription.endDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Pricing Cards */}
         {loading ? (
           <div className="text-center py-12">
@@ -165,6 +219,13 @@ export default function PricingPageEn() {
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-sky-500 to-sky-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                       Most Popular ⭐
+                    </span>
+                  </div>
+                )}
+                {(pkg.id === 1 ? subscriptions.games : subscriptions.group_sessions) && (
+                  <div className="absolute -top-4 right-4">
+                    <span className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                      ✓ Purchased
                     </span>
                   </div>
                 )}
@@ -215,13 +276,24 @@ export default function PricingPageEn() {
 
                 <button
                   onClick={() => handlePurchase(pkg)}
+                  disabled={(pkg.id === 1 ? subscriptions.games : subscriptions.group_sessions) || subscriptionsLoading}
                   className={`block w-full py-3 px-6 rounded-xl font-semibold text-center transition-all ${
-                    pkg.popular
+                    subscriptionsLoading
+                      ? "bg-gray-200 text-gray-400 cursor-wait"
+                      : (pkg.id === 1 ? subscriptions.games : subscriptions.group_sessions)
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : pkg.popular
                       ? "bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg"
                       : "bg-sky-100 text-sky-700 hover:bg-sky-200"
                   }`}
                 >
-                  {isAuthenticated ? "Purchase Now" : "Get Started"}
+                  {subscriptionsLoading
+                    ? "Loading..."
+                    : (pkg.id === 1 ? subscriptions.games : subscriptions.group_sessions)
+                    ? "Already Purchased"
+                    : isAuthenticated
+                    ? "Purchase Now"
+                    : "Get Started"}
                 </button>
               </div>
             ))}
@@ -234,9 +306,9 @@ export default function PricingPageEn() {
             <div className="text-4xl mb-4">👤</div>
             <h3 className="text-xl font-bold text-sky-900 mb-2">Individual Sessions</h3>
             <p className="text-sky-700 mb-4">
-              Purchase individual sessions as needed (one-time purchase)
+              You can add individual sessions as needed
             </p>
-            <div className="flex flex-col items-center justify-center gap-2 mb-6">
+            <div className="flex flex-col items-center justify-center gap-2">
               <div className="mb-1">
                 <span className="text-xl text-sky-400 line-through">
                   {isEgypt ? "400" : "100"}
@@ -257,20 +329,6 @@ export default function PricingPageEn() {
                 </span>
               </div>
             </div>
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  const currencyCode = isEgypt ? 'EGP' : 'AED'
-                  router.push(`/auth/login?redirect=/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
-                  return
-                }
-                const currencyCode = isEgypt ? 'EGP' : 'AED'
-                router.push(`/payment/checkout?packageId=0&subscriptionType=individual_session&amount=${isEgypt ? "200" : "50"}&currency=${currencyCode}`)
-              }}
-              className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:from-sky-600 hover:to-sky-700 shadow-lg transition-all"
-            >
-              {isAuthenticated ? "Purchase Individual Session" : "Get Started"}
-            </button>
           </div>
         </div>
 

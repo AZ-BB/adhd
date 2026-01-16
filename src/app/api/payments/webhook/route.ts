@@ -160,6 +160,31 @@ async function handleSuccessfulPayment(supabase: any, payment: any) {
     // Monthly subscription - add 1 month
     endDate.setMonth(endDate.getMonth() + 1)
 
+    const now = new Date().toISOString()
+
+    // IMPORTANT: Expire ALL other active subscriptions (all types)
+    // This ensures only ONE subscription is active at a time per user
+    const { data: otherActiveSubs } = await supabase
+      .from('subscriptions')
+      .select('id, subscription_type')
+      .eq('user_id', payment.user_id)
+      .eq('status', 'active')
+
+    if (otherActiveSubs && otherActiveSubs.length > 0) {
+      console.log(`Found ${otherActiveSubs.length} other active subscription(s), expiring ALL of them`)
+      const { error: expireError } = await supabase
+        .from('subscriptions')
+        .update({ status: 'expired', updated_at: now })
+        .eq('user_id', payment.user_id)
+        .eq('status', 'active')
+      
+      if (expireError) {
+        console.error('Error expiring other subscriptions in webhook:', expireError)
+      } else {
+        console.log(`Successfully expired ${otherActiveSubs.length} other subscription(s)`)
+      }
+    }
+
     // Check if active subscription exists
     const { data: existingSubscription } = await supabase
       .from('subscriptions')
