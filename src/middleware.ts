@@ -44,6 +44,11 @@ export function middleware(req: NextRequest) {
     return res
   }
 
+  // Allow pricing pages (users need to access pricing to subscribe)
+  if (pathname.startsWith('/pricing') || pathname.startsWith('/en/pricing')) {
+    return res
+  }
+
   // Determine if quiz is incomplete (started but not completed)
   const isQuizIncomplete = hasStartedQuiz && !hasCompletedQuiz
 

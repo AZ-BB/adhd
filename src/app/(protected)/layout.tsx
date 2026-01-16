@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/server";
 import { getUserLearningPathStats } from "@/actions/learning-path";
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities";
+import { requireActiveSubscription } from "@/lib/subscription";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SidebarNav from "@/components/SidebarNav";
 import "../globals.css";
@@ -34,6 +35,13 @@ export default async function RootLayout({
     if (userData?.role === "admin" || userData?.role === "super_admin") {
       redirect("/admin");
     }
+
+    // Require active subscription for non-admin users
+    // This will redirect to pricing if no active subscription
+    await requireActiveSubscription();
+  } else {
+    // Not authenticated, redirect to login
+    redirect("/auth/login");
   }
 
   // Get user profile and stats
