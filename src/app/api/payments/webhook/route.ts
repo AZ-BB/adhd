@@ -89,7 +89,19 @@ export async function POST(request: NextRequest) {
     }
 
     if (status === 'success') {
-      updateData.paid_at = new Date(created_at * 1000).toISOString() // Paymob returns Unix timestamp
+      // Safely handle timestamp conversion
+      if (created_at && typeof created_at === 'number' && created_at > 0) {
+        try {
+          updateData.paid_at = new Date(created_at * 1000).toISOString() // Paymob returns Unix timestamp
+        } catch (error) {
+          console.error('Error converting timestamp:', error, 'created_at:', created_at)
+          // Fallback to current time if timestamp is invalid
+          updateData.paid_at = new Date().toISOString()
+        }
+      } else {
+        // If no valid timestamp, use current time
+        updateData.paid_at = new Date().toISOString()
+      }
     }
 
     if (transactionData?.message) {
