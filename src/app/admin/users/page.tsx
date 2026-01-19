@@ -1,6 +1,6 @@
 import { getAllUsers } from "@/actions/admin"
 import { requireAdmin } from "@/lib/admin"
-import Link from "next/link"
+import UsersTableClient from "./UsersTableClient"
 
 export default async function AdminUsersPage() {
   const adminUser = await requireAdmin()
@@ -16,34 +16,6 @@ export default async function AdminUsersPage() {
     total_time_spent: Number(user.total_time_spent) || 0,
     initial_quiz_score: Number(user.initial_quiz_score) || 0,
   }))
-
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
-  }
-
-  function calculateAge(dateString: string) {
-    const birth = new Date(dateString)
-    const now = new Date()
-    let age = now.getFullYear() - birth.getFullYear()
-    const hasNotHadBirthdayThisYear =
-      now.getMonth() < birth.getMonth() ||
-      (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-    if (hasNotHadBirthdayThisYear) age -= 1
-    return age
-  }
-
-  function formatTime(seconds: number) {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m`
-  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -95,101 +67,7 @@ export default async function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-black/30 backdrop-blur border border-purple-800/50 rounded-2xl overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-purple-900/30 border-b border-purple-800/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Child Name
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Age
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Parent
-                </th>
-                {isSuperAdmin && (
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                    Email
-                  </th>
-                )}
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Progress
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Time Spent
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Joined
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-purple-800/30">
-              {normalizedUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-purple-900/10 transition-colors">
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-white">
-                      {user.child_first_name} {user.child_last_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {user.child_gender === "male" ? "👦" : "👧"}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">
-                      {calculateAge(user.child_birthday)} years
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">
-                      {user.parent_first_name} {user.parent_last_name}
-                    </div>
-                    {isSuperAdmin && (
-                      <div className="text-xs text-gray-500">{user.parent_phone || "—"}</div>
-                    )}
-                  </td>
-                  {isSuperAdmin && (
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-300">
-                        {user.email || "—"}
-                      </div>
-                    </td>
-                  )}
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-white">
-                      {user.completed_days} days
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {user.total_games_completed} games • Avg {Math.round(user.overall_avg_score)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">
-                      {formatTime(user.total_time_spent)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-400">{formatDate(user.created_at)}</div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <Link
-                      href={`/admin/users/${user.id}`}
-                      className="inline-flex items-center justify-center w-8 h-8 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 rounded transition-colors"
-                      title="View Details"
-                    >
-                      <span className="text-lg">👁️</span>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <UsersTableClient users={normalizedUsers} isSuperAdmin={isSuperAdmin} />
 
       {users.length === 0 && (
         <div className="text-center py-12">

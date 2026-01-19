@@ -531,3 +531,128 @@ export async function resetAdminPassword(
   return { success: true }
 }
 
+/**
+ * Delete a regular user (not admin)
+ */
+export async function deleteUser(userId: number) {
+  const adminUser = await requireAdmin()
+  
+  // Only super admins can delete users
+  if (!adminUser.is_super_admin) {
+    throw new Error("Unauthorized: Only super admins can delete users")
+  }
+
+  const supabase = await createSupabaseServerClient()
+  const adminSupabase = await createSupabaseAdminServerClient()
+
+  // Get the user first to check role and get auth_id
+  const { data: userData } = await supabase
+    .from("users")
+    .select("auth_id, role, child_first_name, child_last_name")
+    .eq("id", userId)
+    .single()
+
+  if (!userData) {
+    throw new Error("User not found")
+  }
+
+  // Prevent deleting admins (use deleteAdmin function instead)
+  if (userData.role === "admin" || userData.role === "super_admin") {
+    throw new Error("Cannot delete admin users. Use admin management to demote admins.")
+  }
+
+  // Check if auth user exists before attempting deletion
+  let authUserExists = false
+  try {
+    const { data: authUser, error: checkError } = await adminSupabase.auth.admin.getUserById(userData.auth_id)
+    if (checkError) {
+      console.warn("Could not verify auth user existence:", checkError.message)
+    } else {
+      authUserExists = !!authUser.user
+    }
+  } catch (err: any) {
+    console.warn("Error checking auth user:", err?.message || err)
+  }
+
+  // Delete auth user first (required before deleting user record due to foreign key constraint)
+  if (authUserExists) {
+    // Attempt to delete the auth user
+    const { error: authError } = await adminSupabase.auth.admin.deleteUser(userData.auth_id)
+    
+    if (authError) {
+      // Provide detailed error message
+      const errorMessage = authError.message || "Unknown error"
+      const errorStatus = authError.status || "unknown"
+      
+      console.error("Failed to delete auth user:", {
+        auth_id: userData.auth_id,
+        user_id: userId,
+        error: errorMessage,
+        status: errorStatus
+      })
+      
+      // Check if it's a specific error we can handle
+      if (errorMessage.includes("already been deleted") || errorMessage.includes("not found")) {
+        // Auth user is already gone, proceed with user record deletion
+        console.log("Auth user already deleted, proceeding with user record deletion")
+      } else if (errorStatus === 500) {
+        // 500 error suggests Supabase internal issue
+        // With the modified FK constraint (ON DELETE SET NULL), we can still proceed
+        // with deleting the user record - the auth_id will be set to NULL automatically
+        console.warn(
+          `Auth API deletion failed with 500 error, but proceeding with user record deletion. ` +
+          `Auth user ${userData.auth_id} may need to be deleted manually from Supabase Dashboard.`
+        )
+        // Continue with user record deletion - FK constraint will handle setting auth_id to NULL
+      } else {
+        // Other errors - provide helpful error message
+        const userName = `${userData.child_first_name || 'Unknown'} ${userData.child_last_name || ''}`.trim()
+        const helpfulMessage = 
+          `Unable to delete user due to authentication system constraints. ` +
+          `Error: ${errorMessage} (Status: ${errorStatus}).\n\n` +
+          `Possible solutions:\n` +
+          `1. Delete the user manually from Supabase Dashboard > Authentication > Users\n` +
+          `2. Ensure your SUPABASE_SERVICE_ROLE key has full admin permissions\n` +
+          `3. Check if there are active sessions or other dependencies preventing deletion\n\n` +
+          `User Details:\n` +
+          `- User ID: ${userId}\n` +
+          `- Auth ID: ${userData.auth_id}\n` +
+          `- Name: ${userName}`
+        
+        throw new Error(helpfulMessage)
+      }
+    }
+  } else {
+    // Auth user doesn't exist, proceed with user record deletion
+    console.log(`Auth user ${userData.auth_id} not found, proceeding with user record deletion`)
+  }
+
+  // Delete user record (cascading will handle related data)
+  // Note: We can delete the user record even if auth deletion failed,
+  // because we're deleting FROM users table (not FROM auth.users)
+  const { error: userError } = await supabase
+    .from("users")
+    .delete()
+    .eq("id", userId)
+
+  if (userError) {
+    throw new Error(
+      `Failed to delete user record: ${userError.message || "Unknown error"}. ` +
+      `User ID: ${userId}`
+    )
+  }
+
+  // Check if auth deletion failed - if so, log a warning
+  if (authUserExists) {
+    const { data: verifyAuth } = await adminSupabase.auth.admin.getUserById(userData.auth_id)
+    if (verifyAuth.user) {
+      console.warn(
+        `User record deleted successfully, but auth user ${userData.auth_id} still exists. ` +
+        `You may want to delete it manually from Supabase Dashboard > Authentication > Users`
+      )
+    }
+  }
+
+  return { success: true }
+}
+

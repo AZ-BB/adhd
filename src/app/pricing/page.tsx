@@ -93,16 +93,31 @@ export default function PricingPage() {
     router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${currencyCode}`)
   }
 
-  const packages = [
+  const packages: Array<{
+    id: number
+    name: string
+    description: string
+    icon: string
+    features: string[]
+    originalPrice: string
+    price: string
+    currency: string
+    period: string
+    popular: boolean
+    suitableFor?: string[]
+  }> = [
     {
       id: 1,
-      name: "باقة الألعاب",
-      description: "الوصول الكامل لجميع الألعاب التعليمية",
+      name: "الخطة الأولى: التدريب اليومي",
+      description: "تدريبات وألعاب فقط - تدريبات لدعم التركيز والانتباه",
       icon: "🎮",
       features: [
-        "جميع الألعاب التعليمية",
+        "تدريبات التركيز البصري والسمعي",
+        "أنشطة تنمية الانتباه",
+        "تدريبات التحكم في الاستجابة والسلوك",
+        "تدريبات إكمال المهام القصيرة",
+        "مدة التدريب: من 10 إلى 15 دقيقة يوميًا",
         "تتبع التقدم",
-        "إمكانية الوصول غير محدودة",
         "دعم فني متواصل"
       ],
       originalPrice: isEgypt ? "600" : "120",
@@ -113,21 +128,29 @@ export default function PricingPage() {
     },
     {
       id: 2,
-      name: "باقة الجلسات الجماعية",
-      description: "الألعاب + 4 جلسات جماعية شهرياً",
+      name: "الخطة الثانية: التدريبات اليومية + جلسات جماعية",
+      description: "الخطة الأكثر اختيارًا من أولياء الأمور",
       icon: "👥",
       features: [
-        "جميع الألعاب التعليمية",
-        "4 جلسات جماعية شهرياً",
-        "تفاعل مع أطفال آخرين",
-        "تتبع التقدم",
-        "دعم فني متواصل"
+        "جميع تدريبات الخطة الأولى (تركيز – انتباه – تحكم سلوكي)",
+        "مدة التدريب: من 10 إلى 15 دقيقة يوميًا",
+        "متابعة دورية لتطور الأداء",
+        "أربع جلسات جماعية أونلاين شهريًا",
+        "مجموعات صغيرة بإشراف متخصصين",
+        "تمارين تفاعلية مباشرة لتنمية التركيز والسلوك",
+        "تدريب على الالتزام، الانتظار، والتفاعل الإيجابي",
+        "⭐ الخطة الموصى بها لمعظم الأطفال"
       ],
       originalPrice: isEgypt ? "1300" : "440",
       price: isEgypt ? "650" : "220",
       currency: isEgypt ? "جنيه مصري" : "درهم إماراتي",
       period: isEgypt ? "لفترة محدودة" : "شهرياً",
-      popular: true
+      popular: true,
+      suitableFor: [
+        "الأطفال الذين يعانون من تشتت في الانتباه",
+        "فرط الحركة أو صعوبة الجلوس والتركيز",
+        "أولياء الأمور الباحثين عن دعم متخصص إلى جانب التدريب اليومي"
+      ]
     }
   ]
 
@@ -278,6 +301,19 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
+                {pkg.suitableFor && (
+                  <div className="mb-6 p-4 bg-sky-50 rounded-xl border border-sky-200">
+                    <h4 className="font-bold text-sky-900 mb-2 text-sm">هذه الخطة مناسبة لـ:</h4>
+                    <ul className="space-y-2">
+                      {pkg.suitableFor.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sky-700 text-sm">
+                          <span className="text-sky-500 mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <button
                   onClick={() => handlePurchase(pkg)}
@@ -306,15 +342,42 @@ export default function PricingPage() {
         )}
 
         {/* Individual Session Info */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl border-2 border-sky-200 shadow-md p-6 text-center">
-            <div className="text-4xl mb-4">👤</div>
-            <h3 className="text-xl font-bold text-sky-900 mb-2">الجلسات الفردية</h3>
-            <p className="text-sky-700 mb-4">
-              يمكنك إضافة جلسات فردية حسب الحاجة
-            </p>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <div className="mb-1">
+        <div className="max-w-3xl mx-auto mb-12">
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl border-2 border-sky-200 shadow-md p-8">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-4">👤</div>
+              <h3 className="text-2xl font-bold text-sky-900 mb-2">🔵 الخيار الثالث: جلسة فردية مع أخصائي</h3>
+              <p className="text-sky-700 mb-6">
+                تدخل متخصص حسب احتياج الطفل
+              </p>
+            </div>
+            
+            <div className="space-y-4 mb-6 text-right">
+              <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">
+                <h4 className="font-bold text-sky-900 mb-3">ماذا تشمل الجلسة الفردية؟</h4>
+                <ul className="space-y-2 text-sky-800">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">✓</span>
+                    <span>جلسة أونلاين فردية مع أخصائي مؤهل</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">✓</span>
+                    <span>مدتها من 30 إلى 45 دقيقة</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">✓</span>
+                    <span>تدريبات مخصصة وفقًا لاحتياجاته</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500 mt-1">✓</span>
+                    <span>إرشاد عملي ومباشر لأولياء الأمور</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="text-center border-t border-sky-200 pt-6">
+              <div className="mb-4">
                 <span className="text-xl text-sky-400 line-through">
                   {isEgypt ? "400" : "100"}
                 </span>
@@ -326,7 +389,7 @@ export default function PricingPage() {
                 <span className="text-sky-600 font-semibold">
                   سعر الجلسة الفردية:
                 </span>
-                <span className="text-2xl font-extrabold text-sky-600">
+                <span className="text-3xl font-extrabold text-sky-600">
                   {isEgypt ? "200" : "50"}
                 </span>
                 <span className="text-sky-700">

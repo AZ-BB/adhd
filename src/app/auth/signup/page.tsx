@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createSupabaseServerClient } from "@/lib/server"
-import QuizCarryoverClient from "./QuizCarryoverClient"
 import { signup as signupAction } from "@/actions/users"
 import BackgroundSlideshow from "@/components/BackgroundSlideshow"
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton"
@@ -96,14 +95,6 @@ export default async function SignupPage({
   if (user) {
     redirect("/dashboard")
   }
-  // If quiz not completed, send user to quiz first
-  try {
-    const cookieStore = await cookies()
-    const hasCompletedQuiz = cookieStore.get("quiz_completed")?.value
-    if (!hasCompletedQuiz) {
-      redirect("/quiz")
-    }
-  } catch {}
   const message = typeof params?.message === "string" ? params.message : ""
   const error = typeof params?.error === "string" ? params.error : ""
 
@@ -188,7 +179,6 @@ export default async function SignupPage({
           )}
 
           <form className="mt-8 space-y-8" action={signup}>
-            <QuizCarryoverClient />
             <div className="rounded-2xl">
               <h2 className="text-base font-semibold text-indigo-800 mb-3 text-right">
                 عن طفلك 🧒
