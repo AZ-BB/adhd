@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { createSupabaseBrowser } from "@/lib/client"
 
 export default function PricingPageEn() {
   const [isEgypt, setIsEgypt] = useState<boolean | null>(null)
@@ -91,6 +92,18 @@ export default function PricingPageEn() {
     router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${pkg.currency}`)
   }
 
+  const handleSignOut = async () => {
+    try {
+      const supabase = createSupabaseBrowser()
+      await supabase.auth.signOut()
+      setIsAuthenticated(false)
+      router.push('/en')
+      router.refresh()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
   const packages = [
     {
       id: 1,
@@ -144,6 +157,14 @@ export default function PricingPageEn() {
             />
           </Link>
           <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {isAuthenticated && (
+              <button
+                onClick={handleSignOut}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-red-500/90 text-white border border-red-600 hover:bg-red-600 shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
+              >
+                Sign Out
+              </button>
+            )}
             <Link
               href="/pricing"
               className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
