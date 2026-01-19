@@ -86,6 +86,7 @@ export default async function RootLayout({
     { href: "/sessions", icon: "🎯", label: "الجلسات" },
     { href: "/learning-path", icon: "🎮", label: "مسار التعلم" },
     { href: "/physical-activities", icon: "🏃", label: "النشاط البدني" },
+    { href: "/quiz", icon: "📝", label: "الاختبار" },
     { href: "/profile", icon: "👤", label: "الملف الشخصي" },
     { href: "/settings", icon: "⚙️", label: "الإعدادات" },
   ] : [
@@ -93,6 +94,7 @@ export default async function RootLayout({
     { href: "/sessions/en", icon: "🎯", label: "Sessions" },
     { href: "/learning-path/en", icon: "🎮", label: "Learning Path" },
     { href: "/physical-activities/en", icon: "🏃", label: "Physical Activity" },
+    { href: "/quiz/en", icon: "📝", label: "Quiz" },
     { href: "/profile/en", icon: "👤", label: "Profile" },
     { href: "/settings/en", icon: "⚙️", label: "Settings" },
   ];

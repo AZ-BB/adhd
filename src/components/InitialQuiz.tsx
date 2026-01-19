@@ -1,8 +1,10 @@
 "use client"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import QuizProgress from "./QuizProgress"
 import QuestionCard from "./QuestionCard"
 import { QuizQuestion } from "@/types/quiz"
+import { updateQuizScore } from "@/actions/users"
 
 export default function InitialQuiz({
   quizQuestions,
@@ -28,6 +30,8 @@ export default function InitialQuiz({
     severity: 'mild' | 'moderate' | 'severe'
     diagnoses: Array<{ type: string; detected: boolean; score: number }>
   } | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const router = useRouter()
 
   // Load saved progress from localStorage on component mount
   useEffect(() => {
@@ -44,10 +48,7 @@ export default function InitialQuiz({
         const parsedAnswers = JSON.parse(savedAnswers)
         setAnswers(parsedAnswers)
         
-        // If there are saved answers, set quiz_started cookie
-        if (Object.keys(parsedAnswers).length > 0) {
-          document.cookie = "quiz_started=true; path=/; max-age=2592000" // 30 days
-        }
+        // Note: No longer setting blocking cookies - quiz is now a feature, not a requirement
         
         // Check if all questions have been answered
         if (quizQuestions && Object.keys(parsedAnswers).length === quizQuestions.length) {
@@ -199,10 +200,7 @@ export default function InitialQuiz({
     setAnswers({ ...answers, [id]: answer })
     setCanProceed(true)
     
-    // Set quiz_started cookie on first answer
-    if (Object.keys(answers).length === 0 && typeof window !== 'undefined') {
-      document.cookie = "quiz_started=true; path=/; max-age=2592000" // 30 days
-    }
+    // Note: No longer setting blocking cookies
   }
 
   const handleNext = () => {
@@ -233,8 +231,6 @@ export default function InitialQuiz({
     if (typeof window !== 'undefined') {
       localStorage.removeItem('quiz_progress')
       localStorage.removeItem('quiz_answers')
-      // Clear quiz_started cookie
-      document.cookie = "quiz_started=; path=/; max-age=0"
     }
     setCurrentQuestion(0)
     setAnswers({})
@@ -248,64 +244,44 @@ export default function InitialQuiz({
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
+    setSaveError(null)
     try {
       const score = finalScore ?? computeScore()
-      
-      
-      localStorage.removeItem('quiz_progress')
-      localStorage.removeItem('quiz_answers')
-      // Set quiz completion cookie and clear quiz_started
-      document.cookie = "quiz_completed=true; path=/; max-age=2592000" // 30 days
-      document.cookie = "quiz_started=; path=/; max-age=0"
-
-      // Stay on page and show saved results instead of redirecting
-      setHasSubmitted(true)
-    } catch (error) {
-      console.error('Error submitting quiz:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleGetStarted = () => {
-    try {
-      const score = finalScore ?? computeScore()
-      const maxScore = (quizQuestions?.length || 0) * 3
       const categoryScores = diagnosis ? {
         inattentionScore: diagnosis.inattentionScore,
         hyperactivityScore: diagnosis.hyperactivityScore,
         impulsivityScore: diagnosis.impulsivityScore
       } : computeCategoryScores(answers)
       
-      if (typeof window !== 'undefined') {
-        // Persist final score and answers for post-signup user creation
-        localStorage.setItem('pending_signup_quiz', JSON.stringify({
-          score,
-          maxScore,
-          answers,
-          type: 'INITIAL',
-          timestamp: Date.now(),
-          inattentionScore: categoryScores.inattentionScore,
-          hyperactivityScore: categoryScores.hyperactivityScore,
-          impulsivityScore: categoryScores.impulsivityScore
-        }))
+      // Save quiz results to user profile
+      await updateQuizScore(
+        score,
+        categoryScores.inattentionScore,
+        categoryScores.hyperactivityScore,
+        categoryScores.impulsivityScore
+      )
+      
+      // Clear local storage
+      localStorage.removeItem('quiz_progress')
+      localStorage.removeItem('quiz_answers')
+      localStorage.removeItem('pending_signup_quiz')
 
-        // Clear transient progress keys
-        localStorage.removeItem('quiz_progress')
-        localStorage.removeItem('quiz_answers')
-
-        // Optional cookie to mark completion and clear quiz_started
-        document.cookie = "quiz_completed=true; path=/; max-age=2592000"
-        document.cookie = "quiz_started=; path=/; max-age=0"
-      }
-    } catch (e) {
-      // no-op; redirect regardless so the flow continues
+      // Show success message
+      setHasSubmitted(true)
+      
+      // Refresh the page after a short delay to show updated profile
+      setTimeout(() => {
+        router.refresh()
+      }, 2000)
+    } catch (error: any) {
+      console.error('Error saving quiz results:', error)
+      setSaveError(error.message || 'Failed to save quiz results. Please try again.')
     } finally {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/auth/signup'
-      }
+      setIsSubmitting(false)
     }
   }
+
+  // Removed handleGetStarted - no longer needed since quiz doesn't block signup
 
   // Text translations
   const text = {
@@ -532,11 +508,11 @@ export default function InitialQuiz({
                 {!hasSubmitted ? (
                   <div className="flex flex-col sm:flex-row justify-center gap-4">
                     <button 
-                      onClick={handleGetStarted} 
+                      onClick={handleSubmit} 
                       disabled={isSubmitting} 
                       className="px-16 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl font-semibold transition-all duration-300 shadow-xl disabled:opacity-50 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
                     >
-                      {t.getStarted}
+                      {isSubmitting ? t.submitting : t.completeQuiz}
                     </button>
                     <button
                       onClick={handleStartOver}
@@ -547,7 +523,13 @@ export default function InitialQuiz({
                   </div>
                 ) : (
                   <div className="text-center">
-                    <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block mb-4">{t.resultsSaved}</div>
+                    {saveError ? (
+                      <div className="text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 inline-block mb-4">
+                        {saveError}
+                      </div>
+                    ) : (
+                      <div className="text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 inline-block mb-4">{t.resultsSaved}</div>
+                    )}
                     <div className="mt-6">
                       <button
                         onClick={handleStartOver}

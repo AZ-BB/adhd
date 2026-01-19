@@ -305,3 +305,56 @@ export async function getUserByAuthId(authId: string) {
   
   return data
 }
+
+/**
+ * Update user's quiz score
+ */
+export async function updateQuizScore(
+  initial_quiz_score: number,
+  inattention_score: number,
+  hyperactivity_score: number,
+  impulsivity_score: number
+) {
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Not authenticated")
+  }
+
+  // Get user profile
+  const { data: userProfile, error: profileError } = await supabase
+    .from("users")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single()
+
+  if (profileError || !userProfile) {
+    throw new Error("User profile not found")
+  }
+
+  // Update quiz scores
+  const { error: updateError } = await supabase
+    .from("users")
+    .update({
+      initial_quiz_score,
+      inattention_score,
+      hyperactivity_score,
+      impulsivity_score,
+      category_scores: {
+        inattention: inattention_score,
+        hyperactivity: hyperactivity_score,
+        impulsivity: impulsivity_score,
+      },
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userProfile.id)
+
+  if (updateError) {
+    throw new Error(updateError.message || "Failed to update quiz score")
+  }
+
+  return { success: true }
+}
