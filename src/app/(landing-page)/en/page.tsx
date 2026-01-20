@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/server"
 import { redirect } from "next/navigation"
 import { getBlogsCached } from "@/actions/blogs"
 import LandingNav from "@/components/LandingNav"
+import Image from "next/image"
 
 export default async function HomeEn() {
   // Redirect logged-in users to dashboard
