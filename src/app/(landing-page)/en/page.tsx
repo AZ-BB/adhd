@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { createSupabaseServerClient } from "@/lib/server"
 import { redirect } from "next/navigation"
-import Image from "next/image"
 import { getBlogsCached } from "@/actions/blogs"
+import LandingNav from "@/components/LandingNav"
 
 export default async function HomeEn() {
   // Redirect logged-in users to dashboard
@@ -28,48 +28,16 @@ export default async function HomeEn() {
     >
 
       {/* Navbar */}
-      <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 flex items-center justify-between gap-3">
-          <Link
-            href="/en"
-            className="text-2xl font-extrabold flex-shrink-0"
-          >
-            <Image 
-              src="/logo/1.png" 
-              alt="Movokids" 
-              width={200} 
-              height={60} 
-              className="object-contain w-32 sm:w-40 md:w-48 h-auto" 
-            />
-          </Link>
-          <nav className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <Link
-              href="/"
-              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
-            >
-              عربي
-            </Link>
-            <Link
-              href="/en/pricing"
-              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
-            >
-              Pricing & Plans
-            </Link>
-            <Link
-              href="/auth/login"
-              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/70 text-sky-700 border border-sky-200 hover:bg-white shadow-sm text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-green-500 text-white hover:bg-green-600 shadow text-xs sm:text-sm font-medium whitespace-nowrap transition-all"
-            >
-              Get started
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <LandingNav
+        isRtl={false}
+        logoHref="/en"
+        navItems={[
+          { label: "عربي", href: "/" },
+          { label: "Pricing & Plans", href: "/en/pricing" },
+          { label: "Sign in", href: "/auth/login" },
+          { label: "Get started", href: "/auth/signup", isPrimary: true },
+        ]}
+      />
 
       {/* Hero Section */}
       <section className="relative z-10 bg-cover bg-no-repeat" style={{ backgroundImage: "url('/landing/1.jpg')" }}>
