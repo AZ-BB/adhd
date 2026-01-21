@@ -121,7 +121,7 @@ export default function PaymentsSubscriptionsClient({ initialPayments, initialSu
                               {payment.user.child_first_name} {payment.user.child_last_name}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {payment.user.parent_email || 'No email'}
+                              Parent: {payment.user.parent_first_name} {payment.user.parent_last_name}
                             </div>
                           </div>
                         ) : (
@@ -192,7 +192,7 @@ export default function PaymentsSubscriptionsClient({ initialPayments, initialSu
                               {subscription.user.child_first_name} {subscription.user.child_last_name}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {subscription.user.parent_email || 'No email'}
+                              Parent: {subscription.user.parent_first_name} {subscription.user.parent_last_name}
                             </div>
                           </div>
                         ) : (

@@ -675,7 +675,8 @@ export interface PaymentWithUser {
     id: number
     child_first_name: string
     child_last_name: string
-    parent_email: string | null
+    parent_first_name: string | null
+    parent_last_name: string | null
   }
 }
 
@@ -720,7 +721,8 @@ export async function getAllPayments(): Promise<PaymentWithUser[]> {
         id,
         child_first_name,
         child_last_name,
-        parent_email
+        parent_first_name,
+        parent_last_name
       )
     `)
     .order("created_at", { ascending: false })
@@ -751,7 +753,8 @@ export async function getAllSubscriptions(): Promise<SubscriptionWithUser[]> {
         id,
         child_first_name,
         child_last_name,
-        parent_email
+        parent_first_name,
+        parent_last_name
       ),
       payment:payments (
         id,
