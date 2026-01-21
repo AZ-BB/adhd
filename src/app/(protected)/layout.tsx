@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/server";
 import { getUserLearningPathStats } from "@/actions/learning-path";
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities";
-import { requireActiveSubscription, getUserSubscriptionPlan, hasSubscriptionType } from "@/lib/subscription";
+import { getUserSubscriptionPlan, hasSubscriptionType } from "@/lib/subscription";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import SidebarNav from "@/components/SidebarNav";
 import "../globals.css";
@@ -36,9 +36,8 @@ export default async function RootLayout({
       redirect("/admin");
     }
 
-    // Require active subscription for non-admin users
-    // This will redirect to pricing if no active subscription
-    await requireActiveSubscription();
+    // No longer requiring subscription at layout level
+    // Individual pages will check subscription for premium features
   } else {
     // Not authenticated, redirect to login
     redirect("/auth/login");

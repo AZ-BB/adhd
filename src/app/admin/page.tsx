@@ -139,6 +139,19 @@ export default async function AdminDashboardPage() {
         </Link>
 
         <Link
+          href="/admin/payments"
+          className="group bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500/50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all hover:border-green-400/80"
+        >
+          <div className="flex items-center gap-4">
+            <div className="text-5xl group-hover:scale-110 transition-transform">💳</div>
+            <div>
+              <h3 className="text-xl font-bold text-white">Payments & Subscriptions</h3>
+              <p className="text-sm text-gray-400">Track payments and subscriptions</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
           href="/admin/analytics"
           className="group bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all hover:border-blue-400/80"
         >

@@ -7,7 +7,9 @@ import {
   getUserLearningPathStats,
   getDayAvailability 
 } from '@/actions/learning-path'
+import { hasActiveSubscription } from '@/lib/subscription'
 import LearningPathClient from './LearningPathClient'
+import PremiumLock from '@/components/PremiumLock'
 
 export default async function LearningPathPage() {
   const supabase = await createSupabaseServerClient()
@@ -24,6 +26,13 @@ export default async function LearningPathPage() {
   
   if (!user) {
     redirect('/auth/signup')
+  }
+
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return <PremiumLock isRtl={false} feature="Learning Path & Games" />
   }
   
   // Get all learning days

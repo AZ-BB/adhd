@@ -656,3 +656,120 @@ export async function deleteUser(userId: number) {
   return { success: true }
 }
 
+export interface PaymentWithUser {
+  id: number
+  created_at: string
+  updated_at: string
+  user_id: number
+  paymob_order_id: string | null
+  paymob_transaction_id: string | null
+  amount: number
+  currency: string
+  status: 'pending' | 'processing' | 'success' | 'failed' | 'cancelled' | 'refunded'
+  payment_method: string | null
+  subscription_type: 'games' | 'group_sessions' | 'individual_session'
+  package_id: number | null
+  paid_at: string | null
+  error_message: string | null
+  user: {
+    id: number
+    child_first_name: string
+    child_last_name: string
+    parent_email: string | null
+  }
+}
+
+export interface SubscriptionWithUser {
+  id: number
+  created_at: string
+  updated_at: string
+  user_id: number
+  payment_id: number | null
+  subscription_type: 'games' | 'group_sessions' | 'individual_session'
+  package_id: number
+  status: string
+  start_date: string
+  end_date: string
+  amount: number
+  currency: string
+  user: {
+    id: number
+    child_first_name: string
+    child_last_name: string
+    parent_email: string | null
+  }
+  payment: {
+    id: number
+    paymob_order_id: string | null
+    paymob_transaction_id: string | null
+  } | null
+}
+
+/**
+ * Get all payments with user information
+ */
+export async function getAllPayments(): Promise<PaymentWithUser[]> {
+  await requireAdmin()
+  const supabase = await createSupabaseServerClient()
+
+  const { data, error } = await supabase
+    .from("payments")
+    .select(`
+      *,
+      user:users (
+        id,
+        child_first_name,
+        child_last_name,
+        parent_email
+      )
+    `)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching payments:", error)
+    return []
+  }
+
+  return (data || []).map((payment: any) => ({
+    ...payment,
+    user: payment.user || null,
+  }))
+}
+
+/**
+ * Get all subscriptions with user information
+ */
+export async function getAllSubscriptions(): Promise<SubscriptionWithUser[]> {
+  await requireAdmin()
+  const supabase = await createSupabaseServerClient()
+
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select(`
+      *,
+      user:users (
+        id,
+        child_first_name,
+        child_last_name,
+        parent_email
+      ),
+      payment:payments (
+        id,
+        paymob_order_id,
+        paymob_transaction_id
+      )
+    `)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching subscriptions:", error)
+    return []
+  }
+
+  return (data || []).map((subscription: any) => ({
+    ...subscription,
+    user: subscription.user || null,
+    payment: subscription.payment || null,
+  }))
+}
+

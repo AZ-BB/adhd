@@ -1,9 +1,17 @@
 import { getCoaches, getSessions } from '@/actions/sessions'
 import { getMySoloSessionRequests } from '@/actions/solo-sessions'
-import { hasSubscriptionType } from '@/lib/subscription'
+import { hasSubscriptionType, hasActiveSubscription } from '@/lib/subscription'
 import SessionsHub from '../SessionsHub'
+import PremiumLock from '@/components/PremiumLock'
 
 export default async function SessionsPageEn() {
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return <PremiumLock isRtl={false} feature="Sessions" />
+  }
+
   // Check if user has group_sessions subscription (individual sessions are always available)
   const hasGroupSessions = await hasSubscriptionType('group_sessions')
 

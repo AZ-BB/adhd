@@ -6,7 +6,8 @@ import {
   getUserAllDayProgress,
 } from "@/actions/learning-path"
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities"
-import { getUserSubscriptionDetailsEn } from "@/lib/subscription"
+import { getUserSubscriptionDetailsEn, hasActiveSubscription } from "@/lib/subscription"
+import DashboardFeatureCard from "@/components/DashboardFeatureCard"
 
 export default async function DashboardPageEn() {
   const supabase = await createSupabaseServerClient()
@@ -65,6 +66,7 @@ export default async function DashboardPageEn() {
 
   // Get subscription details
   const subscriptionDetails = await getUserSubscriptionDetailsEn()
+  const hasSubscription = await hasActiveSubscription()
 
   // Format expiration date
   const formatDate = (dateString: string | null) => {
@@ -117,18 +119,29 @@ export default async function DashboardPageEn() {
           </div>
 
           {/* Subscription Info Card */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 shadow-xl text-white">
+          <div className={`rounded-3xl p-6 shadow-xl text-white ${
+            hasSubscription 
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
+              : 'bg-gradient-to-r from-gray-500 to-gray-600'
+          }`}>
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold mb-2">Current Plan</h2>
                 <p className="text-xl mb-1">{subscriptionDetails.planName}</p>
-                {subscriptionDetails.expirationDate && (
+                {subscriptionDetails.expirationDate ? (
                   <p className="text-sm opacity-90">
                     Expires on: {formatDate(subscriptionDetails.expirationDate)}
                   </p>
+                ) : (
+                  <Link 
+                    href="/pricing/en"
+                    className="inline-block mt-2 bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-50 transition-all"
+                  >
+                    Subscribe Now 🚀
+                  </Link>
                 )}
               </div>
-              <div className="text-5xl">📦</div>
+              <div className="text-5xl">{hasSubscription ? '📦' : '🔒'}</div>
             </div>
           </div>
 
@@ -202,41 +215,43 @@ export default async function DashboardPageEn() {
           </div>
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Link
+            <DashboardFeatureCard
               href="/learning-path/en"
-              className="group bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-6xl group-hover:animate-bounce">🎮</div>
-                <div>
-                  <h3 className="text-2xl font-black mb-1">Play Games</h3>
-                  <p className="text-teal-100">
-                    {learningStats?.completedDays === 0
-                      ? "Start your learning journey!"
-                      : `Day ${learningStats?.currentDay} awaits!`}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              icon="🎮"
+              lockedIcon="🔒"
+              title="Play Games"
+              description={
+                hasSubscription 
+                  ? (learningStats?.completedDays === 0
+                    ? "Start your learning journey!"
+                    : `Day ${learningStats?.currentDay} awaits!`)
+                  : "Subscribe to access games"
+              }
+              isLocked={!hasSubscription}
+              isRtl={false}
+              gradientFrom="from-teal-500"
+              gradientTo="to-cyan-600"
+              textColor="text-teal-100"
+            />
 
-            <Link
+            <DashboardFeatureCard
               href="/physical-activities/en"
-              className="group bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 shadow-xl text-white hover:shadow-2xl transform hover:scale-105 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-6xl group-hover:animate-bounce">🏃</div>
-                <div>
-                  <h3 className="text-2xl font-black mb-1">
-                    Physical Activity
-                  </h3>
-                  <p className="text-green-100">
-                    {physicalActivityStats?.totalVideosWatched === 0
-                      ? "Start exercising today!"
-                      : `${physicalActivityStats?.currentVideoNumber} new videos!`}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              icon="🏃"
+              lockedIcon="🔒"
+              title="Physical Activity"
+              description={
+                hasSubscription
+                  ? (physicalActivityStats?.totalVideosWatched === 0
+                    ? "Start exercising today!"
+                    : `${physicalActivityStats?.currentVideoNumber} new videos!`)
+                  : "Subscribe to access activities"
+              }
+              isLocked={!hasSubscription}
+              isRtl={false}
+              gradientFrom="from-green-500"
+              gradientTo="to-emerald-600"
+              textColor="text-green-100"
+            />
           </div>
           
           {/* Physical Activity Progress */}

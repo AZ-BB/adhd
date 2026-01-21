@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/server"
 import { getTodaysPhysicalActivity, recordPhysicalActivityWatch } from "@/actions/physical-activities"
+import { hasActiveSubscription } from "@/lib/subscription"
 import PhysicalActivityClientAr from "./PhysicalActivityClientAr"
+import PremiumLock from "@/components/PremiumLock"
 
 export default async function PhysicalActivitiesPage() {
   const supabase = await createSupabaseServerClient()
@@ -23,6 +25,13 @@ export default async function PhysicalActivitiesPage() {
   
   if (!profile) {
     redirect("/auth/login")
+  }
+
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return <PremiumLock isRtl={true} feature="النشاط البدني" />
   }
   
   // Get today's physical activity

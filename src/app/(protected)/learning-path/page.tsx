@@ -7,7 +7,9 @@ import {
   getUserLearningPathStats,
   getDayAvailability 
 } from '@/actions/learning-path'
+import { hasActiveSubscription } from '@/lib/subscription'
 import LearningPathClientAr from './LearningPathClientAr'
+import PremiumLock from '@/components/PremiumLock'
 
 export default async function LearningPathPageAr() {
   const supabase = await createSupabaseServerClient()
@@ -24,6 +26,13 @@ export default async function LearningPathPageAr() {
   
   if (!user) {
     redirect('/auth/signup')
+  }
+
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return <PremiumLock isRtl={true} feature="مسار التعلم والألعاب" />
   }
   
   // Get all learning days
