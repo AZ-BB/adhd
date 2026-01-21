@@ -710,7 +710,7 @@ export interface SubscriptionWithUser {
  */
 export async function getAllPayments(): Promise<PaymentWithUser[]> {
   await requireAdmin()
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createSupabaseAdminServerClient()
 
   const { data, error } = await supabase
     .from("payments")
@@ -741,7 +741,7 @@ export async function getAllPayments(): Promise<PaymentWithUser[]> {
  */
 export async function getAllSubscriptions(): Promise<SubscriptionWithUser[]> {
   await requireAdmin()
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createSupabaseAdminServerClient()
 
   const { data, error } = await supabase
     .from("subscriptions")
