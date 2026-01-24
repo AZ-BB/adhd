@@ -8,19 +8,25 @@ export default async function SessionsPageEn() {
   // Check if user has active subscription
   const hasSubscription = await hasActiveSubscription()
   
-  if (!hasSubscription) {
+  // Get all sessions to check for free ones
+  const coaches = await getCoaches()
+  const [allSessions, soloRequests] = await Promise.all([
+    getSessions({ include_past: false }),
+    getMySoloSessionRequests(),
+  ])
+
+  // Check if there are any free sessions
+  const hasFreeSessions = allSessions.some(s => s.is_free === true)
+  
+  // If user has no subscription but there are free sessions, allow access
+  // Otherwise, require subscription
+  if (!hasSubscription && !hasFreeSessions) {
     return <PremiumLock isRtl={false} feature="Sessions" />
   }
 
   // Check if user has group_sessions subscription (individual sessions are always available)
   const hasGroupSessions = await hasSubscriptionType('group_sessions')
 
-  const coaches = await getCoaches()
-  const [sessions, soloRequests] = await Promise.all([
-    getSessions({ include_past: false }),
-    getMySoloSessionRequests(),
-  ])
-
-  return <SessionsHub initialSessions={sessions} coaches={coaches} initialSoloRequests={soloRequests} isRtl={false} hasGroupSessions={hasGroupSessions} />
+  return <SessionsHub initialSessions={allSessions} coaches={coaches} initialSoloRequests={soloRequests} isRtl={false} hasGroupSessions={hasGroupSessions} hasSubscription={hasSubscription} />
 }
 

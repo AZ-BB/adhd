@@ -206,14 +206,37 @@ export async function enrollInSession(sessionId: number) {
 
   if (!userData) throw new Error("User profile not found")
 
-  // Check session details (date, max participants)
+  // Check session details (date, max participants, is_free)
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
-    .select('session_date, max_participants, enrollments:session_enrollments(count)')
+    .select('session_date, max_participants, is_free, enrollments:session_enrollments(count)')
     .eq('id', sessionId)
     .single()
 
   if (sessionError || !session) throw new Error("Session not found")
+
+  // Check if session is free or user has subscription
+  // Admins can always enroll
+  const { isAdmin } = await import('@/lib/admin')
+  const isUserAdmin = await isAdmin()
+  
+  if (!session.is_free && !isUserAdmin) {
+    // Check if user has active subscription
+    const now = new Date().toISOString()
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', userData.id)
+      .in('subscription_type', ['games', 'group_sessions'])
+      .eq('status', 'active')
+      .gte('end_date', now)
+      .limit(1)
+      .maybeSingle()
+
+    if (!subscription) {
+      throw new Error("Subscription required for this session. Free sessions are available to all registered users.")
+    }
+  }
 
   if (new Date(session.session_date) < new Date()) {
     throw new Error("Cannot enroll in past sessions")

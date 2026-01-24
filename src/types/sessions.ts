@@ -25,6 +25,7 @@ export interface Session {
   session_date: string
   max_participants: number
   duration_minutes: number
+  is_free?: boolean
 }
 
 export interface SessionEnrollment {

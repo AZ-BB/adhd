@@ -9,16 +9,22 @@ interface SessionsClientProps {
   initialSessions: SessionWithCoach[]
   coaches: Coach[]
   isRtl: boolean
+  hasSubscription?: boolean
 }
 
-export default function SessionsClient({ initialSessions, coaches, isRtl }: SessionsClientProps) {
+export default function SessionsClient({ initialSessions, coaches, isRtl, hasSubscription = false }: SessionsClientProps) {
   const router = useRouter()
   const [sessions, setSessions] = useState(initialSessions)
   const [selectedCoachId, setSelectedCoachId] = useState<number | 'all'>('all')
   const [loadingId, setLoadingId] = useState<number | null>(null)
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null)
 
-  const filteredSessions = sessions.filter(s => 
+  // Filter sessions: if user doesn't have subscription, only show free sessions
+  const availableSessions = hasSubscription 
+    ? sessions 
+    : sessions.filter(s => s.is_free === true)
+
+  const filteredSessions = availableSessions.filter(s => 
     selectedCoachId === 'all' || s.coach_id === selectedCoachId
   )
 
@@ -93,6 +99,15 @@ export default function SessionsClient({ initialSessions, coaches, isRtl }: Sess
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
         <p className="text-gray-600">{t.subtitle}</p>
+        {!hasSubscription && availableSessions.length > 0 && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              {isRtl 
+                ? '✨ أنت تشاهد الجلسات المجانية فقط. اشترك للوصول إلى جميع الجلسات.'
+                : '✨ You are viewing free sessions only. Subscribe to access all sessions.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Filter */}
@@ -164,9 +179,16 @@ export default function SessionsClient({ initialSessions, coaches, isRtl }: Sess
 
               {/* Session Details */}
               <div className="p-6 flex-1 flex flex-col">
-                <h4 className="text-xl font-bold text-gray-900 mb-4">
-                    {isRtl ? (session.title_ar || session.title) : session.title}
-                </h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <h4 className="text-xl font-bold text-gray-900">
+                      {isRtl ? (session.title_ar || session.title) : session.title}
+                  </h4>
+                  {session.is_free && (
+                    <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                      {isRtl ? 'مجاني' : 'FREE'}
+                    </span>
+                  )}
+                </div>
                 
                 <div className="space-y-3 mb-6 flex-1">
                   <div className="flex items-center gap-3 text-gray-600">

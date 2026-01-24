@@ -13,21 +13,31 @@ interface Props {
   initialSoloRequests: SoloSessionRequest[]
   isRtl: boolean
   hasGroupSessions: boolean
+  hasSubscription?: boolean
 }
 
-export default function SessionsHub({ initialSessions, coaches, initialSoloRequests, isRtl, hasGroupSessions }: Props) {
-  // Default to solo tab if user doesn't have group sessions subscription
-  const [tab, setTab] = useState<'group' | 'solo'>(hasGroupSessions ? 'group' : 'solo')
+export default function SessionsHub({ initialSessions, coaches, initialSoloRequests, isRtl, hasGroupSessions, hasSubscription = false }: Props) {
+  // Check if there are any free sessions
+  const hasFreeSessions = initialSessions.some(s => s.is_free === true)
+  
+  // Allow group sessions tab if user has subscription OR there are free sessions
+  const canAccessGroupSessions = hasGroupSessions || hasFreeSessions
+  
+  // Default to solo tab if user doesn't have group sessions subscription and no free sessions
+  const [tab, setTab] = useState<'group' | 'solo'>(canAccessGroupSessions ? 'group' : 'solo')
 
   return (
     <div className="space-y-6">
       <div className="flex gap-3 border-b border-gray-200">
-        {hasGroupSessions ? (
+        {canAccessGroupSessions ? (
           <button
             onClick={() => setTab('group')}
             className={`pb-2 px-4 font-semibold ${tab === 'group' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500'}`}
           >
             {isRtl ? 'جلسات جماعية' : 'Group Sessions'}
+            {hasFreeSessions && !hasGroupSessions && (
+              <span className="ml-2 text-xs text-green-600">({isRtl ? 'مجانية' : 'Free'})</span>
+            )}
           </button>
         ) : (
           <div className="pb-2 px-4 font-semibold text-gray-400 cursor-not-allowed flex items-center gap-2">
@@ -51,8 +61,8 @@ export default function SessionsHub({ initialSessions, coaches, initialSoloReque
       </div>
 
       {tab === 'group' ? (
-        hasGroupSessions ? (
-          <SessionsClient initialSessions={initialSessions} coaches={coaches} isRtl={isRtl} />
+        canAccessGroupSessions ? (
+          <SessionsClient initialSessions={initialSessions} coaches={coaches} isRtl={isRtl} hasSubscription={hasSubscription} />
         ) : (
           <div className="bg-white rounded-xl p-8 text-center border-2 border-gray-200">
             <div className="text-5xl mb-4">🔒</div>

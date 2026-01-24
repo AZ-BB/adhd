@@ -296,7 +296,8 @@ function SessionManager({ initialSessions, coaches, isSuperAdmin }: { initialSes
     setCurrentSession({
         max_participants: 10,
         duration_minutes: 60,
-        platform: 'Zoom'
+        platform: 'Zoom',
+        is_free: false
     })
     setIsEditing(true)
   }
@@ -452,6 +453,19 @@ function SessionManager({ initialSessions, coaches, isSuperAdmin }: { initialSes
                 />
             </div>
             <div className="md:col-span-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                        type="checkbox" 
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        checked={currentSession.is_free || false}
+                        onChange={e => setCurrentSession({...currentSession, is_free: e.target.checked})}
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                        Free Session (accessible to all registered users, not just paying ones)
+                    </span>
+                </label>
+            </div>
+            <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">Description</label>
                 <textarea 
                     className="mt-1 block w-full border rounded p-2" 
@@ -539,7 +553,14 @@ function SessionManager({ initialSessions, coaches, isSuperAdmin }: { initialSes
                             {new Date(session.session_date).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{session.title}</div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-sm font-medium text-gray-900">{session.title}</div>
+                                {session.is_free && (
+                                    <span className="px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                        FREE
+                                    </span>
+                                )}
+                            </div>
                             <div className="text-sm text-gray-500">{session.platform}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
