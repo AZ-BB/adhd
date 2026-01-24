@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS payments (
     paymob_order_id VARCHAR(255) UNIQUE, -- Paymob order ID
     paymob_transaction_id VARCHAR(255) UNIQUE, -- Paymob transaction ID
     amount DECIMAL(10, 2) NOT NULL,
-    currency VARCHAR(3) NOT NULL DEFAULT 'EGP', -- EGP or AED
+    currency VARCHAR(3) NOT NULL DEFAULT 'EGP', -- EGP or USD (converted to EGP for Paymob)
     status payment_status DEFAULT 'pending' NOT NULL,
     payment_method VARCHAR(50), -- card, wallet, etc.
     subscription_type subscription_type NOT NULL,

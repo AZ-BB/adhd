@@ -14,8 +14,8 @@ export interface CreatePaymentParams {
 }
 
 // Paymob only supports EGP, so we convert other currencies to EGP
-// Conversion rate: 1 AED = 12.86 EGP
-const AED_TO_EGP_RATE = 12.86
+// Conversion rate: 1 USD = 50 EGP (approximate)
+const USD_TO_EGP_RATE = 50
 
 export async function createPayment(params: CreatePaymentParams) {
   let { packageId, subscriptionType, amount, currency, soloSessionRequestId, baseUrl } = params
@@ -24,12 +24,12 @@ export async function createPayment(params: CreatePaymentParams) {
   const originalCurrency = currency.toUpperCase()
   const originalAmount = amount
   
-  if (currency.toUpperCase() === 'AED') {
-    // Convert AED to EGP (approximate rate: 1 AED = 4 EGP)
-    amount = amount * AED_TO_EGP_RATE
+  if (currency.toUpperCase() === 'USD') {
+    // Convert USD to EGP (approximate rate: 1 USD = 50 EGP)
+    amount = amount * USD_TO_EGP_RATE
     currency = 'EGP'
   } else if (currency.toUpperCase() !== 'EGP') {
-    // If currency is not EGP or AED, default to EGP (Paymob requirement)
+    // If currency is not EGP or USD, default to EGP (Paymob requirement)
     currency = 'EGP'
   } else {
     currency = 'EGP'
