@@ -6,7 +6,7 @@ import { LearningDay, UserDayProgress, UserLearningPathStats } from '@/types/lea
 interface DayWithProgress extends LearningDay {
   progress: UserDayProgress | null
   canAccess: boolean
-  lockReason: 'available' | 'time_locked'
+  lockReason: 'available' | 'time_locked' | 'subscription_required'
   availableDate?: string
 }
 
@@ -29,6 +29,8 @@ export default function LearningPathClient({ days, stats }: LearningPathClientPr
           day: 'numeric'
         })
         alert(`This day will be available on ${formattedDate}. Come back tomorrow! 📅`)
+      } else if (day.lockReason === 'subscription_required') {
+        router.push('/en/pricing')
       } else {
         alert('This day is not available yet.')
       }
@@ -55,6 +57,8 @@ export default function LearningPathClient({ days, stats }: LearningPathClientPr
         return `${day.progress.games_correct_count}/${day.required_correct_games} games`
       }
       return 'Start'
+    } else if (day.lockReason === 'subscription_required') {
+      return 'Subscription Required 🔒'
     } else {
       return 'Coming Soon ⏰'
     }
@@ -62,6 +66,10 @@ export default function LearningPathClient({ days, stats }: LearningPathClientPr
 
   const getLockMessage = (day: DayWithProgress) => {
     if (day.canAccess || day.progress?.is_completed) return null
+    
+    if (day.lockReason === 'subscription_required') {
+      return 'Subscription required - Click to subscribe'
+    }
     
     if (day.lockReason === 'time_locked' && day.availableDate) {
       const availableDate = new Date(day.availableDate)

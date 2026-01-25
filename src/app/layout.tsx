@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { createSupabaseServerClient } from "@/lib/server";
 import Script from "next/script";
+import WhatsAppHelpButton from "@/components/WhatsAppHelpButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -52,6 +53,7 @@ export default async function RootLayout({
         </Script>
         <div>
           {children}
+          <WhatsAppHelpButton />
         </div>
       </body>
     </html>

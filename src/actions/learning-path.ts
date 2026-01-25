@@ -438,6 +438,23 @@ async function getAvailableDayByTime(userId: number): Promise<number> {
  * Check if user can access a specific day (only time-based restriction)
  */
 export async function canAccessDay(userId: number, dayNumber: number): Promise<boolean> {
+  // First 3 days are accessible to all users regardless of subscription
+  if (dayNumber <= 3) {
+    // Initialize learning path if this is first access
+    await initializeLearningPathStartDate(userId)
+    // Check time-based availability only
+    const availableDayByTime = await getAvailableDayByTime(userId)
+    return dayNumber <= availableDayByTime
+  }
+  
+  // For days 4+, check subscription first
+  const { hasActiveSubscription } = await import('@/lib/subscription')
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return false
+  }
+  
   // Initialize learning path if this is first access
   await initializeLearningPathStartDate(userId)
   
@@ -453,9 +470,56 @@ export async function canAccessDay(userId: number, dayNumber: number): Promise<b
  */
 export async function getDayAvailability(userId: number, dayNumber: number): Promise<{
   canAccess: boolean
-  reason: 'available' | 'time_locked'
+  reason: 'available' | 'time_locked' | 'subscription_required'
   availableDate?: string
 }> {
+  // First 3 days are accessible to all users regardless of subscription
+  if (dayNumber <= 3) {
+    const supabase = await createSupabaseServerClient()
+    
+    // Initialize learning path if needed
+    await initializeLearningPathStartDate(userId)
+    
+    // Get time-based availability
+    const availableDayByTime = await getAvailableDayByTime(userId)
+    
+    // Check if time-locked
+    if (dayNumber > availableDayByTime) {
+      // Calculate when it will be available
+      const { data: user } = await supabase
+        .from('users')
+        .select('learning_path_started_at')
+        .eq('id', userId)
+        .single()
+      
+      if (user?.learning_path_started_at) {
+        const startDate = new Date(user.learning_path_started_at)
+        const availableDate = new Date(startDate)
+        availableDate.setDate(availableDate.getDate() + dayNumber - 1)
+        
+        return {
+          canAccess: false,
+          reason: 'time_locked',
+          availableDate: availableDate.toISOString()
+        }
+      }
+    }
+    
+    // Day is available if time allows (no completion requirement)
+    return { canAccess: true, reason: 'available' }
+  }
+  
+  // For days 4+, check subscription first
+  const { hasActiveSubscription } = await import('@/lib/subscription')
+  const hasSubscription = await hasActiveSubscription()
+  
+  if (!hasSubscription) {
+    return {
+      canAccess: false,
+      reason: 'subscription_required'
+    }
+  }
+  
   const supabase = await createSupabaseServerClient()
   
   // Initialize learning path if needed

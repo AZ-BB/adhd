@@ -31,10 +31,6 @@ export default async function LearningPathPage() {
   // Check if user has active subscription
   const hasSubscription = await hasActiveSubscription()
   
-  if (!hasSubscription) {
-    return <PremiumLock isRtl={false} feature="Learning Path & Games" />
-  }
-  
   // Get all learning days
   const learningDays = await getLearningDays()
   
@@ -66,10 +62,15 @@ export default async function LearningPathPage() {
   const currentMonth = getCurrentUserMonth()
   
   // Filter days to only show current month and past months (hide future months)
-  const visibleDays = learningDays.filter((day) => {
+  let visibleDays = learningDays.filter((day) => {
     const dayMonth = getDayMonth(day.day_number)
     return dayMonth <= currentMonth
   })
+  
+  // If user doesn't have subscription, only show first 3 days
+  if (!hasSubscription) {
+    visibleDays = visibleDays.filter((day) => day.day_number <= 3)
+  }
   
   // Create a map of day_id -> progress
   const progressMap = new Map(

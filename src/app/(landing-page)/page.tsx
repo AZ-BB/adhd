@@ -89,6 +89,31 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Introduction Video Section */}
+      <section dir="rtl" className="relative z-10 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-sky-900 mb-2">
+              تعرّف على Movokids
+            </h2>
+            <p className="text-sky-900/70">
+              شاهد هذا الفيديو التعريفي لمعرفة المزيد عن منصتنا
+            </p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="relative aspect-video rounded-3xl overflow-hidden shadow-lg border border-sky-100 bg-white/90">
+              <iframe
+                src="https://www.youtube.com/embed/psRBFRy8HNM"
+                title="Movokids Introduction Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Mission & Vision */}
       <section dir="rtl" className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -6,7 +6,7 @@ import { LearningDay, UserDayProgress, UserLearningPathStats } from '@/types/lea
 interface DayWithProgress extends LearningDay {
   progress: UserDayProgress | null
   canAccess: boolean
-  lockReason: 'available' | 'time_locked'
+  lockReason: 'available' | 'time_locked' | 'subscription_required'
   availableDate?: string
 }
 
@@ -29,6 +29,8 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
           day: 'numeric'
         })
         alert(`هذا اليوم سيكون متاحًا في ${formattedDate}. عد غدًا! 📅`)
+      } else if (day.lockReason === 'subscription_required') {
+        router.push('/pricing')
       } else {
         alert('هذا اليوم غير متاح بعد.')
       }
@@ -55,6 +57,8 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
         return `${day.progress.games_correct_count}/${day.required_correct_games} ألعاب`
       }
       return 'ابدأ'
+    } else if (day.lockReason === 'subscription_required') {
+      return 'يتطلب اشتراك 🔒'
     } else {
       return 'قريباً ⏰'
     }
@@ -62,6 +66,10 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
 
   const getLockMessage = (day: DayWithProgress) => {
     if (day.canAccess || day.progress?.is_completed) return null
+    
+    if (day.lockReason === 'subscription_required') {
+      return 'يتطلب اشتراك - اضغط للاشتراك'
+    }
     
     if (day.lockReason === 'time_locked' && day.availableDate) {
       const availableDate = new Date(day.availableDate)
