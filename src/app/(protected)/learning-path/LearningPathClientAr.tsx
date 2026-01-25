@@ -14,9 +14,10 @@ interface LearningPathClientArProps {
   days: DayWithProgress[]
   stats: UserLearningPathStats
   userId: number
+  hasSubscription: boolean
 }
 
-export default function LearningPathClientAr({ days, stats }: LearningPathClientArProps) {
+export default function LearningPathClientAr({ days, stats, hasSubscription }: LearningPathClientArProps) {
   const router = useRouter()
 
   const handleDayClick = (day: DayWithProgress) => {
@@ -115,7 +116,7 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
           <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-4 rounded-lg">
             <div className="text-sm text-purple-700 mb-1">التقدم</div>
             <div className="text-2xl font-bold text-purple-900">
-              {stats.completedDays}/{stats.totalDays}
+              {stats.completedDays}
             </div>
             <div className="text-xs text-purple-600">أيام مكتملة</div>
           </div>
@@ -125,7 +126,7 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
             <div className="text-2xl font-bold text-blue-900">
               {stats.currentDay}
             </div>
-            <div className="text-xs text-blue-600">من {stats.totalDays}</div>
+            <div className="text-xs text-blue-600">اليوم</div>
           </div>
 
           <div className="bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-lg">
@@ -145,23 +146,25 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
           </div>
         </div>
 
-        {/* Overall Progress Bar */}
-        <div className="mt-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              التقدم الإجمالي
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round((stats.completedDays / stats.totalDays) * 100)}%
-            </span>
+        {/* Overall Progress Bar - Hidden if no subscription */}
+        {hasSubscription && (
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                التقدم الإجمالي
+              </span>
+              <span className="text-sm text-gray-500">
+                {Math.round((stats.completedDays / stats.totalDays) * 100)}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-4">
+              <div
+                className="bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 h-4 rounded-full transition-all duration-500"
+                style={{ width: `${(stats.completedDays / stats.totalDays) * 100}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-4">
-            <div
-              className="bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 h-4 rounded-full transition-all duration-500"
-              style={{ width: `${(stats.completedDays / stats.totalDays) * 100}%` }}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Days Grid */}
@@ -246,18 +249,21 @@ export default function LearningPathClientAr({ days, stats }: LearningPathClient
       {/* Motivational Message */}
       <div className="mt-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-lg p-6 text-white text-center">
         <h2 className="text-2xl font-bold mb-2">
-          {stats.completedDays === stats.totalDays
-            ? '🎉 تهانينا! لقد أكملت جميع الأيام!'
-            : stats.completedDays > 0
+          {stats.completedDays > 0
             ? `عمل رائع! استمر! 💪`
             : 'ابدأ رحلتك التعليمية اليوم! 🚀'
           }
         </h2>
         <p className="text-purple-100">
-          {stats.completedDays === stats.totalDays
-            ? 'أنت رائع! لقد أكملت مسار التعلم بالكامل!'
-            : `لديك ${stats.totalDays - stats.completedDays} أيام متبقية. يمكنك القيام بذلك!`
-          }
+          {!hasSubscription && days.some(d => d.lockReason === 'subscription_required') && (
+            <>اشترك الآن للوصول إلى جميع الألعاب والأنشطة! 🎮</>
+          )}
+          {hasSubscription && stats.completedDays > 0 && (
+            <>استمر في التقدم! أنت تقوم بعمل رائع! 🌟</>
+          )}
+          {hasSubscription && stats.completedDays === 0 && (
+            <>ابدأ رحلتك التعليمية اليوم! 🚀</>
+          )}
         </p>
       </div>
     </div>

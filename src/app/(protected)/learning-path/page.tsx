@@ -67,10 +67,8 @@ export default async function LearningPathPageAr() {
     return dayMonth <= currentMonth
   })
   
-  // If user doesn't have subscription, only show first 3 days
-  if (!hasSubscription) {
-    visibleDays = visibleDays.filter((day) => day.day_number <= 3)
-  }
+  // Show all days in current month, but days 4+ will be locked if no subscription
+  // Don't filter them out - let the access control handle locking
   
   // Create a map of day_id -> progress
   const progressMap = new Map(
@@ -98,6 +96,7 @@ export default async function LearningPathPageAr() {
           days={daysWithAccess}
           stats={stats}
           userId={user.id}
+          hasSubscription={hasSubscription}
         />
       </div>
     </div>
