@@ -70,7 +70,7 @@ export default async function DashboardPage() {
   const hasSubscription = await hasActiveSubscription()
 
   // Get upcoming sessions
-  let upcomingSessions = []
+  let upcomingSessions: any[] = []
   try {
     upcomingSessions = await getSessions({ include_past: false })
   } catch (error) {
