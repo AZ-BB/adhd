@@ -38,7 +38,12 @@ export default async function RootLayout({
         <title>MovoKids</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Google tag (gtag.js) */}
+        {/* Google tag (gtag.js) - Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-C7HW7YBGWQ"
+          strategy="afterInteractive"
+        />
+        {/* Google tag (gtag.js) - Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-HRNHXBKYC1"
           strategy="afterInteractive"
@@ -48,6 +53,7 @@ export default async function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
+            gtag('config', 'G-C7HW7YBGWQ');
             gtag('config', 'G-HRNHXBKYC1');
           `}
         </Script>

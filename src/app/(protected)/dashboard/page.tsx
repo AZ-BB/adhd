@@ -7,6 +7,7 @@ import {
 } from "@/actions/learning-path"
 import { getUserPhysicalActivityStats } from "@/actions/physical-activities"
 import { getUserSubscriptionDetails, hasActiveSubscription } from "@/lib/subscription"
+import { getSessions } from "@/actions/sessions"
 import DashboardFeatureCard from "@/components/DashboardFeatureCard"
 
 export default async function DashboardPage() {
@@ -67,6 +68,16 @@ export default async function DashboardPage() {
   // Get subscription details
   const subscriptionDetails = await getUserSubscriptionDetails()
   const hasSubscription = await hasActiveSubscription()
+
+  // Get upcoming sessions
+  let upcomingSessions = []
+  try {
+    upcomingSessions = await getSessions({ include_past: false })
+  } catch (error) {
+    console.error("Error fetching sessions:", error)
+  }
+  const upcomingSessionsCount = upcomingSessions.length
+  const hasFreeSessions = upcomingSessions.some(s => s.is_free === true)
 
   // Format expiration date
   const formatDate = (dateString: string | null) => {
@@ -213,20 +224,20 @@ export default async function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <DashboardFeatureCard
               href="/learning-path"
               icon="🎮"
-              lockedIcon="🔒"
+              lockedIcon="🎮"
               title="العب ألعابًا"
               description={
                 hasSubscription 
                   ? (learningStats?.completedDays === 0
                     ? "ابدأ رحلتك التعليمية!"
                     : `اليوم ${learningStats?.currentDay} في انتظارك!`)
-                  : "اشترك للوصول إلى الألعاب"
+                  : "ابدأ رحلتك التعليمية!"
               }
-              isLocked={!hasSubscription}
+              isLocked={false}
               isRtl={true}
               gradientFrom="from-teal-500"
               gradientTo="to-cyan-600"
@@ -250,6 +261,23 @@ export default async function DashboardPage() {
               gradientFrom="from-green-500"
               gradientTo="to-emerald-600"
               textColor="text-green-100"
+            />
+
+            <DashboardFeatureCard
+              href="/sessions"
+              icon="👥"
+              lockedIcon="👥"
+              title="الجلسات"
+              description={
+                upcomingSessionsCount > 0
+                  ? `${upcomingSessionsCount} ${upcomingSessionsCount === 1 ? 'جلسة قادمة' : 'جلسات قادمة'}${hasFreeSessions && !hasSubscription ? ' (مجانية)' : ''}`
+                  : "لا توجد جلسات قادمة حالياً"
+              }
+              isLocked={false}
+              isRtl={true}
+              gradientFrom="from-purple-500"
+              gradientTo="to-pink-600"
+              textColor="text-purple-100"
             />
           </div>
 
