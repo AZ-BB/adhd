@@ -9,21 +9,30 @@ export interface CreatePaymentParams {
   subscriptionType: string
   amount: number
   currency: string
+  /** Legacy: link payment to existing request (then mark as paid) */
   soloSessionRequestId?: number
+  /** New flow: request + pay in one step; request is created after payment from these */
+  soloSessionRequestAndPay?: {
+    coach_id: number | null
+    preferred_time: string
+    contact_phone: string
+    notes?: string
+  }
   baseUrl?: string
 }
 
 export async function createPayment(params: CreatePaymentParams) {
-  const { packageId, subscriptionType, amount, currency, soloSessionRequestId, baseUrl } = params
+  const { packageId, subscriptionType, amount, currency, soloSessionRequestId, soloSessionRequestAndPay, baseUrl } = params
 
-  // Stripe supports USD, EGP, and many other currencies - use as provided
   const currencyUpper = currency.toUpperCase()
 
-  // Validate input
   if (subscriptionType === 'individual_session') {
-    if (!soloSessionRequestId || !subscriptionType || !amount || !currency) {
-      throw new Error('Missing required fields: soloSessionRequestId, subscriptionType, amount, currency')
+    const hasLegacy = soloSessionRequestId != null
+    const hasNew = soloSessionRequestAndPay && soloSessionRequestAndPay.preferred_time && soloSessionRequestAndPay.contact_phone
+    if (!hasLegacy && !hasNew) {
+      throw new Error('For individual session provide either soloSessionRequestId (legacy) or soloSessionRequestAndPay (preferred_time, contact_phone)')
     }
+    if (!amount || !currency) throw new Error('Missing amount or currency')
   } else {
     if (!packageId || !subscriptionType || !amount || !currency) {
       throw new Error('Missing required fields: packageId, subscriptionType, amount, currency')
@@ -68,8 +77,16 @@ export async function createPayment(params: CreatePaymentParams) {
     },
   }
 
-  if (subscriptionType === 'individual_session' && soloSessionRequestId) {
-    (paymentData.metadata as Record<string, unknown>).solo_session_request_id = soloSessionRequestId
+  if (subscriptionType === 'individual_session') {
+    if (soloSessionRequestId != null) {
+      (paymentData.metadata as Record<string, unknown>).solo_session_request_id = soloSessionRequestId
+    } else if (soloSessionRequestAndPay) {
+      const m = paymentData.metadata as Record<string, unknown>
+      m.coach_id = soloSessionRequestAndPay.coach_id
+      m.preferred_time = soloSessionRequestAndPay.preferred_time
+      m.contact_phone = soloSessionRequestAndPay.contact_phone
+      if (soloSessionRequestAndPay.notes) m.notes = soloSessionRequestAndPay.notes
+    }
   } else if (packageId != null) {
     (paymentData.metadata as Record<string, unknown>).package_id = packageId
   }
@@ -108,6 +125,13 @@ export async function createPayment(params: CreatePaymentParams) {
       user_id: userProfile.id,
       ...(subscriptionType === 'individual_session' && soloSessionRequestId != null
         ? { solo_session_request_id: soloSessionRequestId }
+        : subscriptionType === 'individual_session' && soloSessionRequestAndPay
+        ? {
+            coach_id: soloSessionRequestAndPay.coach_id,
+            preferred_time: soloSessionRequestAndPay.preferred_time,
+            contact_phone: soloSessionRequestAndPay.contact_phone,
+            ...(soloSessionRequestAndPay.notes ? { notes: soloSessionRequestAndPay.notes } : {}),
+          }
         : {}),
       ...(packageId != null ? { package_id: packageId } : {}),
     },

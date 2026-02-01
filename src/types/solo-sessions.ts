@@ -10,6 +10,8 @@ export interface SoloSessionRequest {
   scheduled_time?: string | null
   duration_minutes: number
   notes?: string
+  contact_phone?: string | null
+  payment_id?: number | null
   status: SoloSessionStatus
   meeting_link?: string | null
   admin_reason?: string | null
@@ -44,6 +46,15 @@ export interface SoloSessionRequestInput {
   coach_id?: number | null
   preferred_time?: string | null
   duration_minutes?: number
+  notes?: string
+  contact_phone?: string | null
+}
+
+/** Input for "request + pay" flow: create payment with these; request is created after payment success */
+export interface SoloSessionRequestAndPayInput {
+  coach_id: number | null
+  preferred_time: string // ISO datetime
+  contact_phone: string
   notes?: string
 }
 

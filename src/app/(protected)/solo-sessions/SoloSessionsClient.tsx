@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Coach } from '@/types/sessions'
 import { SoloSessionRequest } from '@/types/solo-sessions'
-import { createSoloSessionRequest } from '@/actions/solo-sessions'
+import { requestAndPaySoloSession } from '@/actions/solo-sessions'
 import { useRouter } from 'next/navigation'
 
 interface Props {
@@ -17,7 +17,9 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
   const [requests, setRequests] = useState(initialRequests)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    coach_id: '' as number | '' ,
+    coach_id: '' as number | '',
+    preferred_time: '',
+    contact_phone: '',
     notes: ''
   })
   const [payLoadingId, setPayLoadingId] = useState<number | null>(null)
@@ -57,12 +59,16 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
 
   const t = {
     title: isRtl ? 'جلسات فردية (1 إلى 1)' : '1:1 Solo Sessions',
-    subtitle: isRtl ? 'اطلب جلسة خاصة مع مدرب وانتظر الموافقة' : 'Request a private session with a coach and wait for approval',
+    subtitle: isRtl ? 'احجز جلسة خاصة مع مدرب: أدخل التفاصيل وادفع، ثم ستوافق الإدارة وتحدد وقت الجلسة' : 'Book a private session: enter your details and pay; then admin will approve and set the meeting',
     coach: isRtl ? 'المدرب' : 'Coach',
     optional: isRtl ? '(اختياري)' : '(Optional)',
+    preferredTime: isRtl ? 'الوقت المفضل' : 'Preferred time',
+    contactPhone: isRtl ? 'رقم الهاتف' : 'Phone number',
     durationInfo: isRtl ? 'مدة الجلسة: 30-45 دقيقة' : 'Session Duration: 30-45 minutes',
     notes: isRtl ? 'ملاحظات' : 'Notes',
-    submit: isRtl ? 'إرسال الطلب' : 'Submit Request',
+    submit: isRtl ? 'طلب الجلسة والدفع' : 'Request session & pay',
+    submitWithPrice: (price: number, currency: string) =>
+      isRtl ? `طلب الجلسة والدفع (${price} ${currency})` : `Request session & pay (${price} ${currency})`,
     status: isRtl ? 'الحالة' : 'Status',
     meetingLink: isRtl ? 'رابط الجلسة' : 'Meeting Link',
     adminReason: isRtl ? 'سبب الرفض' : 'Rejection Reason',
@@ -72,7 +78,7 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
     paymentPending: isRtl ? 'بانتظار الدفع' : 'Payment pending',
     rejected: isRtl ? 'مرفوضة' : 'Rejected',
     payNow: isRtl ? 'ادفع الآن' : 'Pay now',
-    payNowWithPrice: (price: number, currency: string) => 
+    payNowWithPrice: (price: number, currency: string) =>
       isRtl ? `ادفع الآن - ${price} ${currency}` : `Pay now - ${price} ${currency}`,
     scheduled: isRtl ? 'الوقت المعتمد' : 'Scheduled Time',
   }
@@ -89,15 +95,29 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
   const activeRequest = requests.find(req => req.status === 'pending' || req.status === 'payment_pending')
 
   const handleSubmit = async () => {
+    const phone = form.contact_phone.trim()
+    if (!phone) {
+      alert(isRtl ? 'يرجى إدخال رقم الهاتف' : 'Please enter your phone number')
+      return
+    }
+    const preferredTime = form.preferred_time
+    if (!preferredTime) {
+      alert(isRtl ? 'يرجى اختيار الوقت المفضل' : 'Please select your preferred time')
+      return
+    }
     setLoading(true)
     try {
-      await createSoloSessionRequest({
+      const result = await requestAndPaySoloSession({
         coach_id: form.coach_id === '' ? null : Number(form.coach_id),
+        preferred_time: new Date(preferredTime).toISOString(),
+        contact_phone: phone,
         notes: form.notes || undefined,
       })
-      alert(isRtl ? 'تم إرسال الطلب، بانتظار الموافقة' : 'Request submitted, awaiting approval')
-      setForm({ coach_id: '', notes: '' })
-      router.refresh()
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl
+        return
+      }
+      alert(isRtl ? 'حدث خطأ في إنشاء الدفع' : 'Failed to create payment')
     } catch (err: any) {
       alert(err.message || 'Error')
     } finally {
@@ -138,9 +158,9 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
         <div className="mt-3 p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-sm space-y-1">
           <p>{isRtl ? 'مهم:' : 'Important:'}</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>{isRtl ? 'عند الموافقة ستصبح الحالة "بانتظار الدفع". عليك الضغط على "ادفع الآن" لإتمام الحجز.' : 'Once approved, status becomes "Payment pending". You must click "Pay now" to confirm the booking.'}</li>
-            <li>{isRtl ? 'إذا لم يتم الدفع خلال الوقت المناسب قد يتم إلغاء الطلب.' : 'If payment is not completed in time, the request may be cancelled.'}</li>
-            <li>{isRtl ? 'سيظهر رابط الجلسة بعد اكتمال الدفع (حالة "مدفوعة").' : 'The meeting link stays available after payment is completed (status "Paid").'}</li>
+            <li>{isRtl ? 'أدخل التفاصيل وادفع الآن؛ بعد الدفع سيظهر طلبك كـ "قيد المراجعة".' : 'Enter your details and pay now; after payment your request will show as "Pending".'}</li>
+            <li>{isRtl ? 'ستوافق الإدارة على الطلب وتضيف رابط الجلسة والوقت، أو سترفضه مع توضيح السبب.' : 'Admin will approve (and set meeting link and time) or reject with a reason.'}</li>
+            <li>{isRtl ? 'رابط الجلسة يظهر بعد موافقة الإدارة.' : 'The meeting link appears after admin approval.'}</li>
           </ul>
         </div>
       </div>
@@ -166,7 +186,7 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm font-semibold text-blue-800">{t.durationInfo}</p>
           <p className="text-xs text-blue-600 mt-1">
-            {isRtl ? 'سيتم تحديد وقت الجلسة من قبل الإدارة' : 'The session time will be scheduled by the admin'}
+            {isRtl ? 'سيتم تأكيد وقت الجلسة من قبل الإدارة بعد الموافقة' : 'The session time will be confirmed by admin after approval'}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,6 +221,32 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
               )}
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t.preferredTime} <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="datetime-local"
+              className="w-full border rounded-lg p-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              value={form.preferred_time}
+              onChange={(e) => setForm({ ...form, preferred_time: e.target.value })}
+              disabled={hasActiveRequest}
+              min={new Date().toISOString().slice(0, 16)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t.contactPhone} <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              className="w-full border rounded-lg p-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              value={form.contact_phone}
+              onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
+              placeholder={isRtl ? 'رقم هاتف ولي الأمر' : 'Parent/guardian phone'}
+              disabled={hasActiveRequest}
+            />
+          </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t.notes} {t.optional}
@@ -215,14 +261,17 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
             />
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex items-center gap-3">
           <button
             onClick={handleSubmit}
-            disabled={loading || hasActiveRequest}
+            disabled={loading || hasActiveRequest || priceLoading}
             className="px-6 py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? '...' : t.submit}
+            {loading ? '...' : priceLoading ? (isRtl ? 'جاري التحميل...' : 'Loading...') : t.submitWithPrice(sessionPrice, sessionCurrency)}
           </button>
+          {priceLoading && (
+            <span className="text-sm text-gray-500">{isRtl ? 'جاري تحديد السعر...' : 'Detecting price...'}</span>
+          )}
         </div>
       </div>
 

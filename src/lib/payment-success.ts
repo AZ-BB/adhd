@@ -104,12 +104,40 @@ export async function handleSuccessfulPayment(supabase: any, payment: any) {
   }
 }
 
-export async function markSoloSessionPaidIfNeeded(
+/**
+ * For individual_session: either create a new solo_session_request from payment metadata (new flow:
+ * request + pay in one step) or mark an existing request as paid (legacy flow).
+ */
+export async function fulfillSoloSessionPayment(
   supabase: any,
   payment: any
 ): Promise<void> {
   if (payment.subscription_type !== 'individual_session') return
-  const soloSessionRequestId = payment.metadata?.solo_session_request_id
+
+  const meta = payment.metadata || {}
+
+  // New flow: create request from payment metadata (coach_id, preferred_time, contact_phone)
+  if (meta.coach_id != null || meta.preferred_time || meta.contact_phone) {
+    const preferredTime = meta.preferred_time
+      ? new Date(meta.preferred_time).toISOString()
+      : new Date().toISOString() // fallback
+    const duration = 38
+    const { error } = await supabase.from('solo_session_requests').insert({
+      user_id: payment.user_id,
+      coach_id: meta.coach_id ? parseInt(String(meta.coach_id), 10) : null,
+      preferred_time: preferredTime,
+      duration_minutes: duration,
+      notes: meta.notes || null,
+      contact_phone: meta.contact_phone || null,
+      payment_id: payment.id,
+      status: 'pending',
+    })
+    if (error) console.error('Create solo session request from payment:', error)
+    return
+  }
+
+  // Legacy flow: mark existing request as paid
+  const soloSessionRequestId = meta.solo_session_request_id
   if (!soloSessionRequestId) return
 
   await supabase
@@ -120,4 +148,12 @@ export async function markSoloSessionPaidIfNeeded(
     })
     .eq('id', soloSessionRequestId)
     .eq('user_id', payment.user_id)
+}
+
+/** @deprecated Use fulfillSoloSessionPayment */
+export async function markSoloSessionPaidIfNeeded(
+  supabase: any,
+  payment: any
+): Promise<void> {
+  return fulfillSoloSessionPayment(supabase, payment)
 }

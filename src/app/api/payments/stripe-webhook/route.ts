@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { createSupabaseAdminServerClient } from '@/lib/server'
 import { getStripe } from '@/lib/stripe'
-import { handleSuccessfulPayment, markSoloSessionPaidIfNeeded } from '@/lib/payment-success'
+import { handleSuccessfulPayment, fulfillSoloSessionPayment } from '@/lib/payment-success'
 
 export const runtime = 'nodejs'
 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       await supabase.from('payments').update(updatePayload).eq('id', payment.id)
 
       await handleSuccessfulPayment(supabase, { ...payment, status: 'success' })
-      await markSoloSessionPaidIfNeeded(supabase, { ...payment, status: 'success' })
+      await fulfillSoloSessionPayment(supabase, { ...payment, status: 'success' })
     }
 
     return NextResponse.json({ received: true })

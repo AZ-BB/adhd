@@ -216,7 +216,64 @@ export async function respondSoloSessionRequest(
   revalidatePath('/solo-sessions/en')
 }
 
-// User: initiate payment for solo session request
+// User: request + pay in one step (new flow). Creates payment with metadata; request is created after payment success.
+export async function requestAndPaySoloSession(input: {
+  coach_id: number | null
+  preferred_time: string
+  contact_phone: string
+  notes?: string
+}) {
+  const { supabase, userProfile } = await getCurrentUserProfile()
+
+  // Check no active pending request (optional: allow one at a time)
+  const { data: existingRequests } = await supabase
+    .from('solo_session_requests')
+    .select('id, status')
+    .eq('user_id', userProfile.id)
+    .in('status', ['pending', 'payment_pending'])
+  if (existingRequests && existingRequests.length > 0) {
+    throw new Error(
+      'You already have a session request in progress. Wait for admin to approve or reject it before requesting another.'
+    )
+  }
+
+  let isEgypt = false
+  try {
+    const locationResponse = await fetch('https://ipapi.co/json/')
+    const locationData = await locationResponse.json()
+    if (locationData.country_code === 'EG') isEgypt = true
+  } catch {
+    // ignore
+  }
+  const amount = isEgypt ? 200 : 12.99
+  const currency = isEgypt ? 'EGP' : 'USD'
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+
+  const { createPayment } = await import('@/lib/payments')
+  const data = await createPayment({
+    subscriptionType: 'individual_session',
+    amount,
+    currency,
+    soloSessionRequestAndPay: {
+      coach_id: input.coach_id,
+      preferred_time: input.preferred_time,
+      contact_phone: input.contact_phone.trim(),
+      notes: input.notes,
+    },
+    baseUrl,
+  })
+
+  return {
+    success: true,
+    paymentId: data.paymentId,
+    checkoutUrl: data.checkoutUrl,
+    redirectUrl: data.checkoutUrl,
+  }
+}
+
+// User: initiate payment for solo session request (legacy flow: request first, then pay)
 export async function initiateSoloSessionPayment(requestId: number, isEgypt?: boolean) {
   const { supabase, userProfile } = await getCurrentUserProfile()
 

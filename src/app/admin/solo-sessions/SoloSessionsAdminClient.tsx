@@ -6,7 +6,9 @@ import { SoloSessionRequest } from "@/types/solo-sessions"
 import { respondSoloSessionRequest, getAdminSoloSessionRequests } from "@/actions/solo-sessions"
 import { useRouter } from "next/navigation"
 
-type StatusFilter = 'all' | 'pending' | 'payment_pending' | 'rejected' | 'paid'
+type StatusFilter = 'all' | 'pending' | 'payment_pending' | 'approved' | 'rejected' | 'paid'
+
+type ActionMode = 'approve' | 'reject' | 'edit'
 
 interface Props {
   initialRequests: SoloSessionRequest[]
@@ -20,9 +22,10 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
   const [notesModalRequest, setNotesModalRequest] = useState<SoloSessionRequest | null>(null)
-  const [responseData, setResponseData] = useState<{ id: number | null; status: 'rejected' | 'payment_pending'; meeting_link: string; admin_reason: string; scheduled_time: string }>({
+  const [actionMode, setActionMode] = useState<ActionMode>('approve')
+  const [responseData, setResponseData] = useState<{ id: number | null; status: 'rejected' | 'payment_pending' | 'approved'; meeting_link: string; admin_reason: string; scheduled_time: string }>({
     id: null,
-    status: 'payment_pending',
+    status: 'approved',
     meeting_link: '',
     admin_reason: '',
     scheduled_time: ''
@@ -43,10 +46,10 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
     }
   }
 
-  const handleOpenAction = (req: SoloSessionRequest, status: 'rejected' | 'payment_pending' | 'edit') => {
-    // For paid sessions or 'edit' status, use 'payment_pending' for UI state
-    // The server action will handle preserving 'paid' status when it receives 'edit'
-    const uiStatus: 'rejected' | 'payment_pending' = (status === 'edit' || req.status === 'paid') ? 'payment_pending' : status
+  const handleOpenAction = (req: SoloSessionRequest, mode: 'approve' | 'reject' | 'edit') => {
+    setActionMode(mode)
+    const uiStatus: 'rejected' | 'payment_pending' | 'approved' =
+      mode === 'reject' ? 'rejected' : mode === 'edit' ? (req.status === 'paid' ? 'payment_pending' : req.status === 'approved' ? 'approved' : 'payment_pending') : 'approved'
     setResponseData({
       id: req.id,
       status: uiStatus,
@@ -58,35 +61,33 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
 
   const handleSubmit = async () => {
     if (!responseData.id) return
-    
-    // Find the request to check if it's paid
+
     const currentRequest = requests.find(r => r.id === responseData.id)
     const isPaidSession = currentRequest?.status === 'paid'
-    
-    // For paid sessions, don't require meeting link (it might already exist)
-    // For non-paid sessions, require meeting link for approval
-    if (!isPaidSession && (responseData.status === 'payment_pending') && !responseData.meeting_link) {
+
+    if (actionMode === 'approve' && !responseData.meeting_link?.trim()) {
       alert("Meeting link is required to approve")
       return
     }
-    
-    // Require rejection reason when rejecting
-    if (responseData.status === 'rejected' && !responseData.admin_reason?.trim()) {
-      alert("A rejection reason is required. This will be displayed to the child to help them understand why their request was not approved.")
+    if (actionMode === 'edit' && responseData.status !== 'rejected' && !responseData.meeting_link?.trim()) {
+      alert("Meeting link is required")
       return
     }
-    
+    if (responseData.status === 'rejected' && !responseData.admin_reason?.trim()) {
+      alert("A rejection reason is required. This will be displayed to the child.")
+      return
+    }
+
     setActionLoadingId(responseData.id)
     try {
-      // For paid sessions, use 'edit' status which the server will interpret as "preserve current status"
-      // The server action will handle preserving 'paid' status
+      const statusToSend = isPaidSession ? 'edit' : responseData.status
       await respondSoloSessionRequest(responseData.id, {
-        status: isPaidSession ? 'edit' : responseData.status,
-        meeting_link: responseData.meeting_link,
+        status: statusToSend,
+        meeting_link: responseData.meeting_link || undefined,
         admin_reason: responseData.admin_reason || undefined,
         scheduled_time: responseData.scheduled_time ? new Date(responseData.scheduled_time).toISOString() : undefined
       })
-      setResponseData({ id: null, status: 'payment_pending', meeting_link: '', admin_reason: '', scheduled_time: '' })
+      setResponseData({ id: null, status: 'approved', meeting_link: '', admin_reason: '', scheduled_time: '' })
       await refresh()
       router.refresh()
     } catch (e: any) {
@@ -106,9 +107,9 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
             <div className="mt-3 p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-sm space-y-1">
               <p className="font-semibold">Reminders:</p>
               <ul className="list-disc list-inside space-y-1">
-                <li>Set status to "payment_pending" with a meeting link; child must click "Pay now" to move to "paid".</li>
-                <li>Unpaid requests can be rejected if payment is not completed in time.</li>
-                <li>You can edit the link/time even after approved/paid; payment status stays.</li>
+                <li><strong>Pending</strong> = paid, awaiting your decision. Approve (set meeting link + time) or Reject (with reason).</li>
+                <li>Legacy <strong>payment_pending</strong> = old flow; child has not paid yet. You can Edit or Reject.</li>
+                <li>You can Edit meeting link/time for approved or paid sessions.</li>
               </ul>
             </div>
           </div>
@@ -134,6 +135,7 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Child</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coach</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -152,6 +154,9 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
                     {isSuperAdmin && req.user && (req.user as any).email && (
                       <div className="text-sm text-gray-500">{(req.user as any).email}</div>
                     )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {req.contact_phone || (isSuperAdmin && req.user?.parent_phone) || '—'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {req.scheduled_time ? (
@@ -201,35 +206,43 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
                   </td>
                   <td className="px-6 py-4 flex flex-wrap gap-3">
                     {req.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleOpenAction(req, 'approve')}
+                          className="text-green-600 font-semibold"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleOpenAction(req, 'reject')}
+                          className="text-red-600 font-semibold"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                    {(req.status === 'payment_pending' || req.status === 'paid') && (
                       <button
-                        onClick={() => handleOpenAction(req, 'payment_pending')}
-                        className="text-green-600 font-semibold"
+                        onClick={() => handleOpenAction(req, 'edit')}
+                        className="text-blue-600 font-semibold"
                       >
-                        Approve
+                        Edit
                       </button>
                     )}
                     {req.status === 'payment_pending' && (
                       <button
-                        onClick={() => handleOpenAction(req, 'edit')}
-                        className="text-blue-600 font-semibold"
-                      >
-                        Edit
-                      </button>
-                    )}
-                    {req.status === 'paid' && (
-                      <button
-                        onClick={() => handleOpenAction(req, 'edit')}
-                        className="text-blue-600 font-semibold"
-                      >
-                        Edit
-                      </button>
-                    )}
-                    {(req.status === 'pending' || req.status === 'payment_pending') && (
-                      <button
-                        onClick={() => handleOpenAction(req, 'rejected')}
+                        onClick={() => handleOpenAction(req, 'reject')}
                         className="text-red-600 font-semibold"
                       >
                         Reject
+                      </button>
+                    )}
+                    {req.status === 'approved' && (
+                      <button
+                        onClick={() => handleOpenAction(req, 'edit')}
+                        className="text-blue-600 font-semibold"
+                      >
+                        Edit
                       </button>
                     )}
                     {req.status === 'rejected' && (
@@ -240,7 +253,7 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No requests found.</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">No requests found.</td>
                 </tr>
               )}
             </tbody>
@@ -286,50 +299,36 @@ export default function SoloSessionsAdminClient({ initialRequests, coaches, isSu
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-bold">
-                {(() => {
-                  const currentRequest = requests.find(r => r.id === responseData.id)
-                  if (currentRequest?.status === 'paid') {
-                    return 'Edit Session'
-                  }
-                  return responseData.status === 'rejected' ? 'Reject Request' : 'Approve / Edit'
-                })()}
+                {actionMode === 'reject' ? 'Reject Request' : actionMode === 'approve' ? 'Approve Request' : 'Edit Session'}
               </h3>
               <button onClick={() => setResponseData({ id: null, status: 'payment_pending', meeting_link: '', admin_reason: '', scheduled_time: '' })} className="text-gray-500 text-2xl">✕</button>
             </div>
 
-            {(() => {
-              const currentRequest = requests.find(r => r.id === responseData.id)
-              const isPaidSession = currentRequest?.status === 'paid'
-              
-              if (isPaidSession || responseData.status === 'payment_pending') {
-                return (
-                  <>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Meeting Link {!isPaidSession ? '*' : ''}
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border rounded-lg p-3 mb-3"
-                      value={responseData.meeting_link}
-                      onChange={(e) => setResponseData({ ...responseData, meeting_link: e.target.value })}
-                    />
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Scheduled Time</label>
-                    <input
-                      type="datetime-local"
-                      className="w-full border rounded-lg p-3 mb-3"
-                      value={responseData.scheduled_time}
-                      onChange={(e) => setResponseData({ ...responseData, scheduled_time: e.target.value })}
-                    />
-                    {isPaidSession && (
-                      <p className="text-sm text-gray-600 mb-3">
-                        Note: Editing will only update the meeting link and scheduled time. The status will remain "paid".
-                      </p>
-                    )}
-                  </>
-                )
-              }
-              return null
-            })()}
+            {(actionMode === 'approve' || actionMode === 'edit') && (
+              <>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meeting Link <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded-lg p-3 mb-3"
+                  value={responseData.meeting_link}
+                  onChange={(e) => setResponseData({ ...responseData, meeting_link: e.target.value })}
+                />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Scheduled Time</label>
+                <input
+                  type="datetime-local"
+                  className="w-full border rounded-lg p-3 mb-3"
+                  value={responseData.scheduled_time}
+                  onChange={(e) => setResponseData({ ...responseData, scheduled_time: e.target.value })}
+                />
+                {actionMode === 'edit' && requests.find(r => r.id === responseData.id)?.status === 'paid' && (
+                  <p className="text-sm text-gray-600 mb-3">
+                    Note: Status will remain &quot;paid&quot;. Only link and time are updated.
+                  </p>
+                )}
+              </>
+            )}
 
             {responseData.status === 'rejected' && (
               <>

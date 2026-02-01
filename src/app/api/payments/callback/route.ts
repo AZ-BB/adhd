@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdminServerClient } from '@/lib/server'
 import { revalidatePath } from 'next/cache'
-import { handleSuccessfulPayment, markSoloSessionPaidIfNeeded } from '@/lib/payment-success'
+import { handleSuccessfulPayment, fulfillSoloSessionPayment } from '@/lib/payment-success'
 
 export const runtime = 'nodejs'
 
-// (handleSuccessfulPayment and markSoloSessionPaidIfNeeded are imported from @/lib/payment-success)
+// (handleSuccessfulPayment and fulfillSoloSessionPayment are imported from @/lib/payment-success)
 
 /**
  * GET /api/payments/callback
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
               })
               console.log('Subscription creation result:', subscriptionResult)
 
-              await markSoloSessionPaidIfNeeded(supabase, { ...payment, status: 'success' })
+              await fulfillSoloSessionPayment(supabase, { ...payment, status: 'success' })
               revalidatePath('/solo-sessions')
               revalidatePath('/solo-sessions/en')
               revalidatePath('/sessions')
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
               await handleSuccessfulPayment(supabase, payment)
             }
             
-            await markSoloSessionPaidIfNeeded(supabase, payment)
+            await fulfillSoloSessionPayment(supabase, payment)
             revalidatePath('/solo-sessions')
             revalidatePath('/solo-sessions/en')
             revalidatePath('/sessions')
