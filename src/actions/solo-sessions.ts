@@ -245,8 +245,8 @@ export async function requestAndPaySoloSession(input: {
   } catch {
     // ignore
   }
-  const amount = isEgypt ? 200 : 12.99
-  const currency = isEgypt ? 'EGP' : 'USD'
+  const amount = isEgypt ? 200 : 50
+  const currency = isEgypt ? 'EGP' : 'AED'
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
@@ -309,9 +309,9 @@ export async function initiateSoloSessionPayment(requestId: number, isEgypt?: bo
     }
   }
   
-  // Stripe supports EGP and USD
-  const amount = userIsEgypt ? "200" : "12.99"
-  const currency = userIsEgypt ? "EGP" : "USD"
+  // Egypt: 200 EGP; outside Egypt: 50 AED
+  const amount = userIsEgypt ? "200" : "50"
+  const currency = userIsEgypt ? "EGP" : "AED"
 
   // Create payment directly (no HTTP request needed)
   const { createPayment } = await import('@/lib/payments')
@@ -328,8 +328,8 @@ export async function initiateSoloSessionPayment(requestId: number, isEgypt?: bo
     baseUrl,
   })
   
-  const displayCurrency = userIsEgypt ? 'EGP' : 'USD'
-  const displayAmount = userIsEgypt ? '200' : '12.99'
+  const displayCurrency = userIsEgypt ? 'EGP' : 'AED'
+  const displayAmount = userIsEgypt ? '200' : '50'
   const redirectUrl = `/payment/checkout?paymentId=${data.paymentId}&soloSessionRequestId=${requestId}&subscriptionType=individual_session&amount=${displayAmount}&currency=${displayCurrency}`
 
   return { 

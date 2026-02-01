@@ -52,10 +52,9 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
     detectLocation()
   }, [])
 
-  // Calculate price based on location
-  // Egypt: 200 EGP, International: 12.99 USD (will be converted to 649.5 EGP for Paymob)
-  const sessionPrice = isEgypt ? 200 : 12.99
-  const sessionCurrency = isEgypt ? 'EGP' : 'USD'
+  // Calculate price based on location: Egypt 200 EGP, outside Egypt 50 AED
+  const sessionPrice = isEgypt ? 200 : 50
+  const sessionCurrency = isEgypt ? 'EGP' : 'AED'
 
   const t = {
     title: isRtl ? 'جلسات فردية (1 إلى 1)' : '1:1 Solo Sessions',

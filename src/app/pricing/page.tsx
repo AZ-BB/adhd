@@ -84,13 +84,13 @@ export default function PricingPage() {
 
     if (!isAuthenticated) {
       // Redirect to login with return URL
-      const currencyCode = isEgypt ? 'EGP' : 'USD'
+      const currencyCode = isEgypt ? 'EGP' : 'AED'
       router.push(`/auth/login?redirect=/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${currencyCode}`)
       return
     }
 
     // Redirect to payment checkout
-    const currencyCode = isEgypt ? 'EGP' : 'USD'
+    const currencyCode = isEgypt ? 'EGP' : 'AED'
     router.push(`/payment/checkout?packageId=${pkg.id}&subscriptionType=${subscriptionType}&amount=${pkg.price}&currency=${currencyCode}`)
   }
 
@@ -133,9 +133,9 @@ export default function PricingPage() {
         "تتبع التقدم",
         "دعم فني متواصل"
       ],
-      originalPrice: isEgypt ? "600" : "32",
-      price: isEgypt ? "299" : "16",
-      currency: isEgypt ? "جنيه مصري" : "دولار أمريكي",
+      originalPrice: isEgypt ? "600" : "72",
+      price: isEgypt ? "299" : "60",
+      currency: isEgypt ? "جنيه مصري" : "درهم إماراتي",
       period: "شهرياً",
       popular: false
     },
@@ -154,9 +154,9 @@ export default function PricingPage() {
         "تدريب على الالتزام، الانتظار، والتفاعل الإيجابي",
         "⭐ الخطة الموصى بها لمعظم الأطفال"
       ],
-      originalPrice: isEgypt ? "1300" : "120",
-      price: isEgypt ? "650" : "60",
-      currency: isEgypt ? "جنيه مصري" : "دولار أمريكي",
+      originalPrice: isEgypt ? "1300" : "264",
+      price: isEgypt ? "650" : "220",
+      currency: isEgypt ? "جنيه مصري" : "درهم إماراتي",
       period: isEgypt ? "لفترة محدودة" : "شهرياً",
       popular: true,
       suitableFor: [
@@ -400,10 +400,10 @@ export default function PricingPage() {
             <div className="text-center border-t border-sky-200 pt-6">
               <div className="mb-4">
                 <span className="text-xl text-sky-400 line-through">
-                  {isEgypt ? "400" : "25.98"}
+                  {isEgypt ? "400" : "100"}
                 </span>
                 <span className="text-sm text-sky-400 mr-1">
-                  {isEgypt ? "جنيه مصري" : "دولار أمريكي"}
+                  {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
                 </span>
               </div>
               <div className="flex items-center justify-center gap-4 text-lg">
@@ -411,10 +411,10 @@ export default function PricingPage() {
                   سعر الجلسة الفردية:
                 </span>
                 <span className="text-3xl font-extrabold text-sky-600">
-                  {isEgypt ? "200" : "12.99"}
+                  {isEgypt ? "200" : "50"}
                 </span>
                 <span className="text-sky-700">
-                  {isEgypt ? "جنيه مصري" : "دولار أمريكي"}
+                  {isEgypt ? "جنيه مصري" : "درهم إماراتي"}
                 </span>
               </div>
             </div>
