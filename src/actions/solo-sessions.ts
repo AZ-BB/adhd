@@ -217,11 +217,14 @@ export async function respondSoloSessionRequest(
 }
 
 // User: request + pay in one step (new flow). Creates payment with metadata; request is created after payment success.
+// Pass isEgypt from client (client detects via ipapi.co); server-side ipapi.co would see server IP, not user's.
 export async function requestAndPaySoloSession(input: {
   coach_id: number | null
   preferred_time: string
   contact_phone: string
   notes?: string
+  /** Client-detected: true if user is in Egypt (for EGP). Omit to fall back to server/Vercel geo. */
+  isEgypt?: boolean
 }) {
   const { supabase, userProfile } = await getCurrentUserProfile()
 
@@ -237,13 +240,18 @@ export async function requestAndPaySoloSession(input: {
     )
   }
 
-  let isEgypt = false
-  try {
-    const locationResponse = await fetch('https://ipapi.co/json/')
-    const locationData = await locationResponse.json()
-    if (locationData.country_code === 'EG') isEgypt = true
-  } catch {
-    // ignore
+  let isEgypt: boolean
+  if (typeof input.isEgypt === 'boolean') {
+    isEgypt = input.isEgypt
+  } else {
+    // Fallback: Vercel sets x-vercel-ip-country to user's country; server-side ipapi.co sees server IP
+    try {
+      const { headers } = await import('next/headers')
+      const country = (await headers()).get('x-vercel-ip-country')?.toUpperCase()
+      isEgypt = country === 'EG'
+    } catch {
+      isEgypt = false
+    }
   }
   const amount = isEgypt ? 200 : 50
   const currency = isEgypt ? 'EGP' : 'AED'
@@ -264,7 +272,6 @@ export async function requestAndPaySoloSession(input: {
     },
     baseUrl,
   })
-
   return {
     success: true,
     paymentId: data.paymentId,

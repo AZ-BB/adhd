@@ -111,6 +111,7 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
         preferred_time: new Date(preferredTime).toISOString(),
         contact_phone: phone,
         notes: form.notes || undefined,
+        isEgypt: isEgypt ?? false,
       })
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl
