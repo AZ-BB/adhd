@@ -9,20 +9,29 @@ function PaymentResultContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [subscriptionType, setSubscriptionType] = useState<string | null>(
+    searchParams.get("subscriptionType")
+  )
   const status = searchParams.get("status")
   const orderId = searchParams.get("orderId")
   const transactionId = searchParams.get("transactionId")
+  const sessionId = searchParams.get("session_id")
 
   useEffect(() => {
-    // Check payment status after a short delay to allow webhook to process
-    if (status === "success") {
-      const timer = setTimeout(() => {
-        setLoading(false)
-      }, 2000)
-      return () => clearTimeout(timer)
-    } else {
-      setLoading(false)
+    if (status === "success" && sessionId && !subscriptionType) {
+      fetch(`/api/payments/session-details?session_id=${encodeURIComponent(sessionId)}`)
+        .then((res) => res.ok ? res.json() : null)
+        .then((data) => data?.subscription_type && setSubscriptionType(data.subscription_type))
+        .catch(() => {})
     }
+  }, [status, sessionId, subscriptionType])
+
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => setLoading(false), 2000)
+      return () => clearTimeout(timer)
+    }
+    setLoading(false)
   }, [status])
 
   if (loading && status === "success") {
@@ -52,7 +61,7 @@ function PaymentResultContent() {
               Payment Successful!
             </h1>
             <p className="text-sky-700 mb-6">
-              {searchParams.get("subscriptionType") === "individual_session"
+              {(subscriptionType || searchParams.get("subscriptionType")) === "individual_session"
                 ? "Your payment has been processed successfully. Your individual session request is now paid."
                 : "Your payment has been processed successfully. Your subscription is now active."}
             </p>
@@ -68,10 +77,10 @@ function PaymentResultContent() {
             )}
             <div className="flex flex-col gap-3">
               <Link
-                href={searchParams.get("subscriptionType") === "individual_session" ? "/sessions/en" : "/dashboard"}
+                href={(subscriptionType || searchParams.get("subscriptionType")) === "individual_session" ? "/sessions/en" : "/dashboard"}
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold hover:from-sky-600 hover:to-sky-700 shadow-lg transition-all"
               >
-                {searchParams.get("subscriptionType") === "individual_session" ? "View Sessions" : "Go to Dashboard"}
+                {(subscriptionType || searchParams.get("subscriptionType")) === "individual_session" ? "View Sessions" : "Go to Dashboard"}
               </Link>
               <Link
                 href="/en/pricing"

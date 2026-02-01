@@ -5,7 +5,7 @@ export const runtime = 'nodejs'
 
 /**
  * POST /api/payments/create
- * Create a payment intent with Paymob
+ * Create a payment and Stripe Checkout Session; returns checkoutUrl to redirect the customer.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const statusCode = error.message === 'Unauthorized' ? 401 : 
                       error.message === 'User profile not found' ? 404 : 500
     return NextResponse.json(
-      { error: error.message || 'Failed to create payment intent' },
+      { error: error.message || 'Failed to create payment' },
       { status: statusCode }
     )
   }

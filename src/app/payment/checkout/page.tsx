@@ -22,22 +22,27 @@ function PaymentCheckoutContent() {
 
   useEffect(() => {
     const createPayment = async () => {
-      // If paymentIdParam is provided, payment was already created, just get the iframe URL
+      // If paymentIdParam is provided, payment was already created; get checkout or iframe URL
       if (paymentIdParam) {
         try {
-          // Fetch payment details to get iframe URL
           const response = await fetch(`/api/payments/${paymentIdParam}/iframe`, {
             method: "GET",
           })
           const data = await response.json()
-          if (response.ok && data.iframeUrl) {
-            setIframeUrl(data.iframeUrl)
-            setPaymentId(parseInt(paymentIdParam))
-            setLoading(false)
-            return
+          if (response.ok) {
+            if (data.checkoutUrl) {
+              window.location.href = data.checkoutUrl
+              return
+            }
+            if (data.iframeUrl) {
+              setIframeUrl(data.iframeUrl)
+              setPaymentId(parseInt(paymentIdParam))
+              setLoading(false)
+              return
+            }
           }
         } catch (err) {
-          console.error("Error fetching payment iframe:", err)
+          console.error("Error fetching payment URL:", err)
         }
       }
 
@@ -83,8 +88,12 @@ function PaymentCheckoutContent() {
           throw new Error(data.error || "Failed to create payment")
         }
 
-        setIframeUrl(data.iframeUrl)
-        setPaymentId(data.paymentId)
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl
+          return
+        }
+        setIframeUrl(data.iframeUrl ?? null)
+        setPaymentId(data.paymentId ?? null)
         setLoading(false)
       } catch (err: any) {
         console.error("Payment creation error:", err)

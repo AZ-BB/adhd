@@ -252,10 +252,9 @@ export async function initiateSoloSessionPayment(requestId: number, isEgypt?: bo
     }
   }
   
-  // Paymob only supports EGP, so we always use EGP
-  // Egypt: 200 EGP, International: 12.99 USD = 649.5 EGP (12.99 * 50)
-  const amount = userIsEgypt ? "200" : "649.5" // Use EGP equivalent for international (12.99 USD * 50)
-  const currency = "EGP" // Paymob only supports EGP
+  // Stripe supports EGP and USD
+  const amount = userIsEgypt ? "200" : "12.99"
+  const currency = userIsEgypt ? "EGP" : "USD"
 
   // Create payment directly (no HTTP request needed)
   const { createPayment } = await import('@/lib/payments')
@@ -272,8 +271,6 @@ export async function initiateSoloSessionPayment(requestId: number, isEgypt?: bo
     baseUrl,
   })
   
-  // Return redirect URL for client to handle
-  // Use the original currency for display (EGP for Egypt, USD for international)
   const displayCurrency = userIsEgypt ? 'EGP' : 'USD'
   const displayAmount = userIsEgypt ? '200' : '12.99'
   const redirectUrl = `/payment/checkout?paymentId=${data.paymentId}&soloSessionRequestId=${requestId}&subscriptionType=individual_session&amount=${displayAmount}&currency=${displayCurrency}`
@@ -281,7 +278,7 @@ export async function initiateSoloSessionPayment(requestId: number, isEgypt?: bo
   return { 
     success: true, 
     paymentId: data.paymentId, 
-    iframeUrl: data.iframeUrl,
+    checkoutUrl: data.checkoutUrl,
     redirectUrl 
   }
 }

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/server'
-import { getPaymobIframeUrl } from '@/lib/paymob'
 
 export const runtime = 'nodejs'
 
 /**
  * GET /api/payments/[paymentId]/iframe
- * Get the iframe URL for an existing payment
+ * Get checkout URL (Stripe) or iframe URL (legacy Paymob) for an existing payment
  */
 export async function GET(
   request: NextRequest,
@@ -54,7 +53,7 @@ export async function GET(
     // Get payment record
     const { data: payment, error: paymentError } = await supabase
       .from('payments')
-      .select('id, metadata, paymob_order_id')
+      .select('id, metadata')
       .eq('id', paymentId)
       .eq('user_id', userProfile.id)
       .maybeSingle()
@@ -66,24 +65,32 @@ export async function GET(
       )
     }
 
-    // Get payment token from metadata
-    const paymentToken = payment.metadata?.payment_token
-
-    if (!paymentToken) {
-      return NextResponse.json(
-        { error: 'Payment token not found' },
-        { status: 404 }
-      )
+    // Stripe: return checkout URL from metadata
+    const checkoutUrl = payment.metadata?.stripe_checkout_url
+    if (checkoutUrl) {
+      return NextResponse.json({
+        success: true,
+        checkoutUrl,
+        paymentId: payment.id,
+      })
     }
 
-    // Generate iframe URL
-    const iframeUrl = getPaymobIframeUrl(paymentToken)
+    // Legacy Paymob: return iframe URL from payment token
+    const paymentToken = payment.metadata?.payment_token
+    if (paymentToken) {
+      const { getPaymobIframeUrl } = await import('@/lib/paymob')
+      const iframeUrl = getPaymobIframeUrl(paymentToken)
+      return NextResponse.json({
+        success: true,
+        iframeUrl,
+        paymentId: payment.id,
+      })
+    }
 
-    return NextResponse.json({
-      success: true,
-      iframeUrl,
-      paymentId: payment.id,
-    })
+    return NextResponse.json(
+      { error: 'Payment URL not found' },
+      { status: 404 }
+    )
   } catch (error: any) {
     console.error('Error fetching payment iframe:', error)
     return NextResponse.json(

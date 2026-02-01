@@ -98,7 +98,7 @@ export default function PaymentsSubscriptionsClient({ initialPayments, initialSu
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Type</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Amount</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Paymob Order ID</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Payment ID (Stripe / Paymob)</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Created</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Paid At</th>
                 </tr>
@@ -140,7 +140,7 @@ export default function PaymentsSubscriptionsClient({ initialPayments, initialSu
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-400 font-mono">
-                        {payment.paymob_order_id || 'N/A'}
+                        {payment.stripe_checkout_session_id ? `Stripe: ${payment.stripe_checkout_session_id.slice(0, 24)}…` : payment.paymob_order_id || 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-400">
                         {formatDate(payment.created_at)}
@@ -220,9 +220,9 @@ export default function PaymentsSubscriptionsClient({ initialPayments, initialSu
                         {subscription.payment ? (
                           <div>
                             <div className="font-mono">#{subscription.payment.id}</div>
-                            {subscription.payment.paymob_order_id && (
+                            {(subscription.payment.stripe_checkout_session_id || subscription.payment.paymob_order_id) && (
                               <div className="text-xs text-gray-500">
-                                Order: {subscription.payment.paymob_order_id}
+                                {subscription.payment.stripe_checkout_session_id ? `Stripe: ${subscription.payment.stripe_checkout_session_id.slice(0, 20)}…` : `Order: ${subscription.payment.paymob_order_id}`}
                               </div>
                             )}
                           </div>

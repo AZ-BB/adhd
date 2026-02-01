@@ -663,6 +663,7 @@ export interface PaymentWithUser {
   user_id: number
   paymob_order_id: string | null
   paymob_transaction_id: string | null
+  stripe_checkout_session_id?: string | null
   amount: number
   currency: string
   status: 'pending' | 'processing' | 'success' | 'failed' | 'cancelled' | 'refunded'
@@ -703,6 +704,7 @@ export interface SubscriptionWithUser {
     id: number
     paymob_order_id: string | null
     paymob_transaction_id: string | null
+    stripe_checkout_session_id?: string | null
   } | null
 }
 
@@ -759,7 +761,8 @@ export async function getAllSubscriptions(): Promise<SubscriptionWithUser[]> {
       payment:payments (
         id,
         paymob_order_id,
-        paymob_transaction_id
+        paymob_transaction_id,
+        stripe_checkout_session_id
       )
     `)
     .order("created_at", { ascending: false })

@@ -2,7 +2,7 @@
 
 import { createSupabaseServerClient } from '@/lib/server'
 import { createSupabaseAdminServerClient } from '@/lib/server'
-import { createPaymentIntent } from '@/lib/paymob'
+import { createCheckoutSession } from '@/lib/stripe'
 
 export interface CreatePaymentParams {
   packageId?: number | null
@@ -13,27 +13,11 @@ export interface CreatePaymentParams {
   baseUrl?: string
 }
 
-// Paymob only supports EGP, so we convert other currencies to EGP
-// Conversion rate: 1 USD = 50 EGP (approximate)
-const USD_TO_EGP_RATE = 50
-
 export async function createPayment(params: CreatePaymentParams) {
-  let { packageId, subscriptionType, amount, currency, soloSessionRequestId, baseUrl } = params
-  
-  // Paymob only supports EGP, convert if needed
-  const originalCurrency = currency.toUpperCase()
-  const originalAmount = amount
-  
-  if (currency.toUpperCase() === 'USD') {
-    // Convert USD to EGP (approximate rate: 1 USD = 50 EGP)
-    amount = amount * USD_TO_EGP_RATE
-    currency = 'EGP'
-  } else if (currency.toUpperCase() !== 'EGP') {
-    // If currency is not EGP or USD, default to EGP (Paymob requirement)
-    currency = 'EGP'
-  } else {
-    currency = 'EGP'
-  }
+  const { packageId, subscriptionType, amount, currency, soloSessionRequestId, baseUrl } = params
+
+  // Stripe supports USD, EGP, and many other currencies - use as provided
+  const currencyUpper = currency.toUpperCase()
 
   // Validate input
   if (subscriptionType === 'individual_session') {
@@ -70,25 +54,24 @@ export async function createPayment(params: CreatePaymentParams) {
 
   // Create payment record in database
   const adminSupabase = await createSupabaseAdminServerClient()
-  const paymentData: any = {
+  const paymentData: Record<string, unknown> = {
     user_id: userProfile.id,
     amount: parseFloat(amount.toString()),
-    currency: currency.toUpperCase(), // Store EGP (Paymob requirement)
+    currency: currencyUpper,
     status: 'pending',
     subscription_type: subscriptionType,
     package_id: subscriptionType === 'individual_session' ? null : packageId,
     metadata: {
       subscription_type: subscriptionType,
-      original_currency: originalCurrency, // Store original currency for reference
-      original_amount: originalAmount, // Store original amount before conversion
+      original_currency: currencyUpper,
+      original_amount: amount,
     },
   }
 
-  // Add solo session request ID to metadata if this is for an individual session
   if (subscriptionType === 'individual_session' && soloSessionRequestId) {
-    paymentData.metadata.solo_session_request_id = soloSessionRequestId
-  } else if (packageId) {
-    paymentData.metadata.package_id = packageId
+    (paymentData.metadata as Record<string, unknown>).solo_session_request_id = soloSessionRequestId
+  } else if (packageId != null) {
+    (paymentData.metadata as Record<string, unknown>).package_id = packageId
   }
 
   const { data: payment, error: paymentError } = await adminSupabase
@@ -102,49 +85,43 @@ export async function createPayment(params: CreatePaymentParams) {
     throw new Error('Failed to create payment record')
   }
 
-  // Generate merchant order ID
-  const merchantOrderId = `ORDER-${payment.id}-${Date.now()}`
+  const origin = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const successUrl = `${origin}/payment/result?status=success&session_id={CHECKOUT_SESSION_ID}`
+  const cancelUrl = `${origin}/payment/result?status=cancelled`
 
-  // Prepare billing data (Paymob requires all fields)
-  const billingData = {
-    first_name: userProfile.parent_first_name || userProfile.child_first_name || 'User',
-    last_name: userProfile.parent_last_name || userProfile.child_last_name || 'Name',
-    email: user.email || '',
-    phone_number: userProfile.parent_phone || '0000000000',
-    country: 'EG', // Default to Egypt, can be made dynamic
-    city: 'Cairo',
-    street: 'N/A', // Required by Paymob
-    building: 'N/A', // Required by Paymob
-    floor: 'N/A', // Required by Paymob
-    apartment: 'N/A', // Required by Paymob
-  }
+  const lineItemLabel =
+    subscriptionType === 'individual_session'
+      ? '1:1 Session - MovoKids'
+      : subscriptionType === 'games'
+        ? 'Games Package - MovoKids'
+        : 'Group Sessions Package - MovoKids'
 
-  // Create payment intent with Paymob
-  const paymentIntent = await createPaymentIntent({
+  const { sessionId, url: checkoutUrl } = await createCheckoutSession({
+    paymentId: payment.id,
     amount: parseFloat(amount.toString()),
-    currency: currency.toUpperCase(),
-    integration_id: parseInt(process.env.PAYMOB_INTEGRATION_ID!),
-    order_id: merchantOrderId,
-    billing_data: billingData,
+    currency: currencyUpper,
+    customerEmail: user.email || '',
+    successUrl,
+    cancelUrl,
     metadata: {
-      payment_id: payment.id,
-      user_id: userProfile.id,
       subscription_type: subscriptionType,
-      ...(subscriptionType === 'individual_session' && soloSessionRequestId 
+      user_id: userProfile.id,
+      ...(subscriptionType === 'individual_session' && soloSessionRequestId != null
         ? { solo_session_request_id: soloSessionRequestId }
-        : { package_id: packageId }),
+        : {}),
+      ...(packageId != null ? { package_id: packageId } : {}),
     },
-  }, baseUrl)
+    lineItemLabel,
+  })
 
-  // Update payment record with Paymob order ID
+  // Store Stripe session ID and URL in payment metadata (stripe_checkout_session_id column set by webhook after migration)
   await adminSupabase
     .from('payments')
     .update({
-      paymob_order_id: paymentIntent.orderId.toString(),
       metadata: {
-        ...payment.metadata,
-        paymob_order_id: paymentIntent.orderId,
-        payment_token: paymentIntent.paymentToken,
+        ...(payment.metadata as Record<string, unknown>),
+        stripe_checkout_session_id: sessionId,
+        stripe_checkout_url: checkoutUrl,
       },
     })
     .eq('id', payment.id)
@@ -152,8 +129,7 @@ export async function createPayment(params: CreatePaymentParams) {
   return {
     success: true,
     paymentId: payment.id,
-    iframeUrl: paymentIntent.iframeUrl,
-    paymentToken: paymentIntent.paymentToken,
-    orderId: paymentIntent.orderId,
+    checkoutUrl,
+    sessionId,
   }
 }
