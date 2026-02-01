@@ -114,25 +114,46 @@ export async function fulfillSoloSessionPayment(
 ): Promise<void> {
   if (payment.subscription_type !== 'individual_session') return
 
-  const meta = payment.metadata || {}
+  // Metadata may come back as object or JSON string from DB
+  const rawMeta = payment.metadata
+  const meta =
+    typeof rawMeta === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(rawMeta) as Record<string, unknown>
+          } catch {
+            return {}
+          }
+        })()
+      : (rawMeta && typeof rawMeta === 'object' ? rawMeta : {}) as Record<string, unknown>
 
   // New flow: create request from payment metadata (coach_id, preferred_time, contact_phone)
   if (meta.coach_id != null || meta.preferred_time || meta.contact_phone) {
+    const { data: existing } = await supabase
+      .from('solo_session_requests')
+      .select('id')
+      .eq('payment_id', payment.id)
+      .maybeSingle()
+    if (existing) return // already created (idempotent for webhook retries)
+
     const preferredTime = meta.preferred_time
-      ? new Date(meta.preferred_time).toISOString()
-      : new Date().toISOString() // fallback
+      ? new Date(String(meta.preferred_time)).toISOString()
+      : new Date().toISOString()
     const duration = 38
     const { error } = await supabase.from('solo_session_requests').insert({
       user_id: payment.user_id,
-      coach_id: meta.coach_id ? parseInt(String(meta.coach_id), 10) : null,
+      coach_id: meta.coach_id != null && meta.coach_id !== '' ? parseInt(String(meta.coach_id), 10) : null,
       preferred_time: preferredTime,
       duration_minutes: duration,
-      notes: meta.notes || null,
-      contact_phone: meta.contact_phone || null,
+      notes: (meta.notes as string) || null,
+      contact_phone: (meta.contact_phone as string) || null,
       payment_id: payment.id,
       status: 'pending',
     })
-    if (error) console.error('Create solo session request from payment:', error)
+    if (error) {
+      console.error('Create solo session request from payment:', error)
+      throw new Error(`Failed to create solo session request: ${error.message}`)
+    }
     return
   }
 

@@ -138,16 +138,29 @@ export async function createPayment(params: CreatePaymentParams) {
     lineItemLabel,
   })
 
-  // Store Stripe session ID and URL in payment metadata (stripe_checkout_session_id column set by webhook after migration)
+  // Store Stripe session ID and URL in payment metadata (build full metadata so we don't depend on insert return shape)
+  const updatedMetadata: Record<string, unknown> = {
+    subscription_type: subscriptionType,
+    original_currency: currencyUpper,
+    original_amount: amount,
+    stripe_checkout_session_id: sessionId,
+    stripe_checkout_url: checkoutUrl,
+  }
+  if (subscriptionType === 'individual_session') {
+    if (soloSessionRequestId != null) {
+      updatedMetadata.solo_session_request_id = soloSessionRequestId
+    } else if (soloSessionRequestAndPay) {
+      updatedMetadata.coach_id = soloSessionRequestAndPay.coach_id
+      updatedMetadata.preferred_time = soloSessionRequestAndPay.preferred_time
+      updatedMetadata.contact_phone = soloSessionRequestAndPay.contact_phone
+      if (soloSessionRequestAndPay.notes) updatedMetadata.notes = soloSessionRequestAndPay.notes
+    }
+  } else if (packageId != null) {
+    updatedMetadata.package_id = packageId
+  }
   await adminSupabase
     .from('payments')
-    .update({
-      metadata: {
-        ...(payment.metadata as Record<string, unknown>),
-        stripe_checkout_session_id: sessionId,
-        stripe_checkout_url: checkoutUrl,
-      },
-    })
+    .update({ metadata: updatedMetadata })
     .eq('id', payment.id)
 
   return {
