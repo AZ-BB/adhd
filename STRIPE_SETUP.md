@@ -29,6 +29,8 @@ npx supabase migration up
 
 This adds `stripe_checkout_session_id` (and optional `stripe_payment_intent_id`) to `payments`. Existing Paymob columns are kept for old data.
 
+**Solo session “request + pay” flow:** Also run the migration that adds `contact_phone` and `payment_id` to `solo_session_requests` (`supabase/migrations/20251229000000_solo_session_request_and_pay.sql`). Without it, the webhook will return 500 when creating a solo session request after payment. Apply via Supabase SQL Editor or `supabase db push`.
+
 ## Webhook configuration
 
 1. In Stripe Dashboard go to **Developers → Webhooks**.

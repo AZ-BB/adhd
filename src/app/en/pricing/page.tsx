@@ -116,9 +116,9 @@ export default function PricingPageEn() {
         "Unlimited access",
         "Continuous technical support"
       ],
-      originalPrice: isEgypt ? "600" : "72",
-      price: isEgypt ? "299" : "60",
-      currency: isEgypt ? "EGP" : "AED",
+      originalPrice: isEgypt ? "600" : "32",
+      price: isEgypt ? "299" : "16",
+      currency: isEgypt ? "EGP" : "USD",
       period: "Monthly",
       popular: false
     },
@@ -134,9 +134,9 @@ export default function PricingPageEn() {
         "Progress tracking",
         "Continuous technical support"
       ],
-      originalPrice: isEgypt ? "1300" : "264",
-      price: isEgypt ? "650" : "220",
-      currency: isEgypt ? "EGP" : "AED",
+      originalPrice: isEgypt ? "1300" : "120",
+      price: isEgypt ? "650" : "60",
+      currency: isEgypt ? "EGP" : "USD",
       period: isEgypt ? "Limited time offer" : "Monthly",
       popular: true
     }
@@ -332,10 +332,10 @@ export default function PricingPageEn() {
             <div className="flex flex-col items-center justify-center gap-2">
               <div className="mb-1">
                 <span className="text-xl text-sky-400 line-through">
-                  {isEgypt ? "400" : "100"}
+                  {isEgypt ? "400" : "25.98"}
                 </span>
                 <span className="text-sm text-sky-400 ml-1">
-                  {isEgypt ? "EGP" : "AED"}
+                  {isEgypt ? "EGP" : "USD"}
                 </span>
               </div>
               <div className="flex items-center justify-center gap-4 text-lg">
@@ -343,10 +343,10 @@ export default function PricingPageEn() {
                   Individual session price:
                 </span>
                 <span className="text-2xl font-extrabold text-sky-600">
-                  {isEgypt ? "200" : "50"}
+                  {isEgypt ? "200" : "12.99"}
                 </span>
                 <span className="text-sky-700">
-                  {isEgypt ? "EGP" : "AED"}
+                  {isEgypt ? "EGP" : "USD"}
                 </span>
               </div>
             </div>

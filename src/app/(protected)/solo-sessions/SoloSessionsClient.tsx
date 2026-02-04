@@ -52,9 +52,9 @@ export default function SoloSessionsClient({ coaches, initialRequests, isRtl }: 
     detectLocation()
   }, [])
 
-  // Calculate price based on location: Egypt 200 EGP, outside Egypt 50 AED
-  const sessionPrice = isEgypt ? 200 : 50
-  const sessionCurrency = isEgypt ? 'EGP' : 'AED'
+  // Calculate price based on location: Egypt 200 EGP, outside Egypt 12.99 USD
+  const sessionPrice = isEgypt ? 200 : 12.99
+  const sessionCurrency = isEgypt ? 'EGP' : 'USD'
 
   const t = {
     title: isRtl ? 'جلسات فردية (1 إلى 1)' : '1:1 Solo Sessions',
